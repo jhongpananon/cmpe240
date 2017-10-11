@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        10/10/2017  19:20:46  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/10/2017  19:42:16  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -6,12 +6,12 @@ C:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\main.obj TO .\Objects\keil_project PRINT (
 >> 6)
 
 
-MEMORY MODEL: SMALL
+MEMORY MODEL: LARGE
 
 
 INPUT MODULES INCLUDED:
   .\Objects\main.obj (MAIN)
-  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL_V5\C51\LIB\C51L.LIB (?C_STARTUP)
 
 
 LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
@@ -26,8 +26,10 @@ LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
-            CODE    0003H     000CH     UNIT         ?C_C51STARTUP
-            CODE    000FH     0002H     UNIT         ?PR?MAIN?MAIN
+                    0003H     07FDH                  *** GAP ***
+            CODE    0800H     000CH     UNIT         ?C_C51STARTUP
+            CODE    080CH     0005H     UNIT         ?PR?MAIN?MAIN
+            CODE    0811H     0004H     UNIT         ?PR?SYSTEMCLOCKINIT?MAIN
 
 
 
@@ -40,6 +42,9 @@ SEGMENT
 ?C_C51STARTUP
   +--> ?PR?MAIN?MAIN
 
+?PR?MAIN?MAIN
+  +--> ?PR?SYSTEMCLOCKINIT?MAIN
+
 
 
 SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
@@ -49,22 +54,31 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
 
   -------         MODULE        MAIN
   C:0000H         SYMBOL        _ICE_DUMMY_
-  C:000FH         PUBLIC        main
+  C:080CH         PUBLIC        main
+  C:0811H         SYMBOL        systemClockInit
+  D:008AH         PUBLIC        OSCICN
   -------         PROC          MAIN
-  C:000FH         LINE#         5
-  C:000FH         LINE#         6
-  C:000FH         LINE#         7
-  C:000FH         LINE#         8
-  C:000FH         LINE#         10
+  C:080CH         LINE#         16
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/10/2017  19:42:16  PAGE 2
+
+
+  C:080CH         LINE#         17
+  C:080CH         LINE#         18
+  C:080FH         LINE#         20
+  C:080FH         LINE#         21
+  C:080FH         LINE#         23
   -------         ENDPROC       MAIN
+  -------         PROC          SYSTEMCLOCKINIT
+  C:0811H         LINE#         26
+  C:0811H         LINE#         27
+  C:0811H         LINE#         28
+  C:0814H         LINE#         29
+  -------         ENDPROC       SYSTEMCLOCKINIT
   -------         ENDMOD        MAIN
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/10/2017  19:20:46  PAGE 2
-
-
 ******************************************************************************
-* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0002H BYTE ( 0%) *
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0009H BYTE ( 0%) *
 ******************************************************************************
 
-Program Size: data=9.0 xdata=0 code=17
+Program Size: data=9.0 xdata=0 code=24
 LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
