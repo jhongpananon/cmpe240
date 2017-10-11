@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        10/10/2017  19:42:16  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/10/2017  20:27:36  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -24,26 +24,47 @@ LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
             REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
             IDATA   0008H     0001H     UNIT         ?STACK
 
+            * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
+            XDATA   0000H     0002H     UNIT         _XDATA_GROUP_
+
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
-                    0003H     07FDH                  *** GAP ***
-            CODE    0800H     000CH     UNIT         ?C_C51STARTUP
-            CODE    080CH     0005H     UNIT         ?PR?MAIN?MAIN
-            CODE    0811H     0004H     UNIT         ?PR?SYSTEMCLOCKINIT?MAIN
+                    0003H     0020H                  *** GAP ***
+            CODE    0023H     0003H     ABSOLUTE     
+                    0026H     07DAH                  *** GAP ***
+            CODE    0800H     002EH     UNIT         ?PR?PORTIOINIT?MAIN
+            CODE    082EH     0019H     UNIT         ?PR?TIMERINIT?MAIN
+            CODE    0847H     0012H     UNIT         ?PR?SYSTEMCLOCKINIT?MAIN
+            CODE    0859H     0011H     UNIT         ?PR?MAIN?MAIN
+            CODE    086AH     000CH     UNIT         ?C_C51STARTUP
+            CODE    0876H     000AH     UNIT         ?PR?UARTINIT?MAIN
+            CODE    0880H     0004H     UNIT         ?PR?INTERRUPTSINIT?MAIN
+            CODE    0884H     0001H     UNIT         ?PR?UART0INTERRUPT?MAIN
 
 
 
 OVERLAY MAP OF MODULE:   .\Objects\keil_project (MAIN)
 
 
-SEGMENT
-  +--> CALLED SEGMENT
----------------------
-?C_C51STARTUP
+SEGMENT                            XDATA_GROUP
+  +--> CALLED SEGMENT            START    LENGTH
+------------------------------------------------
+?C_C51STARTUP                    -----    -----
   +--> ?PR?MAIN?MAIN
 
-?PR?MAIN?MAIN
+?PR?MAIN?MAIN                    -----    -----
   +--> ?PR?SYSTEMCLOCKINIT?MAIN
+  +--> ?PR?PORTIOINIT?MAIN
+  +--> ?PR?TIMERINIT?MAIN
+  +--> ?PR?UARTINIT?MAIN
+  +--> ?PR?INTERRUPTSINIT?MAIN
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/10/2017  20:27:36  PAGE 2
+
+
+?PR?SYSTEMCLOCKINIT?MAIN         0000H    0002H
+
+?PR?PORTIOINIT?MAIN              0000H    0001H
 
 
 
@@ -54,31 +75,125 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
 
   -------         MODULE        MAIN
   C:0000H         SYMBOL        _ICE_DUMMY_
-  C:080CH         PUBLIC        main
-  C:0811H         SYMBOL        systemClockInit
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C8H         PUBLIC        P4
+  D:00D8H         PUBLIC        P5
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:0084H         PUBLIC        SFRPAGE
+  D:00A4H         PUBLIC        P0MDOUT
+  D:00A8H         PUBLIC        IE
+  C:082EH         PUBLIC        TimerInit
+  D:00E1H         PUBLIC        XBR0
+  D:00E2H         PUBLIC        XBR1
+  D:00E3H         PUBLIC        XBR2
+  D:00CBH         PUBLIC        RCAP2H
+  D:00CCH         PUBLIC        TMR2
+  D:00CAH         PUBLIC        RCAP2L
+  C:0859H         PUBLIC        main
+  C:0847H         PUBLIC        systemClockInit
+  D:00C9H         PUBLIC        TMR2CF
+  D:00C8H         PUBLIC        TMR2CN
   D:008AH         PUBLIC        OSCICN
-  -------         PROC          MAIN
-  C:080CH         LINE#         16
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/10/2017  19:42:16  PAGE 2
+  C:0884H         PUBLIC        uart0Interrupt
+  C:0876H         PUBLIC        UARTInit
+  D:00CAH         PUBLIC        RCAP2
+  C:0880H         PUBLIC        InterruptsInit
+  D:0098H         PUBLIC        SCON0
+  D:0091H         PUBLIC        SSTA0
+  C:0800H         PUBLIC        portIOInit
+  -------         PROC          PORTIOINIT
+  -------         DO            
+  X:0000H         SYMBOL        SFRPAGE_SAVE
+  -------         ENDDO         
+  C:0800H         LINE#         45
+  C:0800H         LINE#         46
+  C:0800H         LINE#         47
+  C:0806H         LINE#         48
+  C:0809H         LINE#         49
+  C:080CH         LINE#         50
+  C:080FH         LINE#         51
+  C:0812H         LINE#         52
+  C:0815H         LINE#         54
+  C:0818H         LINE#         55
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/10/2017  20:27:36  PAGE 3
 
 
-  C:080CH         LINE#         17
-  C:080CH         LINE#         18
-  C:080FH         LINE#         20
-  C:080FH         LINE#         21
-  C:080FH         LINE#         23
-  -------         ENDPROC       MAIN
+  C:081BH         LINE#         56
+  C:081EH         LINE#         57
+  C:0821H         LINE#         58
+  C:0824H         LINE#         59
+  C:0827H         LINE#         60
+  C:082AH         LINE#         61
+  C:082DH         LINE#         62
+  -------         ENDPROC       PORTIOINIT
   -------         PROC          SYSTEMCLOCKINIT
-  C:0811H         LINE#         26
-  C:0811H         LINE#         27
-  C:0811H         LINE#         28
-  C:0814H         LINE#         29
+  -------         DO            
+  D:0007H         SYMBOL        SFRPAGE_SAVE
+  X:0000H         SYMBOL        i
+  -------         ENDDO         
+  C:0847H         LINE#         64
+  C:0847H         LINE#         65
+  C:0847H         LINE#         66
+  C:0849H         LINE#         67
+  C:0850H         LINE#         68
+  C:0853H         LINE#         69
+  C:0856H         LINE#         70
+  C:0858H         LINE#         71
   -------         ENDPROC       SYSTEMCLOCKINIT
+  -------         PROC          TIMERINIT
+  C:082EH         LINE#         73
+  C:082EH         LINE#         74
+  C:082EH         LINE#         75
+  C:0831H         LINE#         76
+  C:0834H         LINE#         77
+  C:0837H         LINE#         78
+  C:083AH         LINE#         79
+  C:083DH         LINE#         80
+  C:0843H         LINE#         81
+  C:0846H         LINE#         82
+  -------         ENDPROC       TIMERINIT
+  -------         PROC          UARTINIT
+  C:0876H         LINE#         84
+  C:0876H         LINE#         85
+  C:0876H         LINE#         86
+  C:0879H         LINE#         87
+  C:087CH         LINE#         88
+  C:087FH         LINE#         89
+  -------         ENDPROC       UARTINIT
+  -------         PROC          INTERRUPTSINIT
+  C:0880H         LINE#         91
+  C:0880H         LINE#         92
+  C:0880H         LINE#         93
+  C:0883H         LINE#         94
+  -------         ENDPROC       INTERRUPTSINIT
+  -------         PROC          UART0INTERRUPT
+  C:0884H         LINE#         96
+  C:0884H         LINE#         99
+  -------         ENDPROC       UART0INTERRUPT
+  -------         PROC          MAIN
+  C:0859H         LINE#         101
+  C:0859H         LINE#         102
+  C:0859H         LINE#         103
+  C:085CH         LINE#         104
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/10/2017  20:27:36  PAGE 4
+
+
+  C:085FH         LINE#         105
+  C:0862H         LINE#         106
+  C:0865H         LINE#         107
+  C:0868H         LINE#         109
+  C:0868H         LINE#         110
+  C:0868H         LINE#         112
+  -------         ENDPROC       MAIN
   -------         ENDMOD        MAIN
 
 ******************************************************************************
-* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0009H BYTE ( 0%) *
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 007CH BYTE ( 6%) *
 ******************************************************************************
 
-Program Size: data=9.0 xdata=0 code=24
+Program Size: data=9.0 xdata=2 code=139
 LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
