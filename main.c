@@ -6,7 +6,10 @@
 
 
 
-#define SYSTEM_CLOCK        24500000
+#define SYSTEM_CLOCK        24500000        ///< System clock frequency
+
+/// Initialize the IO ports
+static void portIOInit(void);
 
 // Initialize the system clock
 static void systemClockInit(void);
@@ -15,12 +18,19 @@ static void systemClockInit(void);
 
 int main(void)
 {
+    portIOInit();
     systemClockInit();
     
     while(1) 
 	{
         
 	}	
+}
+
+static void portIOInit(void)
+{
+    XBR0 = 0x04;
+    XBR2 = 0x40;
 }
 
 static void systemClockInit(void)
