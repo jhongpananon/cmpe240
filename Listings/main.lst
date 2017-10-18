@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              10/10/2017 20:27:36 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/17/2017 20:34:12 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
@@ -8,136 +8,384 @@ COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(8,SPEED) B
 
 line level    source
 
-   1          #include <c8051F120.h>
-   2          #include <stdio.h>
+   1          #include <c8051f120.h>
+   2          #include <stdio.h> 
    3          #include <math.h>
    4          #include <stdlib.h>
    5          #include <string.h>
-   6          
+   6          #include <absacc.h>
    7          
-   8          
-   9          #define SYSTEM_CLOCK        24500000        ///< System clock frequency
-  10          #define BAUD_RATE           115200
-  11          #define RX_BUFFER_SIZE      256
-  12          #define TX_BUFFER_SIZE      256
-  13          
-  14          #define TX_WAIT_LIMIT       100 * (SYSTEM_CLOCK / 1000000)
-  15          #define RX_WAIT_LIMIT       100 * (SYSTEM_CLOCK / 1000000)
-  16          
-  17          sfr16 RCAP2 = 0xCA;
-  18          sfr16 TMR2  = 0xCC;
-  19          sfr16 RCAP3 = 0xCA;
-  20          sfr16 TMR3  = 0xCC;
-  21          sfr16 RCAP4 = 0xCA;
-  22          sfr16 TMR4  = 0xCC;
-  23          sfr16 DAC0  = 0xD2;
-  24          sfr16 DAC1  = 0xD2;
-  25          sfr16 ADC0  = 0xBE;
-  26          sfr16 PCA0  = 0xF9;
-  27          
-  28          #define INTERRUPT_Timer_0           1
-  29          #define INTERRUPT_Timer_1           3
-  30          #define INTERRUPT_UART_0            4
-  31          #define INTERRUPT_Timer_2           5
-  32          #define INTERRUPT_SMB               7
-  33          #define INTERRUPT_CPA               9
-  34          #define INTERRUPT_COMP0_FALLING     10
-  35          #define INTERRUPT_COMP0_RISING      11
-  36          #define INTERRUPT_COMP1_FALLING     12
-  37          #define INTERRUPT_COMP1_RISING      13
-  38          #define INTERRUPT_Timer_3           14
-  39          #define INTERRUPT_Timer_4           16
-  40          #define INTERRUPT_ADC_0             15
-  41          #define INTERRUPT_ADC_2             18
-  42          
-  43          
-  44          
-  45          void portIOInit(void)
-  46          {
-  47   1          char SFRPAGE_SAVE = SFRPAGE;
-  48   1          SFRPAGE = CONFIG_PAGE;
-  49   1          P0MDOUT   = 0x01;
-  50   1          XBR0      = 0x04;
-  51   1          XBR1      = 0x01;
-  52   1          XBR2      = 0xC0;
-  53   1          
-  54   1          P0 = 0xFF;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/10/2017 20:27:36 PAGE 2   
+   8          #include "laser.h"
+   9          #include "motor.h"
+  10          
+  11          #define     SYSTEM_CLOCK                24500000
+  12          #define         BAUD_RATE                           115200
+  13          #define         RX_BUFFER_SIZE              256
+  14          #define         TX_BUFFER_SIZE              256
+  15          
+  16          #define         TX_WAIT_LIMIT                           100 * (SYSTEM_CLOCK / 1000000)          // Waiting limit for TI0 and TI1 flags to be set
+             - (10 microseconds max)
+  17          #define         RX_WAIT_LIMIT                           100 * (SYSTEM_CLOCK / 1000000)          // Waiting limit for TI0 and TI1 flags to be set
+             - (10 microseconds max)
+  18          
+  19          sfr16           RCAP2                                           = 0xCA;                                         // Timer 2 capture/reload
+  20          sfr16           TMR2                                            = 0xCC;                                 // Timer 2
+  21          sfr16           RCAP3                                           = 0xCA;                             // Timer 3 reload registers
+  22          sfr16           TMR3                                            = 0xCC;                             // Timer 3 counter registers
+  23          sfr16           RCAP4                                           = 0xCA;                             // Timer 3 reload registers
+  24          sfr16           TMR4                                            = 0xCC;                                                         // Timer 4
+  25          sfr16           DAC0                                            = 0xD2;                                         // DAC0 data
+  26          sfr16           DAC1                                            = 0xD2;                                         // DAC1 data
+  27          sfr16           ADC0                                            = 0xBE;                                         // ADC0 data
+  28          sfr16           PCA0                                            = 0xF9;                                                         // PCA register
+  29          
+  30          #define         INTERRUPT_Timer_0                       1
+  31          #define         INTERRUPT_Timer_1                       3
+  32          #define         INTERRUPT_UART_0                        4
+  33          #define         INTERRUPT_Timer_2                       5
+  34          #define         INTERRUPT_SMB                           7
+  35          #define         INTERRUPT_CPA                           9
+  36          #define         INTERRUPT_COMP0_FALLING         10
+  37          #define         INTERRUPT_COMP0_RISING          11
+  38          #define         INTERRUPT_COMP1_FALLING         12
+  39          #define         INTERRUPT_COMP1_RISING          13
+  40          #define         INTERRUPT_Timer_3                       14
+  41          #define         INTERRUPT_Timer_4                       16
+  42          #define         INTERRUPT_ADC_0                         15
+  43          #define         INTERRUPT_ADC_2                         18
+  44          #define         INTERRUPT_UART_1                        20
+  45          
+  46          //-------------------------------------------------------------------------------------------------------
+  47          // Global Declarations
+  48          //-------------------------------------------------------------------------------------------------------
+  49          unsigned char tsByte;
+  50          
+  51          bit splashEnd = 0;
+  52          bit screenReset = 0;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/17/2017 20:34:12 PAGE 2   
 
-  55   1          P1 = 0xFF;
-  56   1          P2 = 0xFF;
-  57   1          P3 = 0xFF;
-  58   1          P4 = 0xFF;
-  59   1          P5 = 0xFF;
-  60   1          P6 = 0xFF;
-  61   1          P7 = 0xFF;
-  62   1      }
-  63          
-  64          void systemClockInit(void)
-  65          {
-  66   1          char SFRPAGE_SAVE = SFRPAGE;
-  67   1          int i = 0;
-  68   1          SFRPAGE = CONFIG_PAGE;
-  69   1          OSCICN = 0x83;
-  70   1          SFRPAGE = SFRPAGE_SAVE;
-  71   1      }
-  72          
-  73          void TimerInit(void)
-  74          {
-  75   1          SFRPAGE   = TMR2_PAGE;
-  76   1          TMR2CN    = 0x04;
-  77   1          TMR2CF    = 0x08;
-  78   1          RCAP2L    = 0xF3;
-  79   1          RCAP2H    = 0xFF;
-  80   1          TMR2      = RCAP2;
-  81   1          TMR2CN    = 0x04;
-  82   1      }
-  83          
-  84          void UARTInit(void)
-  85          {
-  86   1          SFRPAGE   = UART0_PAGE;
-  87   1          SCON0     = 0x50;
-  88   1          SSTA0     = 0x05;
-  89   1      }
-  90          
-  91          void InterruptsInit(void)
-  92          {
-  93   1          IE        = 0x90;
-  94   1      }
-  95          
-  96          void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
-  97          {
-  98   1          // TODO: From Canvas
-  99   1      }
- 100          
- 101          int main(void)
- 102          {
- 103   1          systemClockInit();
- 104   1          portIOInit();
- 105   1          TimerInit();
- 106   1          UARTInit();
- 107   1          InterruptsInit();
- 108   1          
- 109   1          while(1) 
- 110   1              {
- 111   2              
- 112   2              }       
- 113   1      }
- 114          
- 115          
- 116              
-C51 COMPILER V9.56.0.0   MAIN                                                              10/10/2017 20:27:36 PAGE 3   
+  53          bit ackFromScreen = 0;
+  54          bit tsCommandReceived = 0;
+  55          bit tsCommandTransmitted = 0;
+  56          
+  57          unsigned char tsRxBuffer[RX_BUFFER_SIZE];
+  58          unsigned char tsTxBuffer[TX_BUFFER_SIZE];
+  59          unsigned char userCommand[RX_BUFFER_SIZE];
+  60          
+  61          unsigned int tsRxIn;
+  62          unsigned int tsRxOut; 
+  63          unsigned int tsTxIn;
+  64          unsigned int tsTxOut;
+  65          
+  66          bit tsRxEmpty;
+  67          bit tsTxEmpty;
+  68          bit tsLastCharGone;                                             
+  69          
+  70          void systemClockInit(void)
+  71          {
+  72   1          char SFRPAGE_SAVE = SFRPAGE;                                                                                        // Save Current SFR page
+  73   1              int i = 0;
+  74   1          
+  75   1              SFRPAGE  = CONFIG_PAGE;
+  76   1              
+  77   1          OSCICN    = 0x83;
+  78   1      
+  79   1              SFRPAGE = SFRPAGE_SAVE;                                                                                         // Restore SFRPAGE
+  80   1      }
+  81          
+  82          void portInit(void)
+  83          {
+  84   1              char SFRPAGE_SAVE = SFRPAGE;                                                            // Save Current SFR page
+  85   1      
+  86   1              SFRPAGE = CONFIG_PAGE;                                                                  // Set SFR page
+  87   1      
+  88   1              XBR0 = 0x2F;                                                                                                                            // Enable UART0, UART1, SPI0, SMB, CEX0 - CEX4                                                                                                                                                  
+  89   1              XBR1 = 0x01;                                                                            
+  90   1          XBR2 = 0xC4;                                                                                                                                // Enable crossbar and disable weak pull-up                                                                                             
+  91   1          
+  92   1              P0MDOUT = 0x01;                                                                                 // Set TX0 pin to push-pull
+  93   1                                                                                                                                                                      // TX0 = P0.0; RX0 = P0.1
+  94   1              P0 = 0xFF;                                                                                                                                      // Initialize port P0 latch
+  95   1              P1 = 0xFF;                                                                                                                                      // Initialize port P1 latch
+  96   1              P2 = 0xFF;                                                                                                                                      // Initialize port P2 latch
+  97   1              P3 = 0xFF;                                                                                                                                      // Initialize port P3 latch
+  98   1              P4 = 0xFF;                                                                                                                                      // Initialize port P4 latch
+  99   1              P5 = 0xFF;                                                                                                                                      // Initialize port P5 latch
+ 100   1              P6 = 0xFF;                                                                                                                                      // Initialize port P6 latch
+ 101   1              P7 = 0xFF;                                                                                                                                      // Initialize port P7 latch
+ 102   1      
+ 103   1          SFRPAGE = SFRPAGE_SAVE;                                                                     // Restore SFR page
+ 104   1      }
+ 105          
+ 106          void enableInterrupts(void)
+ 107          {
+ 108   1              IE = 0x92;                                                                                                                                      // Enable all interrupts + UART0 + Timer 0
+ 109   1      }
+ 110          
+ 111          void uart0Init(void)
+ 112          {
+ 113   1         char SFRPAGE_SAVE;
+ 114   1      
+C51 COMPILER V9.56.0.0   MAIN                                                              10/17/2017 20:34:12 PAGE 3   
 
+ 115   1         SFRPAGE_SAVE = SFRPAGE;                                                                      // Preserve SFRPAGE
+ 116   1      
+ 117   1         SFRPAGE = TMR2_PAGE;
+ 118   1         TMR2CN = 0x00;                                                                               // Stop timer. Timer 2 in 16-bit auto-
+             -reload up timer mode
+ 119   1         TMR2CF = 0x08;                                                                               // SYSCLK is time base; no output; up 
+             -count only
+ 120   1         RCAP2L = 0xF3;                                                               // Low byte
+ 121   1         RCAP2H = 0xFF;                                                               // High byte
+ 122   1         TMR2 = RCAP2;                                                                // Load 16 bit reload valu
+             -e into timer 2
+ 123   1         TMR2CN = 0x04;                                                               // Enable timer 2 (Start t
+             -imer 2)
+ 124   1      
+ 125   1         SFRPAGE = UART0_PAGE;
+ 126   1         SCON0 = 0x50;                                                                                // 8-bit variable baud rate; 9th bit i
+             -gnored; RX enabled
+ 127   1         SSTA0 = 0x05;                                                                                // Enable baud rate                   
+             -                                                                      
+ 128   1                                                                                                      // Use timer 2 as RX and TX baud rate 
+             -source
+ 129   1         IE = 0x90;                                                                   // Enable all interrupts a
+             -nd UART0 Interrupt
+ 130   1      
+ 131   1         SFRPAGE = SFRPAGE_SAVE;                                                                      // Restore SFRPAGE
+ 132   1      }
+ 133          
+ 134          void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
+ 135          {
+ 136   1              char SFRPAGE_SAVE = SFRPAGE;
+ 137   1              unsigned int i = 0;
+ 138   1              unsigned long txWaitCounter = 0;
+ 139   1      
+ 140   1              SFRPAGE = UART0_PAGE;
+ 141   1      
+ 142   1              if(RI0 == 1)                                                                                    // There is a char in SBUF
+ 143   1              {
+ 144   2              RI0 = 0;                                                                                        // Clear interrupt flag
+ 145   2      
+ 146   2              tsByte = SBUF0;                                                                         // Read a character from UART
+ 147   2      
+ 148   2              if(tsRxIn < RX_BUFFER_SIZE)                                                                                             // If buffer size is within limit
+ 149   2              {
+ 150   3                      if(tsByte != '\r')                                                                                                      // Check end of a command from touch screen
+ 151   3                              {
+ 152   4                                      tsRxBuffer[tsRxIn] = tsByte;                                                                    // Store a character in software buffer
+ 153   4                                      tsRxIn++;                                                                                                               // Increment index
+ 154   4                              }
+ 155   3                      else                                                                                                                            // If it is CR character, it marks end of command
+ 156   3                              {                                                                                                                               
+ 157   4                                      if(tsRxBuffer[0] == '{')
+ 158   4                                      {
+ 159   5                                              if(tsRxBuffer[1] == 'c' && tsRxBuffer[2] == 'm' && tsRxBuffer[3] == 'p' && tsRxBuffer[4] == 'e' && ts
+             -RxBuffer[5] == '}')
+ 160   5                                              {
+ 161   6                                                      splashEnd = 1;                                          // Detect end of splash screen
+ 162   6                                                      screenReset = 1;                                                                                // Screen was reset, so touch screen sends {babe\r}
+ 163   6                                              }
+ 164   5                                              else
+ 165   5                                              {
+ 166   6                                                      splashEnd = 0;                                          // End of splash screen NOT detected
+ 167   6                                                      screenReset = 0;                                                                        
+C51 COMPILER V9.56.0.0   MAIN                                                              10/17/2017 20:34:12 PAGE 4   
+
+ 168   6                                              }
+ 169   5                                      }
+ 170   4                                      else if(tsRxBuffer[0] == '(')                                                                   // It is a command from touch screen controller
+ 171   4                                      {                                                                                                                               // A command starts with '('
+ 172   5                                              for(i = 0; i < tsRxIn; i++)
+ 173   5                                              {
+ 174   6                                                      userCommand[i] = tsRxBuffer[i];                                                 // Copy to command array for later evaluation
+ 175   6                                              }
+ 176   5      
+ 177   5                                              ackFromScreen = 0;                                                                                      // This is a command, NOT an ACK
+ 178   5                                              tsCommandReceived = 1;                                                                          // Set flag when a complete command is received
+ 179   5                                      }
+ 180   4                                      else                                                                                                                    // Not a command from touch screen controller
+ 181   4                                      {
+ 182   5                                              ackFromScreen = 1;                                                                                      // Set a flag to indicate it is an ACK from screen
+ 183   5                                              tsCommandReceived = 0;                                                                          // No need to set flag because it is not a command
+ 184   5                                      }
+ 185   4      
+ 186   4                                      for(i = 0; i < tsRxIn; i++)
+ 187   4                                      {
+ 188   5                                              tsRxBuffer[i] = '\0';                                                                           // Delete all contents
+ 189   5                                      }
+ 190   4                                      
+ 191   4                                      tsRxOut = 0;                                                                                                    // Reset index Out
+ 192   4                                      tsRxIn = 0;                                                                                                             // Reset index In
+ 193   4                              }       
+ 194   3              }
+ 195   2                      else                                                                                                                                    // Reset all indexes
+ 196   2                      {       
+ 197   3                              while(tsRxOut < tsRxIn)
+ 198   3                              {
+ 199   4                                      tsRxBuffer[tsRxOut] = '\0';
+ 200   4                                      tsRxOut++;
+ 201   4                              }
+ 202   3                              tsRxOut = 0;
+ 203   3                              tsRxIn = 0;
+ 204   3                              tsCommandReceived = 0;
+ 205   3                      }
+ 206   2         }
+ 207   1      
+ 208   1         if(TI0 == 1)                                                                                                 // Check if one character is successfully sent out
+ 209   1         {
+ 210   2              TI0 = 0;                                                                                        // Clear interrupt flag
+ 211   2      
+ 212   2                      if(tsTxEmpty == 0)                                                                                                              // TX buffer has something to send
+ 213   2                      {
+ 214   3                              SBUF0 = tsTxBuffer[tsTxOut];                                                                            // Send a character in TX buffer
+ 215   3                              tsTxOut++;                                                                                                                      // Move to next character
+ 216   3      
+ 217   3                              while(TI0 == 0 && txWaitCounter++ < TX_WAIT_LIMIT);                                     // Wait until completion of transmission TI0 = 
+             -1
+ 218   3                              if(txWaitCounter >= TX_WAIT_LIMIT)
+ 219   3                              {
+ 220   4                                      TI0 = 1;                                                                                                                // TI0 is not set by hardware, set it by software
+ 221   4                              }                                                                                                                                       // When TI0 is set to 1, this ISR is executed again
+ 222   3                              
+ 223   3                              txWaitCounter = 0;                                                                                                      // Reset counter for next execution     
+ 224   3      
+ 225   3                              if(tsTxOut >= TX_BUFFER_SIZE)
+ 226   3                              {
+ 227   4                                      tsTxOut = 0;                                                                                                    // Reset index to 0
+ 228   4                              }                                                               
+C51 COMPILER V9.56.0.0   MAIN                                                              10/17/2017 20:34:12 PAGE 5   
+
+ 229   3      
+ 230   3                              if(tsTxOut == tsTxIn)                                                                                           // If two indexes are equal
+ 231   3                              {
+ 232   4                                      tsTxEmpty = 1;                                                                                                  // No more character in buffer. Empty
+ 233   4                              }
+ 234   3                      }
+ 235   2                      else
+ 236   2                      {
+ 237   3                              tsLastCharGone = 1;                                                                                                     // Last character has gone. Buffer is empty
+ 238   3                      }
+ 239   2              }
+ 240   1              
+ 241   1              SFRPAGE = SFRPAGE_SAVE;                                                                         // Restore SFR page detector
+ 242   1      }
+ 243          
+ 244          //-------------------------------------------------------------------------------------------------------
+ 245          // Function Name: sendCommand
+ 246          // Return Value: None 
+ 247          // Parmeters: s (a string to send)
+ 248          // Function Description: This function sends a command from the touch screen
+ 249          //-------------------------------------------------------------------------------------------------------
+ 250          void sendCommand(const char * s)
+ 251          {       
+ 252   1              char SFRPAGE_SAVE = SFRPAGE;
+ 253   1              
+ 254   1              while(*s != '\0')                                                                                                                       // Search for end of touch screen command in buffer
+ 255   1          {
+ 256   2              if(tsTxEmpty == 1 || (tsTxOut != tsTxIn))                                                               // Tx is empty or two indexes are not equal
+ 257   2                      {
+ 258   3                              tsTxBuffer[tsTxIn++] = *s;
+ 259   3                              if(tsTxIn >= TX_BUFFER_SIZE)                                                                            // Check for limit
+ 260   3                              {
+ 261   4                                      tsTxIn = 0;                                                                                                             // Reset if limit reached
+ 262   4                              }
+ 263   3      
+ 264   3                              if(tsTxEmpty == 1)                                                                                                      // If buffer is empty
+ 265   3                              {
+ 266   4                                      tsTxEmpty = 0;                                                                                                  // Now buffer has at leat 1 character, set flag
+ 267   4                              }
+ 268   3                      }
+ 269   2              
+ 270   2                      s++;                                                                                                                                    // Point to next char to send out
+ 271   2          }
+ 272   1                                                                                                                                                                      
+ 273   1              if(tsLastCharGone == 1)                                                                                                         // All characters in buffer has sent out
+ 274   1              {
+ 275   2                      tsLastCharGone = 0;                                                                                                             // Reset flag to indicate no char left in buffer
+ 276   2                      SFRPAGE = UART0_PAGE;                                                                                                                                                   
+ 277   2                      TI0 = 1;                                                                        // Set this flage to call ISR to send 
+             -out one character
+ 278   2              }                                                                                                                                                       
+ 279   1                                                                                                                                                                      
+ 280   1              SFRPAGE = SFRPAGE_SAVE;                                                                 // Restore SFRPAGE
+ 281   1      }
+ 282          
+ 283          const char code * Font[] = { "m10B",    ///< Font size 0 
+ 284                                       "m12B",    ///< Font size 1 
+ 285                                       "m14B",    ///< Font size 2 
+ 286                                       "m16B",    ///< Font size 3 
+ 287                                       "m20B",    ///< Font size 4 
+ 288                                       "m24B",    ///< Font size 5 
+ 289                                       "m32B",    ///< Font size 6 
+C51 COMPILER V9.56.0.0   MAIN                                                              10/17/2017 20:34:12 PAGE 6   
+
+ 290                                       "m48B",    ///< Font size 7 
+ 291                                       "m64B"};   ///< Font size 8
+ 292          
+ 293          
+ 294          void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const 
+             -int x, const int y)
+ 295          {
+ 296   1          char str[256] = { 0 };
+ 297   1          
+ 298   1          int i = 0;
+ 299   1          while(i < 10000) i++;
+ 300   1              
+ 301   1          sprintf(str, "S %s %s\r", fg, bg);
+ 302   1          sendCommand(str);
+ 303   1          sprintf(str, "f %s\r", Font[size]);
+ 304   1          sendCommand(str);
+ 305   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);
+ 306   1          sendCommand(str);
+ 307   1      }
+ 308          
+ 309          int main()
+ 310          {
+ 311   1              int i = 0;
+ 312   1          char str[64];
+ 313   1          
+ 314   1          systemClockInit();
+ 315   1              portInit();
+ 316   1              enableInterrupts();
+ 317   1              uart0Init();
+ 318   1          tsLastCharGone = 1;
+ 319   1          tsTxOut = tsTxIn = 0;
+ 320   1          tsTxEmpty = 1;
+ 321   1          
+ 322   1              while(1)
+ 323   1              {
+ 324   2                      sprintf(str, "z\r");
+ 325   2              sendCommand(str);
+ 326   2              
+ 327   2              i = 0;
+ 328   2              
+ 329   2              while(i < 10000)
+ 330   2                  i++;
+ 331   2              
+ 332   2              //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
+ 333   2              //sendCommand(str);
+ 334   2              
+ 335   2              display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
+ 336   2              
+ 337   2              i = 0;
+ 338   2              
+ 339   2              while(i < 10000)
+ 340   2                  i++;
+ 341   2              }
+ 342   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    121    ----
-   CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =   ----       3
+   CODE SIZE        =   1110    ----
+   CONSTANT SIZE    =    352    ----
+   XDATA SIZE       =    795     342
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
+C51 COMPILER V9.56.0.0   MAIN                                                              10/17/2017 20:34:12 PAGE 7   
+
    IDATA SIZE       =   ----    ----
-   BIT SIZE         =   ----    ----
+   BIT SIZE         =      8    ----
 END OF MODULE INFORMATION.
 
 
