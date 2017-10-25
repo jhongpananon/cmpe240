@@ -11,3 +11,14 @@ xi 2 0 0
 x 128 270 30 370 60
 xm 128 display_page1
 #end
+
+#define Splash
+baud 115200								//Set baud rate
+
+xc all
+xi 1 0 0
+										//Splash screen bitmap
+// Place your macro code here
+
+out "{cmpe}\r"							//Indicate that splash screen is complete
+#end

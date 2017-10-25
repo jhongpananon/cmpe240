@@ -1,0 +1,380 @@
+//---------------------------------------------------------------------
+//Odyssey Laser System. Convergent Laser Technologies
+//Copyright 2014. All Rights Reserved
+//---------------------------------------------------------------------
+#define Splash 1
+baud 115200								//Set baud rate
+
+xc all
+xi 1 0 0
+										//Splash screen bitmap
+// Place your macro code here
+
+out "{cmpe}\r"							//Indicate that splash screen is complete
+#end
+//---------------------------------------------------------------------
+
+//---------------------------------------------------------------------
+#define StandbyPage 2
+xc all
+xi 4 0 0								//Standby page bitmap
+
+bd 1 271 26 1 "" 0 0 5 6 				//Main button
+bd 2 399 26 1 "" 0 0 7 8 				//Settings button
+bd 3 525 26 1 "" 0 0 9 10 				//Service button
+
+bd 6 389 104 1 "" 0 0 11 12 			//Pulsewidth down
+bd 7 575 104 1 "" 0 0 13 14 			//Pulsewidth up
+bd 8 389 180 1 "" 0 0 11 12 			//Rep Rate down
+bd 9 575 180 1 "" 0 0 13 14 			//Rep Rate up
+bd 10 389 256 3 "" 0 0 11 12 			//Energy down
+bd 11 575 256 3 "" 0 0 13 14 			//Energy up
+bd 12 389 332 3 "" 0 0 11 12 			//Aiming down
+bd 13 575 332 3 "" 0 0 13 14 			//Aiming up
+
+bd 14 397 404 1 "" 0 0 15 16 			//Ready button (wider)
+bd 15 525 404 1 "" 0 0 17 18 			//Standby button (wider)
+
+bd 16 136 191 1 "" 0 0 122 123			//Energy Reset button
+bd 17 136 267 1 "" 0 0 122 123			//Elapsed Time Reset button
+
+
+xmq 1 51 								//1				
+xmq 2 52 								//2
+xmq 3 53 								//3
+
+xmq 4 71 								//A
+xmq 5 72								//B
+xmq 6 73  								//C
+xmq 7 74 								//D
+xmq 8 75 								//E
+xmq 9 76								//F
+xmq 10 77  								//G
+xmq 11 78 								//H
+xmq 12 79 								//I
+xmq 13 80								//J
+xmq 14 81  								//K
+xmq 15 82 								//L								
+
+xmq 16 83								//M
+xmq 17 84								//N
+#end
+//---------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------
+#define SettingsPage 3
+
+// Place your commands here
+
+#end
+//---------------------------------------------------------------------
+
+//---------------------------------------------------------------------
+#define ServicePage 4
+
+// Place your commands here
+
+#end
+//---------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------
+//If the command is "(0 1\r", then ( indicates a real command, 0 indicates button ID, 1 indicates button state
+//---------------------------------------------------------------------
+
+#define ZERO 50							//Serial out
+out "(0 1\r"
+#end
+
+#define ONE 51
+out "(1 1\r"
+#end
+
+#define TWO 52
+out "(2 1\r"
+#end
+
+#define THREE 53
+out "(3 1\r"
+#end
+
+#define FOUR 54
+out "(4 1\r"
+#end
+
+#define FIVE 55
+out "(5 1\r"
+#end
+
+#define SIX 56
+out "(6 1\r"
+#end
+
+#define SEVEN 57
+out "(7 1\r"
+#end
+
+#define EIGHT 58
+out "(8 1\r"
+#end
+
+#define NINE 59
+out "(9 1\r"
+#end
+//-----------------------------------------------------------------------
+#define ZERO2 60
+out "(0 0\r"
+#end
+
+#define ONE2 61
+out "(1 0\r"
+#end
+
+#define TWO2 62
+out "(2 0\r"
+#end
+
+#define THREE2 63
+out "(3 0\r"
+#end
+
+#define FOUR2 64
+out "(4 0\r"
+#end
+
+#define FIVE2 65
+out "(5 0\r"
+#end
+
+#define SIX2 66
+out "(6 0\r"
+#end
+
+#define SEVEN2 67
+out "(7 0\r"
+#end
+
+#define EIGHT2 68
+out "(8 0\r"
+#end
+
+#define NINE2 69
+out "(9 0\r"
+#end
+//---------------------------------------------------------------------
+#define Reserved 70
+
+#end
+//---------------------------------------------------------------------
+
+#define AAA 71
+out "(A 1\r"
+#end
+
+#define BBB 72
+out "(B 1\r"
+#end
+
+#define CCC 73
+out "(C 1\r"
+#end
+
+#define DDD 74
+out "(D 1\r"
+#end
+
+#define EEE 75
+out "(E 1\r"
+#end
+
+#define FFF 76
+out "(F 1\r"
+#end
+
+#define GGG 77
+out "(G 1\r"
+#end
+
+#define HHH 78
+out "(H 1\r"
+#end
+
+#define III 79
+out "(I 1\r"
+#end
+
+#define JJJ 80
+out "(J 1\r"
+#end
+
+#define KKK 81
+out "(K 1\r"
+#end
+
+#define LLL 82
+out "(L 1\r"
+#end
+
+#define MMM 83
+out "(M 1\r"
+#end
+
+#define NNN 84
+out "(N 1\r"
+#end
+
+#define OOO 85
+out "(O 1\r"
+#end
+
+#define PPP 86
+out "(P 1\r"
+#end
+
+#define QQQ 87
+out "(Q 1\r"
+#end
+
+#define RRR 88
+out "(R 1\r"
+#end
+
+#define SSS 89
+out "(S 1\r"
+#end
+
+#define TTT 90
+out "(T 1\r"
+#end
+
+#define UUU 91
+out "(U 1\r"
+#end
+
+#define VVV 92
+out "(V 1\r"
+#end
+
+#define WWW 93
+out "(W 1\r"
+#end
+
+#define XXX 94
+out "(X 1\r"
+#end
+
+#define YYY 95
+out "(Y 1\r"
+#end
+
+#define ZZZ 96
+out "(Z 1\r"
+#end
+//------------------------------------------------------------------------
+
+#define AAA2 97
+out "(A 0\r"
+#end
+
+#define BBB2 98
+out "(B 0\r"
+#end
+
+#define CCC2 99
+out "(C 0\r"
+#end
+
+#define DDD2 100
+out "(D 0\r"
+#end
+
+#define EEE2 101
+out "(E 0\r"
+#end
+
+#define FFF2 102
+out "(F 0\r"
+#end
+
+#define GGG2 103
+out "(G 0\r"
+#end
+
+#define HHH2 104
+out "(H 0\r"
+#end
+
+#define III2 105
+out "(I 0\r"
+#end
+
+#define JJJ2 106
+out "(J 0\r"
+#end
+
+#define KKK2 107
+out "(K 0\r"
+#end
+
+#define LLL2 108
+out "(L 0\r"
+#end
+
+#define MMM2 109
+out "(M 0\r"
+#end
+
+#define NNN2 110
+out "(N 0\r"
+#end
+
+#define OOO2 111
+out "(O 1\r"
+#end
+
+#define PPP2 112
+out "(P 0\r"
+#end
+
+#define QQQ2 113
+out "(Q 0\r"
+#end
+
+#define RRR2 114
+out "(R 0\r"
+#end
+
+#define SSS2 115
+out "(S 0\r"
+#end
+
+#define TTT2 116
+out "(T 0\r"
+#end
+
+#define UUU2 117
+out "(U 0\r"
+#end
+
+#define VVV2 118
+out "(V 0\r"
+#end
+
+#define WWW2 119
+out "(W 0\r"
+#end
+
+#define XXX2 120
+out "(X 0\r"
+#end
+
+#define YYY2 121
+out "(Y 0\r"
+#end
+
+#define ZZZ2 122
+out "(Z 0\r"
+#end
+//---------------------------------------------------------------------

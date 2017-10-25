@@ -5,6 +5,7 @@
 #include <string.h>
 #include <absacc.h>
 
+#include "macros.h"
 #include "laser.h"
 #include "motor.h"
 
@@ -131,6 +132,13 @@ void uart0Init(void)
    SFRPAGE = SFRPAGE_SAVE;                                      				// Restore SFRPAGE
 }
 
+void disableWatchdog(void)
+{
+    WDTCN = 0xDE;                                                    
+    // Disable watchdog timer
+    WDTCN = 0xAD;
+}
+    
 void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
 {
    	char SFRPAGE_SAVE = SFRPAGE;
@@ -306,11 +314,34 @@ void display_text(const char * fg, const char * bg, const unsigned char size, co
     sendCommand(str);
 }
 
+static void display_image(const unsigned int image_num, const int x, const int y)
+{
+    char str[32] = { 0 };
+    
+    int i = 0;
+    while(i < 10000) i++;
+        
+    sprintf(str, "xi %u %u %u\r", image_num, x, y);
+    sendCommand(str);
+}
+
+static void send_macro(const unsigned int macro_index)
+{
+    char str[8] = { 0 };
+    
+    int i = 0;
+    while(i < 10000) i++;
+        
+    sprintf(str, "m %u\r", macro_index);
+    sendCommand(str);
+}
+
 int main()
 {
 	int i = 0;
     char str[64];
     
+    //disableWatchdog();
     systemClockInit();
 	portInit();
 	enableInterrupts();
@@ -318,6 +349,8 @@ int main()
     tsLastCharGone = 1;
     tsTxOut = tsTxIn = 0;
     tsTxEmpty = 1;
+    
+    //send_macro(Splash);
     
 	while(1)
 	{
@@ -332,7 +365,12 @@ int main()
         //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
         //sendCommand(str);
         
-        display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
+        //display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
+        
+        //if (splashEnd) 
+        //{
+            send_macro(display_home);
+        //}
         
         i = 0;
         
