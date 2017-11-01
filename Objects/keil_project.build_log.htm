@@ -27,53 +27,28 @@ Project File Date:  10/26/2017
 <h2>Output:</h2>
 Rebuild target 'Target 1'
 compiling main.c...
-compiling i2c_master.c...
-i2c_master.c(1): warning C318: can't open file 'main.h'
-i2c_master.c(98): error C202: 'SFRPAGE': undefined identifier
-i2c_master.c(100): error C202: 'SFRPAGE': undefined identifier
-i2c_master.c(101): error C202: 'SDA': undefined identifier
-i2c_master.c(103): error C202: 'SCL': undefined identifier
-i2c_master.c(105): error C202: 'SCL': undefined identifier
-i2c_master.c(106): error C202: 'SCL': undefined identifier
-i2c_master.c(110): error C202: 'SMB0CN': undefined identifier
-i2c_master.c(112): error C202: 'SMB0CR': undefined identifier
-i2c_master.c(114): error C202: 'SMB0CN': undefined identifier
-i2c_master.c(116): error C202: 'SFRPAGE': undefined identifier
-i2c_master.c(123): error C202: 'FALSE': undefined identifier
-i2c_master.c(124): error C202: 'FALSE': undefined identifier
-i2c_master.c(135): error C202: 'SFRPAGE': undefined identifier
-i2c_master.c(137): error C202: 'SFRPAGE': undefined identifier
-i2c_master.c(139): error C202: 'TMR3CN': undefined identifier
-i2c_master.c(141): error C202: 'TMR3CF': undefined identifier
-i2c_master.c(143): error C202: 'RCAP3': undefined identifier
-i2c_master.c(144): error C202: 'TMR3': undefined identifier
-i2c_master.c(146): error C202: 'TR3': undefined identifier
-i2c_master.c(148): error C202: 'SFRPAGE': undefined identifier
-i2c_master.c(157): error C141: syntax error near 'INTERRUPT_Timer_3', expected 'const'
-i2c_master.c(158): error C132: 'INTERRUPT_Timer_3': not in formal parameter list
-i2c_master.c(158): error C141: syntax error near '{'
-i2c_master.c(159): error C244: 'SFRPAGE_SAVE': can't initialize, bad type or class
-i2c_master.c(159): error C202: 'SFRPAGE': undefined identifier
-i2c_master.c(159): error C132: 'SFRPAGE_SAVE': not in formal parameter list
-i2c_master.c(161): error C244: 'SFRPAGE': can't initialize, bad type or class
-i2c_master.c(161): error C202: 'SMB0_PAGE': undefined identifier
-i2c_master.c(161): error C132: 'SFRPAGE': not in formal parameter list
-i2c_master.c(162): error C132: 'SMB0CN': not in formal parameter list
-i2c_master.c(162): error C141: syntax error near '&='
-i2c_master.c(163): error C132: 'SMB0CN': not in formal parameter list
-i2c_master.c(165): error C244: 'SFRPAGE': can't initialize, bad type or class
-i2c_master.c(165): error C202: 'SFRPAGE_SAVE': undefined identifier
-i2c_master.c(165): error C132: 'SFRPAGE': not in formal parameter list
-i2c_master.c(166): error C244: 'TF3': can't initialize, bad type or class
-i2c_master.c(166): error C132: 'TF3': not in formal parameter list
-i2c_master.c(167): error C279: 'SMB_BUSY': multiple initialization
-i2c_master.c(167): error C244: 'SMB_BUSY': can't initialize, bad type or class
-i2c_master.c(167): error C132: 'SMB_BUSY': not in formal parameter list
-i2c_master.c(169): error C244: 'SFRPAGE': can't initialize, bad type or class
-i2c_master.c(169): error C202: 'SFRPAGE_SAVE': undefined identifier
-i2c_master.c(169): error C132: 'SFRPAGE': not in formal parameter list
-i2c_master.c(170): error C141: syntax error near '}'
-i2c_master.c(180): error C202: 'TX_START_INDEX': undefined identifier
+linking...
+BL51 BANKED LINKER/LOCATER V6.22 - SN: Eval Version
+COPYRIGHT KEIL ELEKTRONIK GmbH 1987 - 2009
+".\Objects\main.obj" 
+TO ".\Objects\keil_project" 
+PRINT(".\Listings\keil_project.m51") RAMSIZE(256) 
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DISPLAY_IMAGE?MAIN
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DISPLAYTEXT?MAIN
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 088EH BYTE (106%) *
+******************************************************************************
+Program Size: data=24.1 xdata=1484 code=3787
+LINK/LOCATE RUN COMPLETE.  2 WARNING(S),  0 ERROR(S)
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DISPLAY_IMAGE?MAIN
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DISPLAYTEXT?MAIN
+*** FATAL ERROR L250: CODE SIZE LIMIT IN RESTRICTED VERSION EXCEEDED
+    MODULE:  C:\KEIL_V5\C51\LIB\C51L.LIB (-----)
+    LIMIT:   0800H BYTES
 Target not created.
 Build Time Elapsed:  00:00:00
 </pre>

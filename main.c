@@ -1,7 +1,7 @@
 #include <c8051f120.h>
 #include <stdio.h> 
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
 #include <absacc.h>
 
@@ -175,6 +175,16 @@ void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
 						screenReset = 0;									
 					}
 				}
+				else if(tsRxBuffer[0] == 'x') 									// It is a command from touch screen controller
+				{																// A command starts with '('
+					for(i = 0; i < tsRxIn; i++)
+					{
+					 	userCommand[i] = tsRxBuffer[i];							// Copy to command array for later evaluation
+					}
+
+					ackFromScreen = 0;											// This is a command, NOT an ACK
+					tsCommandReceived = 1;										// Set flag when a complete command is received
+				}
 				else if(tsRxBuffer[0] == '(') 									// It is a command from touch screen controller
 				{																// A command starts with '('
 					for(i = 0; i < tsRxIn; i++)
@@ -296,7 +306,7 @@ const char code * Font[] = { "m10B",    ///< Font size 0
                              "m24B",    ///< Font size 5 
                              "m32B",    ///< Font size 6 
                              "m48B",    ///< Font size 7 
-                             "m64B"};   ///< Font size 8
+                             "m64"};    ///< Font size 8
 
 
 void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
@@ -371,13 +381,12 @@ void callMacro(const unsigned int macroNumber)
 	sendCommand(str);
 }
 */
-
 int main()
 {
 	int i = 0;
     char str[64];
     
-    //disableWatchdog();
+    disableWatchdog();
     systemClockInit();
 	portInit();
 	enableInterrupts();
@@ -386,12 +395,15 @@ int main()
     tsTxOut = tsTxIn = 0;
     tsTxEmpty = 1;
     
-    //send_macro(Splash);
+	sprintf(str, "z\r");
+    sendCommand(str);
     
-	while(1)
+    send_macro(display_temperature);
+    
+    while(1)
 	{
-		sprintf(str, "z\r");
-        sendCommand(str);
+		//sprintf(str, "z\r");
+        //sendCommand(str);
         
         i = 0;
         
@@ -405,8 +417,21 @@ int main()
         
         //if (splashEnd) 
         //{
-        send_macro(display_home);
+        
         //}
+        
+        if (tsCommandReceived) 
+        {
+            if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
+                display_text("FFFFFF", "000000", 8, "32F", 240, 110);
+            }
+            else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
+                display_text("FFFFFF", "000000", 8, "32C", 240, 110);
+            }
+            else {
+                // noop
+            }
+        }
         
         i = 0;
         

@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
@@ -10,8 +10,8 @@ line level    source
 
    1          #include <c8051f120.h>
    2          #include <stdio.h> 
-   3          #include <math.h>
-   4          #include <stdlib.h>
+   3          #include <stdlib.h>
+   4          #include <math.h>
    5          #include <string.h>
    6          #include <absacc.h>
    7          
@@ -62,7 +62,7 @@ line level    source
   50          unsigned char tsByte;
   51          
   52          bit splashEnd = 0;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 2   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 2   
 
   53          bit screenReset = 0;
   54          bit ackFromScreen = 0;
@@ -126,7 +126,7 @@ line level    source
  112          void uart0Init(void)
  113          {
  114   1         char SFRPAGE_SAVE;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 3   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 3   
 
  115   1      
  116   1         SFRPAGE_SAVE = SFRPAGE;                                                                      // Preserve SFRPAGE
@@ -190,7 +190,7 @@ line level    source
  166   4                                      {
  167   5                                              if(tsRxBuffer[1] == 'c' && tsRxBuffer[2] == 'm' && tsRxBuffer[3] == 'p' && tsRxBuffer[4] == 'e' && ts
              -RxBuffer[5] == '}')
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 4   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 4   
 
  168   5                                              {
  169   6                                                      splashEnd = 1;                                          // Detect end of splash screen
@@ -202,7 +202,7 @@ line level    source
  175   6                                                      screenReset = 0;                                                                        
  176   6                                              }
  177   5                                      }
- 178   4                                      else if(tsRxBuffer[0] == '(')                                                                   // It is a command from touch screen controller
+ 178   4                                      else if(tsRxBuffer[0] == 'x')                                                                   // It is a command from touch screen controller
  179   4                                      {                                                                                                                               // A command starts with '('
  180   5                                              for(i = 0; i < tsRxIn; i++)
  181   5                                              {
@@ -212,253 +212,278 @@ line level    source
  185   5                                              ackFromScreen = 0;                                                                                      // This is a command, NOT an ACK
  186   5                                              tsCommandReceived = 1;                                                                          // Set flag when a complete command is received
  187   5                                      }
- 188   4                                      else                                                                                                                    // Not a command from touch screen controller
- 189   4                                      {
- 190   5                                              ackFromScreen = 1;                                                                                      // Set a flag to indicate it is an ACK from screen
- 191   5                                              tsCommandReceived = 0;                                                                          // No need to set flag because it is not a command
- 192   5                                      }
- 193   4      
- 194   4                                      for(i = 0; i < tsRxIn; i++)
- 195   4                                      {
- 196   5                                              tsRxBuffer[i] = '\0';                                                                           // Delete all contents
+ 188   4                                      else if(tsRxBuffer[0] == '(')                                                                   // It is a command from touch screen controller
+ 189   4                                      {                                                                                                                               // A command starts with '('
+ 190   5                                              for(i = 0; i < tsRxIn; i++)
+ 191   5                                              {
+ 192   6                                                      userCommand[i] = tsRxBuffer[i];                                                 // Copy to command array for later evaluation
+ 193   6                                              }
+ 194   5      
+ 195   5                                              ackFromScreen = 0;                                                                                      // This is a command, NOT an ACK
+ 196   5                                              tsCommandReceived = 1;                                                                          // Set flag when a complete command is received
  197   5                                      }
- 198   4                                      
- 199   4                                      tsRxOut = 0;                                                                                                    // Reset index Out
- 200   4                                      tsRxIn = 0;                                                                                                             // Reset index In
- 201   4                              }       
- 202   3              }
- 203   2                      else                                                                                                                                    // Reset all indexes
- 204   2                      {       
- 205   3                              while(tsRxOut < tsRxIn)
- 206   3                              {
- 207   4                                      tsRxBuffer[tsRxOut] = '\0';
- 208   4                                      tsRxOut++;
- 209   4                              }
- 210   3                              tsRxOut = 0;
- 211   3                              tsRxIn = 0;
- 212   3                              tsCommandReceived = 0;
- 213   3                      }
- 214   2         }
- 215   1      
- 216   1         if(TI0 == 1)                                                                                                 // Check if one character is successfully sent out
- 217   1         {
- 218   2              TI0 = 0;                                                                                        // Clear interrupt flag
- 219   2      
- 220   2                      if(tsTxEmpty == 0)                                                                                                              // TX buffer has something to send
- 221   2                      {
- 222   3                              SBUF0 = tsTxBuffer[tsTxOut];                                                                            // Send a character in TX buffer
- 223   3                              tsTxOut++;                                                                                                                      // Move to next character
- 224   3      
- 225   3                              while(TI0 == 0 && txWaitCounter++ < TX_WAIT_LIMIT);                                     // Wait until completion of transmission TI0 = 
+ 198   4                                      else                                                                                                                    // Not a command from touch screen controller
+ 199   4                                      {
+ 200   5                                              ackFromScreen = 1;                                                                                      // Set a flag to indicate it is an ACK from screen
+ 201   5                                              tsCommandReceived = 0;                                                                          // No need to set flag because it is not a command
+ 202   5                                      }
+ 203   4      
+ 204   4                                      for(i = 0; i < tsRxIn; i++)
+ 205   4                                      {
+ 206   5                                              tsRxBuffer[i] = '\0';                                                                           // Delete all contents
+ 207   5                                      }
+ 208   4                                      
+ 209   4                                      tsRxOut = 0;                                                                                                    // Reset index Out
+ 210   4                                      tsRxIn = 0;                                                                                                             // Reset index In
+ 211   4                              }       
+ 212   3              }
+ 213   2                      else                                                                                                                                    // Reset all indexes
+ 214   2                      {       
+ 215   3                              while(tsRxOut < tsRxIn)
+ 216   3                              {
+ 217   4                                      tsRxBuffer[tsRxOut] = '\0';
+ 218   4                                      tsRxOut++;
+ 219   4                              }
+ 220   3                              tsRxOut = 0;
+ 221   3                              tsRxIn = 0;
+ 222   3                              tsCommandReceived = 0;
+ 223   3                      }
+ 224   2         }
+ 225   1      
+ 226   1         if(TI0 == 1)                                                                                                 // Check if one character is successfully sent out
+ 227   1         {
+ 228   2              TI0 = 0;                                                                                        // Clear interrupt flag
+ 229   2      
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 5   
+
+ 230   2                      if(tsTxEmpty == 0)                                                                                                              // TX buffer has something to send
+ 231   2                      {
+ 232   3                              SBUF0 = tsTxBuffer[tsTxOut];                                                                            // Send a character in TX buffer
+ 233   3                              tsTxOut++;                                                                                                                      // Move to next character
+ 234   3      
+ 235   3                              while(TI0 == 0 && txWaitCounter++ < TX_WAIT_LIMIT);                                     // Wait until completion of transmission TI0 = 
              -1
- 226   3                              if(txWaitCounter >= TX_WAIT_LIMIT)
- 227   3                              {
- 228   4                                      TI0 = 1;                                                                                                                // TI0 is not set by hardware, set it by software
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 5   
+ 236   3                              if(txWaitCounter >= TX_WAIT_LIMIT)
+ 237   3                              {
+ 238   4                                      TI0 = 1;                                                                                                                // TI0 is not set by hardware, set it by software
+ 239   4                              }                                                                                                                                       // When TI0 is set to 1, this ISR is executed again
+ 240   3                              
+ 241   3                              txWaitCounter = 0;                                                                                                      // Reset counter for next execution     
+ 242   3      
+ 243   3                              if(tsTxOut >= TX_BUFFER_SIZE)
+ 244   3                              {
+ 245   4                                      tsTxOut = 0;                                                                                                    // Reset index to 0
+ 246   4                              }                                                               
+ 247   3      
+ 248   3                              if(tsTxOut == tsTxIn)                                                                                           // If two indexes are equal
+ 249   3                              {
+ 250   4                                      tsTxEmpty = 1;                                                                                                  // No more character in buffer. Empty
+ 251   4                              }
+ 252   3                      }
+ 253   2                      else
+ 254   2                      {
+ 255   3                              tsLastCharGone = 1;                                                                                                     // Last character has gone. Buffer is empty
+ 256   3                      }
+ 257   2              }
+ 258   1              
+ 259   1              SFRPAGE = SFRPAGE_SAVE;                                                                         // Restore SFR page detector
+ 260   1      }
+ 261          
+ 262          //-------------------------------------------------------------------------------------------------------
+ 263          // Function Name: sendCommand
+ 264          // Return Value: None 
+ 265          // Parmeters: s (a string to send)
+ 266          // Function Description: This function sends a command from the touch screen
+ 267          //-------------------------------------------------------------------------------------------------------
+ 268          void sendCommand(const char * s)
+ 269          {       
+ 270   1              char SFRPAGE_SAVE = SFRPAGE;
+ 271   1              
+ 272   1              while(*s != '\0')                                                                                                                       // Search for end of touch screen command in buffer
+ 273   1          {
+ 274   2              if(tsTxEmpty == 1 || (tsTxOut != tsTxIn))                                                               // Tx is empty or two indexes are not equal
+ 275   2                      {
+ 276   3                              tsTxBuffer[tsTxIn++] = *s;
+ 277   3                              if(tsTxIn >= TX_BUFFER_SIZE)                                                                            // Check for limit
+ 278   3                              {
+ 279   4                                      tsTxIn = 0;                                                                                                             // Reset if limit reached
+ 280   4                              }
+ 281   3      
+ 282   3                              if(tsTxEmpty == 1)                                                                                                      // If buffer is empty
+ 283   3                              {
+ 284   4                                      tsTxEmpty = 0;                                                                                                  // Now buffer has at leat 1 character, set flag
+ 285   4                              }
+ 286   3                      }
+ 287   2              
+ 288   2                      s++;                                                                                                                                    // Point to next char to send out
+ 289   2          }
+ 290   1                                                                                                                                                                      
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 6   
 
- 229   4                              }                                                                                                                                       // When TI0 is set to 1, this ISR is executed again
- 230   3                              
- 231   3                              txWaitCounter = 0;                                                                                                      // Reset counter for next execution     
- 232   3      
- 233   3                              if(tsTxOut >= TX_BUFFER_SIZE)
- 234   3                              {
- 235   4                                      tsTxOut = 0;                                                                                                    // Reset index to 0
- 236   4                              }                                                               
- 237   3      
- 238   3                              if(tsTxOut == tsTxIn)                                                                                           // If two indexes are equal
- 239   3                              {
- 240   4                                      tsTxEmpty = 1;                                                                                                  // No more character in buffer. Empty
- 241   4                              }
- 242   3                      }
- 243   2                      else
- 244   2                      {
- 245   3                              tsLastCharGone = 1;                                                                                                     // Last character has gone. Buffer is empty
- 246   3                      }
- 247   2              }
- 248   1              
- 249   1              SFRPAGE = SFRPAGE_SAVE;                                                                         // Restore SFR page detector
- 250   1      }
- 251          
- 252          //-------------------------------------------------------------------------------------------------------
- 253          // Function Name: sendCommand
- 254          // Return Value: None 
- 255          // Parmeters: s (a string to send)
- 256          // Function Description: This function sends a command from the touch screen
- 257          //-------------------------------------------------------------------------------------------------------
- 258          void sendCommand(const char * s)
- 259          {       
- 260   1              char SFRPAGE_SAVE = SFRPAGE;
- 261   1              
- 262   1              while(*s != '\0')                                                                                                                       // Search for end of touch screen command in buffer
- 263   1          {
- 264   2              if(tsTxEmpty == 1 || (tsTxOut != tsTxIn))                                                               // Tx is empty or two indexes are not equal
- 265   2                      {
- 266   3                              tsTxBuffer[tsTxIn++] = *s;
- 267   3                              if(tsTxIn >= TX_BUFFER_SIZE)                                                                            // Check for limit
- 268   3                              {
- 269   4                                      tsTxIn = 0;                                                                                                             // Reset if limit reached
- 270   4                              }
- 271   3      
- 272   3                              if(tsTxEmpty == 1)                                                                                                      // If buffer is empty
- 273   3                              {
- 274   4                                      tsTxEmpty = 0;                                                                                                  // Now buffer has at leat 1 character, set flag
- 275   4                              }
- 276   3                      }
- 277   2              
- 278   2                      s++;                                                                                                                                    // Point to next char to send out
- 279   2          }
- 280   1                                                                                                                                                                      
- 281   1              if(tsLastCharGone == 1)                                                                                                         // All characters in buffer has sent out
- 282   1              {
- 283   2                      tsLastCharGone = 0;                                                                                                             // Reset flag to indicate no char left in buffer
- 284   2                      SFRPAGE = UART0_PAGE;                                                                                                                                                   
- 285   2                      TI0 = 1;                                                                        // Set this flage to call ISR to send 
+ 291   1              if(tsLastCharGone == 1)                                                                                                         // All characters in buffer has sent out
+ 292   1              {
+ 293   2                      tsLastCharGone = 0;                                                                                                             // Reset flag to indicate no char left in buffer
+ 294   2                      SFRPAGE = UART0_PAGE;                                                                                                                                                   
+ 295   2                      TI0 = 1;                                                                        // Set this flage to call ISR to send 
              -out one character
- 286   2              }                                                                                                                                                       
- 287   1                                                                                                                                                                      
- 288   1              SFRPAGE = SFRPAGE_SAVE;                                                                 // Restore SFRPAGE
- 289   1      }
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 6   
-
- 290          
- 291          const char code * Font[] = { "m10B",    ///< Font size 0 
- 292                                       "m12B",    ///< Font size 1 
- 293                                       "m14B",    ///< Font size 2 
- 294                                       "m16B",    ///< Font size 3 
- 295                                       "m20B",    ///< Font size 4 
- 296                                       "m24B",    ///< Font size 5 
- 297                                       "m32B",    ///< Font size 6 
- 298                                       "m48B",    ///< Font size 7 
- 299                                       "m64B"};   ///< Font size 8
+ 296   2              }                                                                                                                                                       
+ 297   1                                                                                                                                                                      
+ 298   1              SFRPAGE = SFRPAGE_SAVE;                                                                 // Restore SFRPAGE
+ 299   1      }
  300          
- 301          
- 302          void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const 
+ 301          const char code * Font[] = { "m10B",    ///< Font size 0 
+ 302                                       "m12B",    ///< Font size 1 
+ 303                                       "m14B",    ///< Font size 2 
+ 304                                       "m16B",    ///< Font size 3 
+ 305                                       "m20B",    ///< Font size 4 
+ 306                                       "m24B",    ///< Font size 5 
+ 307                                       "m32B",    ///< Font size 6 
+ 308                                       "m48B",    ///< Font size 7 
+ 309                                       "m64"};    ///< Font size 8
+ 310          
+ 311          
+ 312          void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const 
              -int x, const int y)
- 303          {
- 304   1          char str[256] = { 0 };
- 305   1          
- 306   1          int i = 0;
- 307   1          while(i < 10000) i++;
- 308   1              
- 309   1          sprintf(str, "S %s %s\r", fg, bg);
- 310   1          sendCommand(str);
- 311   1          sprintf(str, "f %s\r", Font[size]);
- 312   1          sendCommand(str);
- 313   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);
- 314   1          sendCommand(str);
- 315   1      }
- 316          
- 317          static void display_image(const unsigned int image_num, const int x, const int y)
- 318          {
- 319   1          char str[32] = { 0 };
- 320   1          
- 321   1          int i = 0;
- 322   1          while(i < 10000) i++;
- 323   1              
- 324   1          sprintf(str, "xi %u %u %u\r", image_num, x, y);
- 325   1          sendCommand(str);
- 326   1      }
- 327          
- 328          static void send_macro(const unsigned int macro_index)
- 329          {
- 330   1          char str[8] = { 0 };
- 331   1          
- 332   1          int i = 0;
- 333   1          while(i < 10000) i++;
- 334   1              
- 335   1          sprintf(str, "m %u\r", macro_index);
- 336   1          sendCommand(str);
- 337   1      }
- 338          
- 339          void displayText(const char* fg, const char* bg, const unsigned char size, const char* message, const unsi
+ 313          {
+ 314   1          char str[256] = { 0 };
+ 315   1          
+ 316   1          int i = 0;
+ 317   1          while(i < 10000) i++;
+ 318   1              
+ 319   1          sprintf(str, "S %s %s\r", fg, bg);
+ 320   1          sendCommand(str);
+ 321   1          sprintf(str, "f %s\r", Font[size]);
+ 322   1          sendCommand(str);
+ 323   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);
+ 324   1          sendCommand(str);
+ 325   1      }
+ 326          
+ 327          static void display_image(const unsigned int image_num, const int x, const int y)
+ 328          {
+ 329   1          char str[32] = { 0 };
+ 330   1          
+ 331   1          int i = 0;
+ 332   1          while(i < 10000) i++;
+ 333   1              
+ 334   1          sprintf(str, "xi %u %u %u\r", image_num, x, y);
+ 335   1          sendCommand(str);
+ 336   1      }
+ 337          
+ 338          static void send_macro(const unsigned int macro_index)
+ 339          {
+ 340   1          char str[8] = { 0 };
+ 341   1          
+ 342   1          int i = 0;
+ 343   1          while(i < 10000) i++;
+ 344   1              
+ 345   1          sprintf(str, "m %u\r", macro_index);
+ 346   1          sendCommand(str);
+ 347   1      }
+ 348          
+ 349          void displayText(const char* fg, const char* bg, const unsigned char size, const char* message, const unsi
              -gned int x, const unsigned int y)
- 340          {
- 341   1              char str[TX_BUFFER_SIZE];                                                                                                       // String
- 342   1      
- 343   1              //delay(5);                                                                                                                                     // Do not remove this delay
- 344   1                      
- 345   1              sprintf(str, "S %s %s\r", fg, bg);                                                                                      // Set forground and background color
- 346   1              sendCommand(str);                                                                                                               
- 347   1              sprintf(str, "f %s\r", Font[size]);                                                                                     // Set text font
- 348   1              sendCommand(str);                                                                                                               
- 349   1              sprintf(str, "t \"%s\" %u %u\r", message, x, y);                                                        // Display text
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 7   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 7   
 
- 350   1              sendCommand(str);                                                                                                               
- 351   1      }
- 352          /*
- 353          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
- 354          {
- 355                  char str[TX_BUFFER_SIZE];
- 356          
- 357                  sprintf(str, "xi %u %u %u\r", index, x, y);                                                                     // Bitmap index
- 358                  sendCommand(str);
- 359          }
- 360          
- 361          void changeScreen(const unsigned char screenIndex)
- 362          {
- 363                  callMacro(screenIndex);                                                                                                         // Change screen                
- 364          }
- 365          
- 366          void callMacro(const unsigned int macroNumber)
- 367          {
- 368                  char str[TX_BUFFER_SIZE];
- 369          
- 370                  sprintf(str, "m %u\r", macroNumber);                                                                            // Execute macro number
- 371                  sendCommand(str);
- 372          }
- 373          */
- 374          
- 375          int main()
- 376          {
- 377   1              int i = 0;
- 378   1          char str[64];
- 379   1          
- 380   1          //disableWatchdog();
- 381   1          systemClockInit();
- 382   1              portInit();
- 383   1              enableInterrupts();
- 384   1              uart0Init();
- 385   1          tsLastCharGone = 1;
- 386   1          tsTxOut = tsTxIn = 0;
- 387   1          tsTxEmpty = 1;
+ 350          {
+ 351   1              char str[TX_BUFFER_SIZE];                                                                                                       // String
+ 352   1      
+ 353   1              //delay(5);                                                                                                                                     // Do not remove this delay
+ 354   1                      
+ 355   1              sprintf(str, "S %s %s\r", fg, bg);                                                                                      // Set forground and background color
+ 356   1              sendCommand(str);                                                                                                               
+ 357   1              sprintf(str, "f %s\r", Font[size]);                                                                                     // Set text font
+ 358   1              sendCommand(str);                                                                                                               
+ 359   1              sprintf(str, "t \"%s\" %u %u\r", message, x, y);                                                        // Display text
+ 360   1              sendCommand(str);                                                                                                               
+ 361   1      }
+ 362          /*
+ 363          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
+ 364          {
+ 365                  char str[TX_BUFFER_SIZE];
+ 366          
+ 367                  sprintf(str, "xi %u %u %u\r", index, x, y);                                                                     // Bitmap index
+ 368                  sendCommand(str);
+ 369          }
+ 370          
+ 371          void changeScreen(const unsigned char screenIndex)
+ 372          {
+ 373                  callMacro(screenIndex);                                                                                                         // Change screen                
+ 374          }
+ 375          
+ 376          void callMacro(const unsigned int macroNumber)
+ 377          {
+ 378                  char str[TX_BUFFER_SIZE];
+ 379          
+ 380                  sprintf(str, "m %u\r", macroNumber);                                                                            // Execute macro number
+ 381                  sendCommand(str);
+ 382          }
+ 383          */
+ 384          int main()
+ 385          {
+ 386   1              int i = 0;
+ 387   1          char str[64];
  388   1          
- 389   1          //send_macro(Splash);
- 390   1          
- 391   1              while(1)
- 392   1              {
- 393   2                      sprintf(str, "z\r");
- 394   2              sendCommand(str);
- 395   2              
- 396   2              i = 0;
- 397   2              
- 398   2              while(i < 10000)
- 399   2                  i++;
- 400   2              
- 401   2              //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
- 402   2              //sendCommand(str);
- 403   2              
- 404   2              display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
- 405   2              
- 406   2              //if (splashEnd) 
- 407   2              //{
- 408   2              //send_macro(display_home);
- 409   2              //}
- 410   2              
- 411   2              i = 0;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 8   
+ 389   1          disableWatchdog();
+ 390   1          systemClockInit();
+ 391   1              portInit();
+ 392   1              enableInterrupts();
+ 393   1              uart0Init();
+ 394   1          tsLastCharGone = 1;
+ 395   1          tsTxOut = tsTxIn = 0;
+ 396   1          tsTxEmpty = 1;
+ 397   1          
+ 398   1              sprintf(str, "z\r");
+ 399   1          sendCommand(str);
+ 400   1          
+ 401   1          send_macro(display_temperature);
+ 402   1          
+ 403   1          while(1)
+ 404   1              {
+ 405   2                      //sprintf(str, "z\r");
+ 406   2              //sendCommand(str);
+ 407   2              
+ 408   2              i = 0;
+ 409   2              
+ 410   2              while(i < 10000)
+ 411   2                  i++;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 8   
 
  412   2              
- 413   2              while(i < 10000)
- 414   2                  i++;
- 415   2              }
- 416   1      }
+ 413   2              //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
+ 414   2              //sendCommand(str);
+ 415   2              
+ 416   2              //display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
+ 417   2              
+ 418   2              //if (splashEnd) 
+ 419   2              //{
+ 420   2              
+ 421   2              //}
+ 422   2              
+ 423   2              if (tsCommandReceived) 
+ 424   2              {
+ 425   3                  if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
+ 426   4                      display_text("FFFFFF", "000000", 8, "32F", 240, 110);
+ 427   4                  }
+ 428   3                  else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
+ 429   4                      display_text("FFFFFF", "000000", 8, "32C", 240, 110);
+ 430   4                  }
+ 431   3                  else {
+ 432   4                      // noop
+ 433   4                  }
+ 434   3              }
+ 435   2              
+ 436   2              i = 0;
+ 437   2              
+ 438   2              while(i < 10000)
+ 439   2                  i++;
+ 440   2              }
+ 441   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1565    ----
-   CONSTANT SIZE    =    411    ----
-   XDATA SIZE       =    795     660
+   CODE SIZE        =   1743    ----
+   CONSTANT SIZE    =    413    ----
+   XDATA SIZE       =    795     662
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
