@@ -1,13 +1,13 @@
 #include <c8051f120.h>
 #include <stdio.h> 
-#include <stdlib.h>
-#include <math.h>
+//#include <stdlib.h>
+//#include <math.h>
 #include <string.h>
-#include <absacc.h>
+//#include <absacc.h>
 
 #include "macros.h"
-#include "laser.h"
-#include "motor.h"
+//#include "laser.h"
+//#include "motor.h"
 
 #define     SYSTEM_CLOCK                24500000
 #define 	BAUD_RATE		            115200
@@ -308,10 +308,9 @@ const char code * Font[] = { "m10B",    ///< Font size 0
                              "m48B",    ///< Font size 7 
                              "m64"};    ///< Font size 8
 
-
 void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
 {
-    char str[256] = { 0 };
+    char str[128] = { 0 };
     
     int i = 0;
     while(i < 10000) i++;
@@ -344,20 +343,6 @@ static void send_macro(const unsigned int macro_index)
         
     sprintf(str, "m %u\r", macro_index);
     sendCommand(str);
-}
-
-void displayText(const char* fg, const char* bg, const unsigned char size, const char* message, const unsigned int x, const unsigned int y)
-{
-	char str[TX_BUFFER_SIZE];													// String
-
-	//delay(5);																	// Do not remove this delay
-		
-	sprintf(str, "S %s %s\r", fg, bg);											// Set forground and background color
-	sendCommand(str);														
-	sprintf(str, "f %s\r", Font[size]);											// Set text font
-	sendCommand(str);														
-	sprintf(str, "t \"%s\" %u %u\r", message, x, y); 							// Display text
-	sendCommand(str);														
 }
 /*
 void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
@@ -402,24 +387,6 @@ int main()
     
     while(1)
 	{
-		//sprintf(str, "z\r");
-        //sendCommand(str);
-        
-        i = 0;
-        
-        while(i < 10000)
-            i++;
-        
-        //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
-        //sendCommand(str);
-        
-        //display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
-        
-        //if (splashEnd) 
-        //{
-        
-        //}
-        
         if (tsCommandReceived) 
         {
             if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
@@ -432,10 +399,5 @@ int main()
                 // noop
             }
         }
-        
-        i = 0;
-        
-        while(i < 10000)
-            i++;
 	}
 }

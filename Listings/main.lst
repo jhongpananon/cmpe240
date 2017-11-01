@@ -1,23 +1,23 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN .\Objects\main.obj
-COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
-                    -s\main.lst) OBJECT(.\Objects\main.obj)
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c LARGE ROM(COMPACT) OPTIMIZE(7,SIZE) PRINT(.\Listings\main.lst) OB
+                    -JECT(.\Objects\main.obj)
 
 line level    source
 
    1          #include <c8051f120.h>
    2          #include <stdio.h> 
-   3          #include <stdlib.h>
-   4          #include <math.h>
+   3          //#include <stdlib.h>
+   4          //#include <math.h>
    5          #include <string.h>
-   6          #include <absacc.h>
+   6          //#include <absacc.h>
    7          
    8          #include "macros.h"
-   9          #include "laser.h"
-  10          #include "motor.h"
+   9          //#include "laser.h"
+  10          //#include "motor.h"
   11          
   12          #define     SYSTEM_CLOCK                24500000
   13          #define         BAUD_RATE                           115200
@@ -62,7 +62,7 @@ line level    source
   50          unsigned char tsByte;
   51          
   52          bit splashEnd = 0;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 2   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 2   
 
   53          bit screenReset = 0;
   54          bit ackFromScreen = 0;
@@ -126,7 +126,7 @@ line level    source
  112          void uart0Init(void)
  113          {
  114   1         char SFRPAGE_SAVE;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 3   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 3   
 
  115   1      
  116   1         SFRPAGE_SAVE = SFRPAGE;                                                                      // Preserve SFRPAGE
@@ -190,7 +190,7 @@ line level    source
  166   4                                      {
  167   5                                              if(tsRxBuffer[1] == 'c' && tsRxBuffer[2] == 'm' && tsRxBuffer[3] == 'p' && tsRxBuffer[4] == 'e' && ts
              -RxBuffer[5] == '}')
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 4   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 4   
 
  168   5                                              {
  169   6                                                      splashEnd = 1;                                          // Detect end of splash screen
@@ -254,7 +254,7 @@ line level    source
  227   1         {
  228   2              TI0 = 0;                                                                                        // Clear interrupt flag
  229   2      
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 5   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 5   
 
  230   2                      if(tsTxEmpty == 0)                                                                                                              // TX buffer has something to send
  231   2                      {
@@ -318,7 +318,7 @@ line level    source
  288   2                      s++;                                                                                                                                    // Point to next char to send out
  289   2          }
  290   1                                                                                                                                                                      
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 6   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 6   
 
  291   1              if(tsLastCharGone == 1)                                                                                                         // All characters in buffer has sent out
  292   1              {
@@ -341,152 +341,113 @@ line level    source
  308                                       "m48B",    ///< Font size 7 
  309                                       "m64"};    ///< Font size 8
  310          
- 311          
- 312          void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const 
+ 311          void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const 
              -int x, const int y)
- 313          {
- 314   1          char str[256] = { 0 };
- 315   1          
- 316   1          int i = 0;
- 317   1          while(i < 10000) i++;
- 318   1              
- 319   1          sprintf(str, "S %s %s\r", fg, bg);
- 320   1          sendCommand(str);
- 321   1          sprintf(str, "f %s\r", Font[size]);
- 322   1          sendCommand(str);
- 323   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);
- 324   1          sendCommand(str);
- 325   1      }
- 326          
- 327          static void display_image(const unsigned int image_num, const int x, const int y)
- 328          {
- 329   1          char str[32] = { 0 };
- 330   1          
- 331   1          int i = 0;
- 332   1          while(i < 10000) i++;
- 333   1              
- 334   1          sprintf(str, "xi %u %u %u\r", image_num, x, y);
- 335   1          sendCommand(str);
- 336   1      }
- 337          
- 338          static void send_macro(const unsigned int macro_index)
- 339          {
- 340   1          char str[8] = { 0 };
- 341   1          
- 342   1          int i = 0;
- 343   1          while(i < 10000) i++;
- 344   1              
- 345   1          sprintf(str, "m %u\r", macro_index);
- 346   1          sendCommand(str);
- 347   1      }
- 348          
- 349          void displayText(const char* fg, const char* bg, const unsigned char size, const char* message, const unsi
-             -gned int x, const unsigned int y)
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 7   
+ 312          {
+ 313   1          char str[128] = { 0 };
+ 314   1          
+ 315   1          int i = 0;
+ 316   1          while(i < 10000) i++;
+ 317   1              
+ 318   1          sprintf(str, "S %s %s\r", fg, bg);
+ 319   1          sendCommand(str);
+ 320   1          sprintf(str, "f %s\r", Font[size]);
+ 321   1          sendCommand(str);
+ 322   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);
+ 323   1          sendCommand(str);
+ 324   1      }
+ 325          
+ 326          static void display_image(const unsigned int image_num, const int x, const int y)
+ 327          {
+ 328   1          char str[32] = { 0 };
+ 329   1          
+ 330   1          int i = 0;
+ 331   1          while(i < 10000) i++;
+ 332   1              
+ 333   1          sprintf(str, "xi %u %u %u\r", image_num, x, y);
+ 334   1          sendCommand(str);
+ 335   1      }
+ 336          
+ 337          static void send_macro(const unsigned int macro_index)
+ 338          {
+ 339   1          char str[8] = { 0 };
+ 340   1          
+ 341   1          int i = 0;
+ 342   1          while(i < 10000) i++;
+ 343   1              
+ 344   1          sprintf(str, "m %u\r", macro_index);
+ 345   1          sendCommand(str);
+ 346   1      }
+ 347          /*
+ 348          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
+ 349          {
+ 350                  char str[TX_BUFFER_SIZE];
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 7   
 
- 350          {
- 351   1              char str[TX_BUFFER_SIZE];                                                                                                       // String
- 352   1      
- 353   1              //delay(5);                                                                                                                                     // Do not remove this delay
- 354   1                      
- 355   1              sprintf(str, "S %s %s\r", fg, bg);                                                                                      // Set forground and background color
- 356   1              sendCommand(str);                                                                                                               
- 357   1              sprintf(str, "f %s\r", Font[size]);                                                                                     // Set text font
- 358   1              sendCommand(str);                                                                                                               
- 359   1              sprintf(str, "t \"%s\" %u %u\r", message, x, y);                                                        // Display text
- 360   1              sendCommand(str);                                                                                                               
- 361   1      }
- 362          /*
- 363          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
- 364          {
- 365                  char str[TX_BUFFER_SIZE];
- 366          
- 367                  sprintf(str, "xi %u %u %u\r", index, x, y);                                                                     // Bitmap index
- 368                  sendCommand(str);
- 369          }
- 370          
- 371          void changeScreen(const unsigned char screenIndex)
- 372          {
- 373                  callMacro(screenIndex);                                                                                                         // Change screen                
- 374          }
- 375          
- 376          void callMacro(const unsigned int macroNumber)
- 377          {
- 378                  char str[TX_BUFFER_SIZE];
- 379          
- 380                  sprintf(str, "m %u\r", macroNumber);                                                                            // Execute macro number
- 381                  sendCommand(str);
- 382          }
- 383          */
- 384          int main()
- 385          {
- 386   1              int i = 0;
- 387   1          char str[64];
- 388   1          
- 389   1          disableWatchdog();
- 390   1          systemClockInit();
- 391   1              portInit();
- 392   1              enableInterrupts();
- 393   1              uart0Init();
- 394   1          tsLastCharGone = 1;
- 395   1          tsTxOut = tsTxIn = 0;
- 396   1          tsTxEmpty = 1;
- 397   1          
- 398   1              sprintf(str, "z\r");
- 399   1          sendCommand(str);
- 400   1          
- 401   1          send_macro(display_temperature);
- 402   1          
- 403   1          while(1)
- 404   1              {
- 405   2                      //sprintf(str, "z\r");
- 406   2              //sendCommand(str);
- 407   2              
- 408   2              i = 0;
- 409   2              
- 410   2              while(i < 10000)
- 411   2                  i++;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:24:37 PAGE 8   
-
- 412   2              
- 413   2              //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
- 414   2              //sendCommand(str);
- 415   2              
- 416   2              //display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
- 417   2              
- 418   2              //if (splashEnd) 
- 419   2              //{
- 420   2              
- 421   2              //}
- 422   2              
- 423   2              if (tsCommandReceived) 
- 424   2              {
- 425   3                  if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
- 426   4                      display_text("FFFFFF", "000000", 8, "32F", 240, 110);
- 427   4                  }
- 428   3                  else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
- 429   4                      display_text("FFFFFF", "000000", 8, "32C", 240, 110);
- 430   4                  }
- 431   3                  else {
- 432   4                      // noop
- 433   4                  }
- 434   3              }
- 435   2              
- 436   2              i = 0;
- 437   2              
- 438   2              while(i < 10000)
- 439   2                  i++;
- 440   2              }
- 441   1      }
+ 351          
+ 352                  sprintf(str, "xi %u %u %u\r", index, x, y);                                                                     // Bitmap index
+ 353                  sendCommand(str);
+ 354          }
+ 355          
+ 356          void changeScreen(const unsigned char screenIndex)
+ 357          {
+ 358                  callMacro(screenIndex);                                                                                                         // Change screen                
+ 359          }
+ 360          
+ 361          void callMacro(const unsigned int macroNumber)
+ 362          {
+ 363                  char str[TX_BUFFER_SIZE];
+ 364          
+ 365                  sprintf(str, "m %u\r", macroNumber);                                                                            // Execute macro number
+ 366                  sendCommand(str);
+ 367          }
+ 368          */
+ 369          int main()
+ 370          {
+ 371   1              int i = 0;
+ 372   1          char str[64];
+ 373   1          
+ 374   1          disableWatchdog();
+ 375   1          systemClockInit();
+ 376   1              portInit();
+ 377   1              enableInterrupts();
+ 378   1              uart0Init();
+ 379   1          tsLastCharGone = 1;
+ 380   1          tsTxOut = tsTxIn = 0;
+ 381   1          tsTxEmpty = 1;
+ 382   1          
+ 383   1              sprintf(str, "z\r");
+ 384   1          sendCommand(str);
+ 385   1          
+ 386   1          send_macro(display_temperature);
+ 387   1          
+ 388   1          while(1)
+ 389   1              {
+ 390   2              if (tsCommandReceived) 
+ 391   2              {
+ 392   3                  if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
+ 393   4                      display_text("FFFFFF", "000000", 8, "32F", 240, 110);
+ 394   4                  }
+ 395   3                  else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
+ 396   4                      display_text("FFFFFF", "000000", 8, "32C", 240, 110);
+ 397   4                  }
+ 398   3                  else {
+ 399   4                      // noop
+ 400   4                  }
+ 401   3              }
+ 402   2              }
+ 403   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1743    ----
-   CONSTANT SIZE    =    413    ----
-   XDATA SIZE       =    795     662
+   CODE SIZE        =   1399    ----
+   CONSTANT SIZE    =    285    ----
+   XDATA SIZE       =    795     264
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 20:41:35 PAGE 8   
+
    BIT SIZE         =      8    ----
 END OF MODULE INFORMATION.
 
