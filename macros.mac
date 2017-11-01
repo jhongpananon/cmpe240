@@ -12,22 +12,22 @@ x 128 270 30 370 60
 xm 128 display_page1
 #end
 
+#define display_temperature
+xi 4 0 0
+r 220 100 450 300 1 000000      // Big square box for temperature
+r 120 350 250 450 1 000000      // small left box for Fahrenheit button
+r 400 350 540 450 1 000000      // small right box for Celsius button
+x 129 120 350 250 450           // button for small left box
+x 130 400 350 540 450           // button for small right box
+#end
+
 #define Splash
-baud 115200								//Set baud rate
+baud 115200                             //Set baud rate
 
 xc all
 xi 1 0 0
-										//Splash screen bitmap
+                                        //Splash screen bitmap
 // Place your macro code here
 
-out "{cmpe}\r"							//Indicate that splash screen is complete
-#end
-
-#define display_temperature
-xi 4 0 0
-r 220 100 450 300 1 000000		// Big square box for temperature
-r 120 350 250 450 1 000000		// small left box for Fahrenheit button
-r 400 350 540 450 1 000000		// small right box for Celsius button
-x 129 120 350 250 450 			// button for small left box
-x 130 400 350 540 450			// button for small right box
+out "{cmpe}\r"                          //Indicate that splash screen is complete
 #end
