@@ -1,0 +1,672 @@
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE I2C_MASTER
+OBJECT MODULE PLACED IN .\Objects\i2c_master.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE i2c_master.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\L
+                    -istings\i2c_master.lst) OBJECT(.\Objects\i2c_master.obj)
+
+line level    source
+
+   1          #include <main.h>
+*** WARNING C318 IN LINE 1 OF i2c_master.c: can't open file 'main.h'
+   2          
+   3          #define         MY_ADDR                                 0x02                                    // Master address
+   4          #define         SMB_FREQUENCY                           100000L                                 // Keep this frequency = 100 Khz         
+             -                         
+   5          #define         WRITE                                   0x00                                            // Write operation
+   6          #define         READ                                    0x01                                // Read operation
+   7          
+   8          #define         MCU_SLAVE_ADDR                          0x20                                    // SMB address of slave board
+   9          #define         EEPROM_ADDR                                     0xA4                                                            // SMB address of EEPROM
+  10          #define         DEVICE_DUMP_ADDR                        0xAB                                                            // SMB dump address only
+  11                                                                                  
+  12          #define         SMB_BUS_ERROR                           0                                               // Bus error for all modes
+  13          #define         SMB_START                               1                                               // Master initiates a transter, STA signal
+             - transmitted
+  14          #define         SMB_REPEAT_START                2                                               // Master repeats sending STA signal to
+             - slave
+  15          #define         SMB_ADDR_W_TX_ACK_RX            3                                       // Master transmitted Slave address +
+             - W; and ACK received
+  16          #define         SMB_ADDR_W_TX_NACK_RX           4                                       // Master transmitted Slave address +
+             - W; and NACK received
+  17          #define         SMB_DATA_TX_ACK_RX              5                                       // Master transmitted data byte; and A
+             -CK received
+  18          #define         SMB_DATA_TX_NACK_RX             6                                               // Master transmitted data byte; and 
+             -NACK received
+  19          #define         SMB_ARBITRATION_LOST            7                                               // Master transmitter; arbitration lo
+             -st
+  20          #define         SMB_ADDR_R_TX_ACK_RX            8                                               // Master transmitted Slave address 
+             -+ R; and ACK received
+  21          #define         SMB_ADDR_R_TX_NACK_RX           9                                               // Master transmitted Slave address + R; an
+             -d NACK received
+  22          #define         SMB_DATA_RX_ACK_TX              10                                              // Master received data byte; ACK transm
+             -itted
+  23          #define         SMB_DATA_RX_NACK_TX             11                                      // Master received data byte; NACK tr
+             -ansmitted
+  24          
+  25          #define         S_SMB_ADDR_W_RX_ACK_TX          12                                              // Slave received its own address for write
+             -; ACK transmitted
+  26          #define         S_SMB_ADDR_W_TX_LOST            13                                                                      // Slave arbitration lost; slave address + W received and ACK s
+             -ent
+  27          #define         S_SMB_ADDR_WG_RX_ACK_TX         14                                      // General call address received: ACK tr
+             -ansmitted
+  28          #define         S_SMB_GENERAL_CALL_LOST         15                                                                      // Slave arbitration loast; general call received, ACK sent
+  29          #define         S_SMB_DATA_RX_ACK_TX            16                                      // Slave received data byte; ACK transmitted
+  30          #define         S_SMB_DATA_RX_NACK_TX           17                                      // Slave received data byte; NACK transm
+             -itted
+  31          #define         S_SMB_DATAG_RX_ACK_TX           18                                      // Slave received data byte under general c
+             -all; ACK transmitted
+  32          #define         S_SMB_DATAG_RX_NACK_TX          19                                              // Slave received data byte under general 
+             -call; NACK transmitted
+  33          #define         S_SMB_STOP_REPEAT_START         20                                              // Slave received STOP or REPEAT START
+  34          
+  35          #define         S_SMB_ADDR_R_RX_ACK_TX          21                                              // Slave received its own address for read;
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 2   
+
+             - ACK transmitted
+  36          #define         S_SMB_ADDR_R_RX_LOST            22                                                                      // Slave received its own address for read; ACK transmitted
+  37          #define         S_SMB_DATA_TX_ACK_RX            23                                      // Slave transmitted data byte; ACK recei
+             -ved
+  38          #define         S_SMB_DATA_TX_NACK_RX           24                                      // Slave transmitted data byte; NACK rec
+             -eived
+  39          #define         S_SMB_LAST_TX_ACK_RX            25                                      // Slave transmitted last data byte; ACK 
+             -received
+  40          #define         S_SMB_CLOCK_HI_TIMEOUT          26                                      // SCL clock high timeout
+  41          
+  42          #define         START_INDEX                                     0
+  43          #define         SHARED_DATA_MAX                         0x7F                                                            // Max number of devices connected to slave (127)
+  44          
+  45          // EEPROM Parameters
+  46          #define         EEPROM_ADDR_SIZE                        2                                                                       // 2 byte address of EEPROM
+  47          #define         EEPROM_TX_BUFFER                        512
+  48          #define         EEPROM_RX_BUFFER                        512
+  49          
+  50          //-------------------------------------------------------------------------------------------------------
+  51          // It is the decription of data string transmitted or received between the master board and slave board
+  52          // via the SMB.
+  53          // 1. Slave address: 1 byte
+  54          // 2. Component address (on slave): 2 bytes. It may be located in the internal RAM or external RAM
+  55          // 3. Data
+  56          
+  57          // For writing data to the slave board: [Slave address][Component address][Data]
+  58          // For reading data from the slave board: [Slave address][Component address]
+  59          // Note that a high byte of data will be stored in lower address and a low byte of data will be stored
+  60          // in higher address. For example, data = 0x1234 will be stored as follows:
+  61          // 0000 -----> 12
+  62          // 0001 -----> 34 
+  63          //-------------------------------------------------------------------------------------------------------
+  64          
+  65          //-------------------------------------------------------------------------------------------------------
+  66          // Global Declarations
+  67          //-------------------------------------------------------------------------------------------------------
+  68          bit SMB_BUSY = 0;                                                                                       // Set to claim the bus, clear to fre
+             -e
+  69          bit SMB_RW;                                                                                             // Software flag to indicate Read or Wri
+             -te
+  70          
+  71          unsigned char eepromNoResponse;
+  72          
+  73          unsigned char sharedDataRx[SHARED_DATA_MAX];
+  74          unsigned char sharedDataTx[SHARED_DATA_MAX];
+  75          
+  76          unsigned char * sharedDataRxPtr;
+  77          unsigned char * sharedDataTxPtr;
+  78          
+  79          unsigned int startAddr;
+  80          unsigned char slaveAddr;                                                                                // Target SMBus slave address
+  81          
+  82          unsigned int numBytesRD;
+  83          unsigned int numBytesWR;
+  84          
+  85          unsigned char slaveWriteDone;
+  86          unsigned char slaveReadDone;
+  87          
+  88          //-------------------------------------------------------------------------------------------------------
+  89          // Function Name: scanPcInput
+  90          // Return Value: None 
+  91          // Parmeters: None
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 3   
+
+  92          // Function Description: This function initializes the SMB bus 
+  93          //-------------------------------------------------------------------------------------------------------
+  94          void smbInit(void)
+  95          {
+  96   1              int i;
+  97   1              unsigned long pollingCounter = 0;
+  98   1              char SFRPAGE_SAVE = SFRPAGE;
+*** ERROR C202 IN LINE 98 OF i2c_master.c: 'SFRPAGE': undefined identifier
+  99   1      
+ 100   1              SFRPAGE = SMB0_PAGE;
+*** ERROR C202 IN LINE 100 OF i2c_master.c: 'SFRPAGE': undefined identifier
+ 101   1              while(SDA == 0 && pollingCounter++ < SMB_POLLING_LIMIT)                                                 
+*** ERROR C202 IN LINE 101 OF i2c_master.c: 'SDA': undefined identifier
+ 102   1              {
+ 103   2              SCL = 0;                                                                                        // Drive the clock low
+*** ERROR C202 IN LINE 103 OF i2c_master.c: 'SCL': undefined identifier
+ 104   2              for(i = 0; i < 255; i++);                                                                       // Hold the clock low
+ 105   2              SCL = 1;                                                                                        // Release the clock
+*** ERROR C202 IN LINE 105 OF i2c_master.c: 'SCL': undefined identifier
+ 106   2              while(SCL == 0 && pollingCounter++ < SMB_POLLING_LIMIT);                                        // Wait for open-drain
+*** ERROR C202 IN LINE 106 OF i2c_master.c: 'SCL': undefined identifier
+ 107   2              for(i = 0; i < 10; i++);                                                                        // Hold the clock high
+ 108   2              }
+ 109   1                              
+ 110   1              SMB0CN = 0x07;                                                                                          // Assert Acknowledge low (AA bit = 1b);
+*** ERROR C202 IN LINE 110 OF i2c_master.c: 'SMB0CN': undefined identifier
+ 111   1                                                                                                              // Enable SMBus Free timeout detect;
+ 112   1              SMB0CR = 267 - (SYSTEM_CLOCK / (8 * SMB_FREQUENCY));                                                    // Derived approximation from the Tlow and Thi
+             -gh equations
+*** ERROR C202 IN LINE 112 OF i2c_master.c: 'SMB0CR': undefined identifier
+ 113   1                                                                                                                                              
+ 114   1              SMB0CN |= 0x40;                                                                                         // Enable SMBus;
+*** ERROR C202 IN LINE 114 OF i2c_master.c: 'SMB0CN': undefined identifier
+ 115   1      
+ 116   1              SFRPAGE = SFRPAGE_SAVE;                                                                                 // Restore SFR page detector
+*** ERROR C202 IN LINE 116 OF i2c_master.c: 'SFRPAGE': undefined identifier
+ 117   1              
+ 118   1              SMB_BUSY = 0;                                                                                                                                   // Release SMB
+ 119   1      
+ 120   1              sharedDataRxPtr = sharedDataRx;                                                                                                 // Assign a pointer to array for random access
+ 121   1              sharedDataTxPtr = sharedDataTx;                                                                                                 // Assign a pointer to array for random access
+ 122   1              
+ 123   1              slaveWriteDone = FALSE;
+*** ERROR C202 IN LINE 123 OF i2c_master.c: 'FALSE': undefined identifier
+ 124   1              slaveReadDone = FALSE;
+*** ERROR C202 IN LINE 124 OF i2c_master.c: 'FALSE': undefined identifier
+ 125   1      }
+ 126          
+ 127          //-------------------------------------------------------------------------------------------------------
+ 128          // Function Name: timer3Init
+ 129          // Return Value: None 
+ 130          // Parmeters: None
+ 131          // Function Description: This function nitializes timer 3 which is used to time out the SMB if errors occu
+             -r
+ 132          //-------------------------------------------------------------------------------------------------------
+ 133          void timer3Init (void)
+ 134          {
+ 135   1              char SFRPAGE_SAVE = SFRPAGE;        
+*** ERROR C202 IN LINE 135 OF i2c_master.c: 'SFRPAGE': undefined identifier
+ 136   1      
+ 137   1              SFRPAGE = TMR3_PAGE;
+*** ERROR C202 IN LINE 137 OF i2c_master.c: 'SFRPAGE': undefined identifier
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 4   
+
+ 138   1      
+ 139   1              TMR3CN = 0x00;                                                                                          // Timer 3 in timer mode
+*** ERROR C202 IN LINE 139 OF i2c_master.c: 'TMR3CN': undefined identifier
+ 140   1                                                                                                                                                                              // Timer 3 auto reload
+ 141   1              TMR3CF = 0x00;                                                                                          // Timer 3 prescaler = 12
+*** ERROR C202 IN LINE 141 OF i2c_master.c: 'TMR3CF': undefined identifier
+ 142   1      
+ 143   1              RCAP3 = -(SYSTEM_CLOCK / 12 / 40);                                                              // Timer 3 overflows after 25 ms
+*** ERROR C202 IN LINE 143 OF i2c_master.c: 'RCAP3': undefined identifier
+ 144   1              TMR3 = RCAP3;                                                                                   
+*** ERROR C202 IN LINE 144 OF i2c_master.c: 'TMR3': undefined identifier
+ 145   1      
+ 146   1              TR3 = 1;                                                                                                // Start Timer 3
+*** ERROR C202 IN LINE 146 OF i2c_master.c: 'TR3': undefined identifier
+ 147   1      
+ 148   1              SFRPAGE = SFRPAGE_SAVE;                                                                                 // Restore SFR page
+*** ERROR C202 IN LINE 148 OF i2c_master.c: 'SFRPAGE': undefined identifier
+ 149   1      }
+ 150          
+ 151          //-------------------------------------------------------------------------------------------------------
+ 152          // Function Name: timer3ISR
+ 153          // Return Value: None 
+ 154          // Parmeters: None
+ 155          // Function Description: This function is timer 3 ISR which is used to reset the SMB bus if the clock line
+             - is held for too long
+ 156          //-------------------------------------------------------------------------------------------------------
+ 157          void timer3ISR(void) interrupt INTERRUPT_Timer_3
+*** ERROR C141 IN LINE 157 OF i2c_master.c: syntax error near 'INTERRUPT_Timer_3', expected 'const'
+ 158          {
+*** ERROR C132 IN LINE 158 OF i2c_master.c: 'INTERRUPT_Timer_3': not in formal parameter list
+*** ERROR C141 IN LINE 158 OF i2c_master.c: syntax error near '{'
+ 159                  char SFRPAGE_SAVE = SFRPAGE;                                                                            // Save Current SFR page
+*** ERROR C244 IN LINE 159 OF i2c_master.c: 'SFRPAGE_SAVE': can't initialize, bad type or class
+*** ERROR C202 IN LINE 159 OF i2c_master.c: 'SFRPAGE': undefined identifier
+*** ERROR C132 IN LINE 159 OF i2c_master.c: 'SFRPAGE_SAVE': not in formal parameter list
+ 160          
+ 161                  SFRPAGE = SMB0_PAGE;
+*** ERROR C244 IN LINE 161 OF i2c_master.c: 'SFRPAGE': can't initialize, bad type or class
+*** ERROR C202 IN LINE 161 OF i2c_master.c: 'SMB0_PAGE': undefined identifier
+*** ERROR C132 IN LINE 161 OF i2c_master.c: 'SFRPAGE': not in formal parameter list
+ 162                  SMB0CN &= ~0x40;                                                                                        // Disable SMBus
+*** ERROR C132 IN LINE 162 OF i2c_master.c: 'SMB0CN': not in formal parameter list
+*** ERROR C141 IN LINE 162 OF i2c_master.c: syntax error near '&='
+ 163                  SMB0CN |= 0x40;                                                                                         // Re-enable SMBus
+*** ERROR C132 IN LINE 163 OF i2c_master.c: 'SMB0CN': not in formal parameter list
+ 164          
+ 165                  SFRPAGE = SFRPAGE_SAVE;                                                                                 // Switch back to the Timer3 SFRPAGE
+*** ERROR C244 IN LINE 165 OF i2c_master.c: 'SFRPAGE': can't initialize, bad type or class
+*** ERROR C202 IN LINE 165 OF i2c_master.c: 'SFRPAGE_SAVE': undefined identifier
+*** ERROR C132 IN LINE 165 OF i2c_master.c: 'SFRPAGE': not in formal parameter list
+ 166                  TF3 = 0;                                                                                                // Clear Timer3 interrupt-pending flag
+*** ERROR C244 IN LINE 166 OF i2c_master.c: 'TF3': can't initialize, bad type or class
+*** ERROR C132 IN LINE 166 OF i2c_master.c: 'TF3': not in formal parameter list
+ 167                  SMB_BUSY = 0;                                                                                           // Free bus
+*** ERROR C279 IN LINE 167 OF i2c_master.c: 'SMB_BUSY': multiple initialization
+*** ERROR C244 IN LINE 167 OF i2c_master.c: 'SMB_BUSY': can't initialize, bad type or class
+*** ERROR C132 IN LINE 167 OF i2c_master.c: 'SMB_BUSY': not in formal parameter list
+ 168             
+ 169                  SFRPAGE = SFRPAGE_SAVE;                                                                                 // Restore SFR page detector
+*** ERROR C244 IN LINE 169 OF i2c_master.c: 'SFRPAGE': can't initialize, bad type or class
+*** ERROR C202 IN LINE 169 OF i2c_master.c: 'SFRPAGE_SAVE': undefined identifier
+*** ERROR C132 IN LINE 169 OF i2c_master.c: 'SFRPAGE': not in formal parameter list
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 5   
+
+ 170          }
+*** ERROR C141 IN LINE 170 OF i2c_master.c: syntax error near '}'
+ 171          
+ 172          //-------------------------------------------------------------------------------------------------------
+ 173          // Function Name: checkSlavePresence
+ 174          // Return Value: None 
+ 175          // Parmeters: None
+ 176          // Function Description: This function checks the slave board's presence on SMB
+ 177          //-------------------------------------------------------------------------------------------------------
+ 178          void checkSlavePresence(void)
+ 179          {   
+ 180   1              sharedDataTx[TX_START_INDEX] = 0;
+*** ERROR C202 IN LINE 180 OF i2c_master.c: 'TX_START_INDEX': undefined identifier
+ 181   1              smbWrite(MCU_SLAVE_ADDR, DEVICE_DUMP_ADDR, 0); 
+ 182   1      }
+ 183          
+ 184          //-------------------------------------------------------------------------------------------------------
+ 185          // Function Name: writeBytesToSlave
+ 186          // Return Value: None 
+ 187          // Parmeters: target, startAddr, content, bytes
+ 188          // Function Description: This function writes one to four bytes to the slave board randomly
+ 189          //-------------------------------------------------------------------------------------------------------
+ 190          void writeOneByteToSlave(unsigned char startAddr, unsigned char content)
+ 191          {               
+ 192   1              sharedDataTx[startAddr] = content;
+ 193   1              smbWrite(MCU_SLAVE_ADDR, startAddr, 1);
+ 194   1      }
+ 195          
+ 196          //-------------------------------------------------------------------------------------------------------
+ 197          // Function Name: writeBytesToSlave
+ 198          // Return Value: None 
+ 199          // Parmeters: target, startAddr, content, bytes
+ 200          // Function Description: This function writes one to four bytes to the slave board randomly
+ 201          //-------------------------------------------------------------------------------------------------------
+ 202          void writeTwoBytesToSlave(unsigned char startAddr, unsigned int content)
+ 203          {               
+ 204   1              sharedDataTx[startAddr] = content / 256;
+ 205   1              sharedDataTx[startAddr + 1] = content % 256;    
+ 206   1              smbWrite(MCU_SLAVE_ADDR, startAddr, 2);
+ 207   1      }
+ 208          
+ 209          //-------------------------------------------------------------------------------------------------------
+ 210          // Function Name: writeBytesToSlave
+ 211          // Return Value: None 
+ 212          // Parmeters: startAddr, content, bytes
+ 213          // Function Description: This function writes one to four bytes to the slave board randomly
+ 214          //-------------------------------------------------------------------------------------------------------
+ 215          void writeBytesToSlave(unsigned char startAddr, unsigned char numBytes)
+ 216          {               
+ 217   1              if(numBytes == 1)
+ 218   1              {
+ 219   2                      writeOneByteToSlave(startAddr, sharedDataTx[startAddr]);
+ 220   2              }
+ 221   1              else if(numBytes == 2)
+ 222   1              {
+ 223   2                      writeTwoBytesToSlave(startAddr, (sharedDataTx[startAddr] * 256) + sharedDataTx[startAddr]);
+ 224   2              }
+ 225   1              else
+ 226   1              {
+ 227   2                      smbWrite(MCU_SLAVE_ADDR, startAddr, numBytes);
+ 228   2              }
+ 229   1      }
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 6   
+
+ 230          
+ 231          //-------------------------------------------------------------------------------------------------------
+ 232          // Function Name: readBytesFromSlave
+ 233          // Return Value: long 
+ 234          // Parmeters: startAddr, bytes
+ 235          // Function Description: This function reads one or two bytes from the slave board randomly
+ 236          //-------------------------------------------------------------------------------------------------------
+ 237          unsigned char readOneByteFromSlave(unsigned char startAddr)
+ 238          {
+ 239   1              smbRead(MCU_SLAVE_ADDR, startAddr, 1);
+ 240   1              return sharedDataRx[startAddr];                                                                                                                                                                                         
+ 241   1      }
+ 242          
+ 243          //-------------------------------------------------------------------------------------------------------
+ 244          // Function Name: readBytesFromSlave
+ 245          // Return Value: long 
+ 246          // Parmeters: startAddr, bytes
+ 247          // Function Description: This function reads one or two bytes from the slave board randomly
+ 248          //-------------------------------------------------------------------------------------------------------
+ 249          unsigned int readTwoBytesFromSlave(unsigned char startAddr)
+ 250          {
+ 251   1              smbRead(MCU_SLAVE_ADDR, startAddr, 2);
+ 252   1              return (sharedDataRx[startAddr] * 256) + sharedDataRx[startAddr + 1];                                                                                                                                                                                           
+ 253   1      }
+ 254          
+ 255          //-------------------------------------------------------------------------------------------------------
+ 256          // Function Name: readBytesFromSlave
+ 257          // Return Value: long 
+ 258          // Parmeters: startAddr, bytes
+ 259          // Function Description: This function reads one or two bytes from the slave board randomly
+ 260          //-------------------------------------------------------------------------------------------------------
+ 261          void readBytesFromSlave(unsigned char startAddr, unsigned char numBytes)
+ 262          {
+ 263   1              if(numBytes == 1)
+ 264   1              {
+ 265   2                      readOneByteFromSlave(startAddr);
+ 266   2              }
+ 267   1              else if(numBytes == 2)
+ 268   1              {
+ 269   2                      readTwoBytesFromSlave(startAddr);
+ 270   2              }
+ 271   1              else
+ 272   1              {
+ 273   2                      smbRead(MCU_SLAVE_ADDR, startAddr, numBytes);
+ 274   2              }                                                                                                                                                                                                       
+ 275   1      }
+ 276          
+ 277          
+ 278          //-------------------------------------------------------------------------------------------------------
+ 279          // Function Name: smbRead
+ 280          // Return Value: unsigned char * 
+ 281          // Parmeters: target, startAddr, bytes
+ 282          // Function Description: This function reads from SM bus
+ 283          //-------------------------------------------------------------------------------------------------------
+ 284          void smbRead(unsigned char deviceId, unsigned int location, unsigned int bytes)
+ 285          {
+ 286   1              char SFRPAGE_SAVE = SFRPAGE;
+ 287   1              
+ 288   1              slaveAddr = deviceId;                                                           // Address of MCU slave
+ 289   1              startAddr = location;                                                                                                   // Starting address to read from slave
+ 290   1              numBytesRD = bytes;                                                                                                             // Number of bytes to read
+ 291   1              
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 7   
+
+ 292   1              SFRPAGE = SMB0_PAGE;
+ 293   1              SMB_BUSY = 1;                                                                           // Claim SMBus (set to busy)
+ 294   1              SMB_RW = 1;                                                                             // Mark this transfer as a READ
+ 295   1              STA = 1;
+ 296   1              SFRPAGE = SFRPAGE_SAVE;
+ 297   1                                                                                              
+ 298   1      }
+ 299          
+ 300          //-------------------------------------------------------------------------------------------------------
+ 301          // Function Name: smbWrite
+ 302          // Return Value: unsigned char * 
+ 303          // Parmeters: target, startAddr, bytes
+ 304          // Function Description: This function reads to SM bus
+ 305          //-------------------------------------------------------------------------------------------------------
+ 306          void smbWrite(unsigned char deviceId, unsigned int location, unsigned int bytes)
+ 307          {
+ 308   1              char SFRPAGE_SAVE = SFRPAGE;
+ 309   1                      
+ 310   1              SFRPAGE = SMB0_PAGE;
+ 311   1              slaveAddr = deviceId;                                                                   // Address of MCU slave board
+ 312   1              startAddr = location;                                                                                                           // Starting address to write to slave
+ 313   1              SFRPAGE = SFRPAGE_SAVE;                                                                                                                 // Restore SFR page
+ 314   1      }
+ 315          
+ 316          //-------------------------------------------------------------------------------------------------------
+ 317          // Function Name: smbISR
+ 318          // Return Value: None 
+ 319          // Parmeters: None
+ 320          // Function Description: 
+ 321          // SMBus Interrupt Service Routine (ISR)
+ 322          // Anytime the SDA is pulled low by the master, this ISR will be called. For example, if STA = 1,
+ 323          // this ISR is called and SMB0STA = SMB_START = SMB_REPEAT_START. These cases are executed within the swit
+             -ch statement.
+ 324          //-------------------------------------------------------------------------------------------------------
+ 325          void smbISR (void) interrupt INTERRUPT_SMB using 2
+ 326          {
+ 327                  bit FAIL = 0;                                                                                           // Used by the ISR to flag failed trans
+             -fers
+ 328                  static unsigned int TxCounter;                                                                                                  // Initialize counter
+ 329                  static unsigned int RxCounter;                                                                                                  // Initialize counter
+ 330                  static unsigned int slaveCount = 0;
+ 331                  
+ 332                  switch (SMB0STA >> 3)                                                                                                                   // Check SMB bus status
+ 333                  {
+ 334          //-------------------------------------------------------------------------------------------------------
+ 335          // Master Transmitter/Receiver: START condition transmitted. Load SMB0DAT with slave device address
+ 336          //-------------------------------------------------------------------------------------------------------
+ 337                  case SMB_START:                                                                                                                         // Master initiates a transfer
+ 338          
+ 339          //-------------------------------------------------------------------------------------------------------
+ 340          // Master Transmitter/Receiver: repeated START condition transmitted. Load SMB0DAT with slave device addre
+             -ss
+ 341          //-------------------------------------------------------------------------------------------------------
+ 342                  case SMB_REPEAT_START:
+ 343                                  SMB0DAT = slaveAddr;                                                                    // Load address of the slave.
+ 344                          SMB0DAT &= 0xFE;                                                                                // Clear the LSB of the address for the
+             - R/W bit
+ 345                          SMB0DAT |= SMB_RW;                                                                              // Load R/W bit (Read = 1; Write = 0)
+ 346                                  STA = 0;                                                                                        // Manually clear STA bit
+ 347          
+ 348                          RxCounter = 0;                                                                                  // Reset the counter
+ 349                          TxCounter = 0;                                                                                  // Reset the counter            
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 8   
+
+ 350                                  break;
+ 351          
+ 352          //-------------------------------------------------------------------------------------------------------
+ 353          // Master Transmitter: Slave address + WRITE transmitted.  ACK received. For a READ: N/A
+ 354          // For a WRITE: Send the first data byte to the slave
+ 355          //-------------------------------------------------------------------------------------------------------
+ 356                  case SMB_ADDR_W_TX_ACK_RX:
+ 357                                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 358                                  {
+ 359                                          if(startAddr == DEVICE_DUMP_ADDR)                                                                       // Dump device address to check slave presence only
+ 360                                          {
+ 361                                                  STO = 1;                                                                                                                // Stop this transfer
+ 362                                                  SMB_BUSY = 0;                                                                                                   // Releas SMB
+ 363                                          }
+ 364                                          else
+ 365                                          {
+ 366                                                  SMB0DAT = startAddr;                                                                                    // Send 1 byte address to slave
+ 367                                                  slaveWriteDone = 0;                                                                                             // Mark start of slave write
+ 368                                          }
+ 369          
+ 370                                          slaveNoResponse = FALSE;                                                                                        // Slave is alive
+ 371                                  }
+ 372                          break;
+ 373          
+ 374          //-------------------------------------------------------------------------------------------------------
+ 375          // Master Transmitter: Slave address + WRITE transmitted.  NACK received. Restart the transfer
+ 376          //-------------------------------------------------------------------------------------------------------
+ 377                  case SMB_ADDR_W_TX_NACK_RX:
+ 378                                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 379                                  {
+ 380                                          if(slaveCount < MAX_NACK_RETRY)
+ 381                                          {
+ 382                                                  slaveCount++;                                                                                                   // Increment number of attempts when NACK is received
+ 383                                                  STA = 1;                                                                                                                // Restart a new transfer
+ 384                                          }
+ 385                                          else
+ 386                                          {
+ 387                                                  slaveNoResponse = TRUE;                                                                                 // Report no response from slave
+ 388                                                  slaveCount = 0;                                                                                                 // Reset this counter to keep retry seeking slave response
+ 389                                                  slaveWriteDone = 1;
+ 390                                                  STO = 1;
+ 391                                                  SMB_BUSY = 0;
+ 392                                                  FAIL = 1;
+ 393                                          }       
+ 394                                  }
+ 395                          break;
+ 396          
+ 397          //-------------------------------------------------------------------------------------------------------
+ 398          //Master Transmitter: Data byte transmitted.  ACK received. For a READ: N/A
+ 399          //For a WRITE: Send all data.  After the last data byte, send the stop bit
+ 400          //-------------------------------------------------------------------------------------------------------
+ 401                  case SMB_DATA_TX_ACK_RX:
+ 402                          if(slaveAddr == MCU_SLAVE_ADDR)
+ 403                                  {
+ 404                                          if(TxCounter < numBytesWR)
+ 405                                  {
+ 406                                                  SMB0DAT = sharedDataTx[startAddr + TxCounter];                                  // Send data byte
+ 407                                  TxCounter++;
+ 408                                  }
+ 409                                  else
+ 410                                  {
+ 411                                  STO = 1;                                                                        // Set STO to terminate transfer                                                                
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 9   
+
+             -                                
+ 412                                  SMB_BUSY = 0;                                                                   // And free SMBus interface
+ 413                                                  slaveWriteDone = 1;                                                                                             // Mark end of slave write
+ 414                                  }
+ 415                                  }
+ 416                          break;
+ 417          
+ 418          //-------------------------------------------------------------------------------------------------------
+ 419          // Master Transmitter: Data byte transmitted.  NACK received. Restart the transfer
+ 420          //-------------------------------------------------------------------------------------------------------
+ 421                  case SMB_DATA_TX_NACK_RX:
+ 422                                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 423                                  {
+ 424                                          if(slaveCount < MAX_NACK_RETRY)
+ 425                                          {
+ 426                                                  slaveCount++;                                                                                                   // Increment number of attempts when NACK is received
+ 427                                                  STA = 1;                                                                                                                // Restart a new transfer
+ 428                                          }
+ 429                                          else
+ 430                                          {
+ 431                                                  slaveNoResponse = TRUE;                                                                                 // Report no response from slave
+ 432                                                  slaveCount = 0;
+ 433                                                  STO = 1;
+ 434                                                  SMB_BUSY = 0;
+ 435                                                  FAIL = 1;
+ 436                                          }       
+ 437                                  }
+ 438                          break;
+ 439          
+ 440          //-------------------------------------------------------------------------------------------------------
+ 441          // Master Receiver: Slave address + READ transmitted.  ACK received. 
+ 442          // For a READ: check if this is a one-byte transfer. if so, set the NACK after the data byte
+ 443          // is received to end the transfer. if not, set the ACK and receive the other data bytes
+ 444          //-------------------------------------------------------------------------------------------------------
+ 445                  case SMB_ADDR_R_TX_ACK_RX:
+ 446                          if(numBytesRD == 1)                                                                                                             // If there is one byte to transfer, send a NACK and go to
+ 447                          {                                                                                                                                               // SMB_DATA_RX_NACK_TX case to accept data from slave
+ 448                          AA = 0;                                                                                 // Clear AA flag before data byte is rec
+             -eived
+ 449                                                                                                                  // send NACK signal to slave after byte 
+             -is received
+ 450                          }
+ 451                          else
+ 452                          {
+ 453                          AA = 1;                                                                                 // More than one byte in this transfer,
+ 454                                                                                                                  // send ACK after byte is received
+ 455                          }
+ 456                          break;
+ 457          
+ 458          //-------------------------------------------------------------------------------------------------------
+ 459          // Master Receiver: Slave address + READ transmitted.  NACK received. Restart the transfer
+ 460          //-------------------------------------------------------------------------------------------------------
+ 461                  case SMB_ADDR_R_TX_NACK_RX:
+ 462                                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 463                                  {
+ 464                                          if(slaveCount < MAX_NACK_RETRY)
+ 465                                          {
+ 466                                                  slaveCount++;                                                                                                   // Increment number of attempts when NACK is received
+ 467                                                  STA = 1;                                                                                                                // Restart transfer after receiving a NACK
+ 468                                          }
+ 469                                          else
+ 470                                          {
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 10  
+
+ 471                                                  slaveNoResponse = TRUE;                                                                                 // Report no response from slave
+ 472                                                  slaveCount = 0;                                                                                                 // Reset counter
+ 473                                                  STO = 1;
+ 474                                                  SMB_BUSY = 0;
+ 475                                                  FAIL = 1;
+ 476                                          }       
+ 477                                  }
+ 478                          break;
+ 479          
+ 480          //-------------------------------------------------------------------------------------------------------
+ 481          // Master Receiver: Data byte received. If AA flag was set beforehand, then ACK transmitted.
+ 482          // For a READ: receive each byte from the slave.  if this is the last byte, send a NACK and set the STOP b
+             -it
+ 483          //-------------------------------------------------------------------------------------------------------
+ 484                  case SMB_DATA_RX_ACK_TX:
+ 485                                  
+ 486                                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 487                                  {
+ 488                                          if (RxCounter < numBytesRD)
+ 489                                  {
+ 490                                                  sharedDataRx[startAddr + RxCounter] = SMB0DAT;
+ 491                                  AA = 1;                                                                         // Send ACK to indicate byte received
+ 492                                  RxCounter++;                                                                    // Increment the byte counter
+ 493                                                  slaveReadDone = 0;                                                                                              // Mark start of slave read
+ 494                                  }
+ 495                                  else
+ 496                                  {
+ 497                                  AA = 0;                                                                         // Send NACK to indicate last byte is re
+             -ceived
+ 498                                                  slaveReadDone = 1;                                                                                              // Mark end of slave read
+ 499                                  }
+ 500                                  }
+ 501                          break;
+ 502          
+ 503          //-------------------------------------------------------------------------------------------------------
+ 504          // Master Receiver: Data byte received. If AA flag was cleared, then NACK transmitted.
+ 505          // For a READ: Read operation has completed.  Read data register and send STOP
+ 506          //-------------------------------------------------------------------------------------------------------
+ 507                  case SMB_DATA_RX_NACK_TX:
+ 508                                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 509                                  {
+ 510                                          sharedDataRx[startAddr + RxCounter] = SMB0DAT;
+ 511                                  STO = 1;                                                                                                                        // Stop transfer
+ 512                                  SMB_BUSY = 0;                                                                                                           // Release SMB
+ 513                                  AA = 1;
+ 514                                          slaveReadDone = 1;                                                                                                      // Mark end of slave read                                                                                                                               // Set AA for next transfer   
+             -                                                                      
+ 515                                  }
+ 516                          break;
+ 517          
+ 518          //-------------------------------------------------------------------------------------------------------
+ 519          // Master Transmitter: Arbitration lost
+ 520          //-------------------------------------------------------------------------------------------------------
+ 521                  case SMB_ARBITRATION_LOST:
+ 522                          FAIL = 1;                                                                                       // Indicate failed transfer
+ 523                                                                                                                  // and handle at end of ISR
+ 524                          break;
+ 525          
+ 526          //-------------------------------------------------------------------------------------------------------
+ 527          // All other status codes invalid.  Reset communication
+ 528          //-------------------------------------------------------------------------------------------------------
+ 529                  default:
+C51 COMPILER V9.56.0.0   I2C_MASTER                                                        10/31/2017 19:33:32 PAGE 11  
+
+ 530                          FAIL = 1;
+ 531                          break;
+ 532             }
+ 533          //-------------------------------------------------------------------------------------------------------
+ 534          // If all failed, reset everything
+ 535          //-------------------------------------------------------------------------------------------------------
+ 536                  if(FAIL)                                                                                                // If the transfer failed,
+ 537                  {
+ 538                  SMB0CN &= ~0x40;                                                                                // Reset communication
+ 539                  SMB0CN |= 0x40;
+ 540                  STA = 0;
+ 541                  STO = 0;
+ 542                  AA = 0;
+ 543          
+ 544                  SMB_BUSY = 0;                                                                                   // Free SMBus
+ 545          
+ 546                  FAIL = 0;
+ 547                                                                                                                                                                                  // Set to finish all pending processes
+ 548                          slaveWriteDone = 1;                                                                                                                     // Mark end of slave write
+ 549                          slaveReadDone = 1;                                                                                                                      // Mark end of slave read
+ 550                  }
+ 551          
+ 552                  SI = 0;                                                                                                 // Clear interrupt flag
+ 553          }
+ 554          
+ 555          //-------------------------------------------------------------------------------------------------------
+ 556          // End Of File
+ 557          //-------------------------------------------------------------------------------------------------------
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  45 ERROR(S)

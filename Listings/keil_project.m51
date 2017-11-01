@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        10/24/2017  20:13:37  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/31/2017  19:09:20  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -47,9 +47,10 @@ LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
 
             * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
             XDATA   0000H     031BH     UNIT         ?XD?MAIN
-            XDATA   031BH     010EH     UNIT         ?XD?_DISPLAY_TEXT?MAIN
-            XDATA   0429H     0077H     UNIT         _XDATA_GROUP_
-            XDATA   04A0H     0026H     UNIT         ?XD?_DISPLAY_IMAGE?MAIN
+            XDATA   031BH     017BH     UNIT         _XDATA_GROUP_
+            XDATA   0496H     010EH     UNIT         ?XD?_DISPLAYTEXT?MAIN
+            XDATA   05A4H     0026H     UNIT         ?XD?_DISPLAY_IMAGE?MAIN
+            XDATA   05CAH     000AH     UNIT         ?XD?_SEND_MACRO?MAIN
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
@@ -58,24 +59,25 @@ LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
                     0026H     07DAH                  *** GAP ***
             CODE    0800H     0365H     UNIT         ?PR?PRINTF?PRINTF
             CODE    0B65H     0221H     UNIT         ?C?LIB_CODE
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 2
+
+
             CODE    0D86H     01EAH     UNIT         ?PR?UART0INTERRUPT?MAIN
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 2
-
-
-            CODE    0F70H     0188H     UNIT         ?CO?MAIN
-            CODE    10F8H     00FBH     UNIT         ?PR?_DISPLAY_TEXT?MAIN
-            CODE    11F3H     008CH     UNIT         ?C_C51STARTUP
-            CODE    127FH     0082H     UNIT         ?PR?_DISPLAY_IMAGE?MAIN
-            CODE    1301H     0070H     UNIT         ?PR?_SENDCOMMAND?MAIN
-            CODE    1371H     006AH     UNIT         ?PR?MAIN?MAIN
-            CODE    13DBH     0058H     UNIT         ?PR?_SEND_MACRO?MAIN
-            CODE    1433H     002CH     UNIT         ?PR?PORTINIT?MAIN
-            CODE    145FH     0027H     UNIT         ?PR?UART0INIT?MAIN
-            CODE    1486H     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
-            CODE    14ADH     0020H     UNIT         ?C_INITSEG
-            CODE    14CDH     0012H     UNIT         ?PR?SYSTEMCLOCKINIT?MAIN
-            CODE    14DFH     0007H     UNIT         ?PR?DISABLEWATCHDOG?MAIN
-            CODE    14E6H     0004H     UNIT         ?PR?ENABLEINTERRUPTS?MAIN
+            CODE    0F70H     019BH     UNIT         ?CO?MAIN
+            CODE    110BH     00FBH     UNIT         ?PR?_DISPLAY_TEXT?MAIN
+            CODE    1206H     00E6H     UNIT         ?PR?_DISPLAYTEXT?MAIN
+            CODE    12ECH     0098H     UNIT         ?PR?MAIN?MAIN
+            CODE    1384H     008CH     UNIT         ?C_C51STARTUP
+            CODE    1410H     0082H     UNIT         ?PR?_DISPLAY_IMAGE?MAIN
+            CODE    1492H     0070H     UNIT         ?PR?_SENDCOMMAND?MAIN
+            CODE    1502H     0058H     UNIT         ?PR?_SEND_MACRO?MAIN
+            CODE    155AH     002CH     UNIT         ?PR?PORTINIT?MAIN
+            CODE    1586H     0027H     UNIT         ?PR?UART0INIT?MAIN
+            CODE    15ADH     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
+            CODE    15D4H     0020H     UNIT         ?C_INITSEG
+            CODE    15F4H     0012H     UNIT         ?PR?SYSTEMCLOCKINIT?MAIN
+            CODE    1606H     0007H     UNIT         ?PR?DISABLEWATCHDOG?MAIN
+            CODE    160DH     0004H     UNIT         ?PR?ENABLEINTERRUPTS?MAIN
 
 
 
@@ -85,7 +87,7 @@ OVERLAY MAP OF MODULE:   .\Objects\keil_project (MAIN)
 SEGMENT                              BIT_GROUP          DATA_GROUP          XDATA_GROUP
   +--> CALLED SEGMENT             START    LENGTH     START    LENGTH     START    LENGTH
 -----------------------------------------------------------------------------------------
-?PR?UART0INTERRUPT?MAIN           -----    -----      -----    -----      0429H    0005H
+?PR?UART0INTERRUPT?MAIN           -----    -----      -----    -----      031BH    0005H
 
 *** NEW ROOT ***************************************************
 
@@ -93,7 +95,7 @@ SEGMENT                              BIT_GROUP          DATA_GROUP          XDAT
   +--> ?PR?MAIN?MAIN
   +--> ?C_INITSEG
 
-?PR?MAIN?MAIN                     -----    -----      -----    -----      042EH    0040H
+?PR?MAIN?MAIN                     -----    -----      -----    -----      0320H    0040H
   +--> ?PR?SYSTEMCLOCKINIT?MAIN
   +--> ?PR?PORTINIT?MAIN
   +--> ?PR?ENABLEINTERRUPTS?MAIN
@@ -101,25 +103,25 @@ SEGMENT                              BIT_GROUP          DATA_GROUP          XDAT
   +--> ?CO?MAIN
   +--> ?PR?PRINTF?PRINTF
   +--> ?PR?_SENDCOMMAND?MAIN
-  +--> ?PR?_SEND_MACRO?MAIN
+  +--> ?PR?_DISPLAY_TEXT?MAIN
 
-?PR?SYSTEMCLOCKINIT?MAIN          -----    -----      -----    -----      046EH    0002H
+?PR?SYSTEMCLOCKINIT?MAIN          -----    -----      -----    -----      0360H    0002H
 
-?PR?PRINTF?PRINTF                 0020H.0  0001H.1    0008H    0005H      0478H    0028H
+?PR?PRINTF?PRINTF                 0020H.0  0001H.1    0008H    0005H      046EH    0028H
   +--> ?PR?PUTCHAR?PUTCHAR
 
-?PR?_SENDCOMMAND?MAIN             -----    -----      -----    -----      0478H    0001H
+?PR?_SENDCOMMAND?MAIN             -----    -----      -----    -----      046EH    0001H
 
-?PR?_SEND_MACRO?MAIN              -----    -----      -----    -----      046EH    000AH
+?PR?_DISPLAY_TEXT?MAIN            -----    -----      -----    -----      0360H    010EH
   +--> ?CO?MAIN
   +--> ?PR?PRINTF?PRINTF
   +--> ?PR?_SENDCOMMAND?MAIN
 
 ?C_INITSEG                        -----    -----      -----    -----      -----    -----
   +--> ?CO?MAIN
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 3
 
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 3
 
 
 
@@ -138,7 +140,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   D:00B0H         PUBLIC        P3
   D:00C8H         PUBLIC        P4
   D:00D8H         PUBLIC        P5
-  C:145FH         PUBLIC        uart0Init
+  C:1586H         PUBLIC        uart0Init
   X:0001H         PUBLIC        userCommand
   D:00E8H         PUBLIC        P6
   D:00F8H         PUBLIC        P7
@@ -147,42 +149,43 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   B:0021H.2       PUBLIC        tsLastCharGone
   D:00A4H         PUBLIC        P0MDOUT
   D:00A8H         PUBLIC        IE
-  C:14DFH         PUBLIC        disableWatchdog
+  C:1606H         PUBLIC        disableWatchdog
   X:0101H         PUBLIC        tsRxBuffer
   X:0201H         PUBLIC        tsTxBuffer
   X:0301H         PUBLIC        Font
   D:00E1H         PUBLIC        XBR0
   D:00E2H         PUBLIC        XBR1
   D:00E3H         PUBLIC        XBR2
-  C:13DBH         SYMBOL        _send_macro
+  C:1502H         SYMBOL        _send_macro
   D:00CBH         PUBLIC        RCAP2H
-  C:10F8H         PUBLIC        _display_text
+  C:1206H         PUBLIC        _displayText
+  C:110BH         PUBLIC        _display_text
   D:00CCH         PUBLIC        TMR2
   D:00CAH         PUBLIC        RCAP2L
-  C:1371H         PUBLIC        main
+  C:12ECH         PUBLIC        main
   B:0021H.3       PUBLIC        splashEnd
   B:0021H.4       PUBLIC        ackFromScreen
-  C:14CDH         PUBLIC        systemClockInit
+  C:15F4H         PUBLIC        systemClockInit
   D:00C9H         PUBLIC        TMR2CF
-  C:14E6H         PUBLIC        enableInterrupts
+  C:160DH         PUBLIC        enableInterrupts
   D:00C8H         PUBLIC        TMR2CN
   D:008AH         PUBLIC        OSCICN
-  C:0FD0H         SYMBOL        _?ix1000
+  C:0FE3H         SYMBOL        _?ix1000
   C:0D86H         PUBLIC        uart0Interrupt
-  C:10D0H         SYMBOL        _?ix1001
+  C:10E3H         SYMBOL        _?ix1001
   B:0021H.5       PUBLIC        tsCommandTransmitted
-  C:10F0H         SYMBOL        _?ix1002
+  C:1103H         SYMBOL        _?ix1002
   B:0021H.6       PUBLIC        tsRxEmpty
   B:0021H.7       PUBLIC        tsTxEmpty
   B:0098H.0       PUBLIC        RI0
   B:0098H.1       PUBLIC        TI0
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 4
+
+
   B:0022H.0       PUBLIC        tsCommandReceived
   D:00CAH         PUBLIC        RCAP2
-  C:1433H         PUBLIC        portInit
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 4
-
-
-  C:127FH         SYMBOL        _display_image
+  C:155AH         PUBLIC        portInit
+  C:1410H         SYMBOL        _display_image
   D:0099H         PUBLIC        SBUF0
   D:0098H         PUBLIC        SCON0
   X:0313H         PUBLIC        tsRxIn
@@ -190,86 +193,86 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   X:0315H         PUBLIC        tsTxIn
   X:0317H         PUBLIC        tsRxOut
   X:0319H         PUBLIC        tsTxOut
-  C:1307H         PUBLIC        _sendCommand
+  C:1498H         PUBLIC        _sendCommand
   -------         PROC          SYSTEMCLOCKINIT
   -------         DO            
   D:0007H         SYMBOL        SFRPAGE_SAVE
-  X:046EH         SYMBOL        i
+  X:0360H         SYMBOL        i
   -------         ENDDO         
-  C:14CDH         LINE#         71
-  C:14CDH         LINE#         72
-  C:14CDH         LINE#         73
-  C:14CFH         LINE#         74
-  C:14D6H         LINE#         76
-  C:14D9H         LINE#         78
-  C:14DCH         LINE#         80
-  C:14DEH         LINE#         81
+  C:15F4H         LINE#         71
+  C:15F4H         LINE#         72
+  C:15F4H         LINE#         73
+  C:15F6H         LINE#         74
+  C:15FDH         LINE#         76
+  C:1600H         LINE#         78
+  C:1603H         LINE#         80
+  C:1605H         LINE#         81
   -------         ENDPROC       SYSTEMCLOCKINIT
   -------         PROC          PORTINIT
   -------         DO            
   D:0007H         SYMBOL        SFRPAGE_SAVE
   -------         ENDDO         
-  C:1433H         LINE#         83
-  C:1433H         LINE#         84
-  C:1433H         LINE#         85
-  C:1435H         LINE#         87
-  C:1438H         LINE#         89
-  C:143BH         LINE#         90
-  C:143EH         LINE#         91
-  C:1441H         LINE#         93
-  C:1444H         LINE#         95
-  C:1447H         LINE#         96
-  C:144AH         LINE#         97
-  C:144DH         LINE#         98
-  C:1450H         LINE#         99
-  C:1453H         LINE#         100
-  C:1456H         LINE#         101
-  C:1459H         LINE#         102
-  C:145CH         LINE#         104
-  C:145EH         LINE#         105
+  C:155AH         LINE#         83
+  C:155AH         LINE#         84
+  C:155AH         LINE#         85
+  C:155CH         LINE#         87
+  C:155FH         LINE#         89
+  C:1562H         LINE#         90
+  C:1565H         LINE#         91
+  C:1568H         LINE#         93
+  C:156BH         LINE#         95
+  C:156EH         LINE#         96
+  C:1571H         LINE#         97
+  C:1574H         LINE#         98
+  C:1577H         LINE#         99
+  C:157AH         LINE#         100
+  C:157DH         LINE#         101
+  C:1580H         LINE#         102
+  C:1583H         LINE#         104
+  C:1585H         LINE#         105
   -------         ENDPROC       PORTINIT
   -------         PROC          ENABLEINTERRUPTS
-  C:14E6H         LINE#         107
-  C:14E6H         LINE#         108
-  C:14E6H         LINE#         109
-  C:14E9H         LINE#         110
+  C:160DH         LINE#         107
+  C:160DH         LINE#         108
+  C:160DH         LINE#         109
+  C:1610H         LINE#         110
   -------         ENDPROC       ENABLEINTERRUPTS
   -------         PROC          UART0INIT
   -------         DO            
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 5
+
+
   D:0007H         SYMBOL        SFRPAGE_SAVE
   -------         ENDDO         
-  C:145FH         LINE#         112
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 5
-
-
-  C:145FH         LINE#         113
-  C:145FH         LINE#         116
-  C:1461H         LINE#         118
-  C:1464H         LINE#         119
-  C:1466H         LINE#         120
-  C:1469H         LINE#         121
-  C:146CH         LINE#         122
-  C:146FH         LINE#         123
-  C:1475H         LINE#         124
-  C:1478H         LINE#         126
-  C:147AH         LINE#         127
-  C:147DH         LINE#         128
-  C:1480H         LINE#         130
-  C:1483H         LINE#         132
-  C:1485H         LINE#         133
+  C:1586H         LINE#         112
+  C:1586H         LINE#         113
+  C:1586H         LINE#         116
+  C:1588H         LINE#         118
+  C:158BH         LINE#         119
+  C:158DH         LINE#         120
+  C:1590H         LINE#         121
+  C:1593H         LINE#         122
+  C:1596H         LINE#         123
+  C:159CH         LINE#         124
+  C:159FH         LINE#         126
+  C:15A1H         LINE#         127
+  C:15A4H         LINE#         128
+  C:15A7H         LINE#         130
+  C:15AAH         LINE#         132
+  C:15ACH         LINE#         133
   -------         ENDPROC       UART0INIT
   -------         PROC          DISABLEWATCHDOG
-  C:14DFH         LINE#         135
-  C:14DFH         LINE#         136
-  C:14DFH         LINE#         137
-  C:14E2H         LINE#         139
-  C:14E5H         LINE#         140
+  C:1606H         LINE#         135
+  C:1606H         LINE#         136
+  C:1606H         LINE#         137
+  C:1609H         LINE#         139
+  C:160CH         LINE#         140
   -------         ENDPROC       DISABLEWATCHDOG
   -------         PROC          UART0INTERRUPT
   -------         DO            
-  X:0429H         SYMBOL        SFRPAGE_SAVE
+  X:031BH         SYMBOL        SFRPAGE_SAVE
   D:0012H         SYMBOL        i
-  X:042AH         SYMBOL        txWaitCounter
+  X:031CH         SYMBOL        txWaitCounter
   -------         ENDDO         
   C:0D86H         LINE#         142
   C:0D93H         LINE#         144
@@ -296,12 +299,12 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   C:0E11H         LINE#         170
   C:0E13H         LINE#         171
   C:0E15H         LINE#         173
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 6
+
+
   C:0E15H         LINE#         174
   C:0E17H         LINE#         175
   C:0E19H         LINE#         176
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 6
-
-
   C:0E19H         LINE#         177
   C:0E1BH         LINE#         178
   C:0E20H         LINE#         179
@@ -356,137 +359,156 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   C:0F59H         LINE#         239
   C:0F59H         LINE#         240
   C:0F5BH         LINE#         241
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 7
+
+
   C:0F5BH         LINE#         242
   C:0F5DH         LINE#         244
   C:0F5DH         LINE#         245
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 7
-
-
   C:0F5FH         LINE#         246
   C:0F5FH         LINE#         247
   C:0F5FH         LINE#         249
   C:0F65H         LINE#         250
   -------         ENDPROC       UART0INTERRUPT
-  -------         PROC          L?0070
-  -------         ENDPROC       L?0070
+  -------         PROC          L?0071
+  -------         ENDPROC       L?0071
   -------         PROC          _SENDCOMMAND
   D:0001H         SYMBOL        s
   -------         DO            
-  X:0478H         SYMBOL        SFRPAGE_SAVE
+  X:046EH         SYMBOL        SFRPAGE_SAVE
   -------         ENDDO         
-  C:1307H         LINE#         258
-  C:1307H         LINE#         259
-  C:1307H         LINE#         260
-  C:130DH         LINE#         262
-  C:1312H         LINE#         263
-  C:1312H         LINE#         264
-  C:1329H         LINE#         265
-  C:1329H         LINE#         266
-  C:1345H         LINE#         267
-  C:134EH         LINE#         268
-  C:134EH         LINE#         269
-  C:1352H         LINE#         270
-  C:1352H         LINE#         272
-  C:1355H         LINE#         273
-  C:1355H         LINE#         274
-  C:1357H         LINE#         275
-  C:1357H         LINE#         276
-  C:1357H         LINE#         278
-  C:135EH         LINE#         279
-  C:1360H         LINE#         281
-  C:1363H         LINE#         282
-  C:1363H         LINE#         283
-  C:1365H         LINE#         284
-  C:1368H         LINE#         285
-  C:136AH         LINE#         286
-  C:136AH         LINE#         288
-  C:1370H         LINE#         289
+  C:1498H         LINE#         258
+  C:1498H         LINE#         259
+  C:1498H         LINE#         260
+  C:149EH         LINE#         262
+  C:14A3H         LINE#         263
+  C:14A3H         LINE#         264
+  C:14BAH         LINE#         265
+  C:14BAH         LINE#         266
+  C:14D6H         LINE#         267
+  C:14DFH         LINE#         268
+  C:14DFH         LINE#         269
+  C:14E3H         LINE#         270
+  C:14E3H         LINE#         272
+  C:14E6H         LINE#         273
+  C:14E6H         LINE#         274
+  C:14E8H         LINE#         275
+  C:14E8H         LINE#         276
+  C:14E8H         LINE#         278
+  C:14EFH         LINE#         279
+  C:14F1H         LINE#         281
+  C:14F4H         LINE#         282
+  C:14F4H         LINE#         283
+  C:14F6H         LINE#         284
+  C:14F9H         LINE#         285
+  C:14FBH         LINE#         286
+  C:14FBH         LINE#         288
+  C:1501H         LINE#         289
   -------         ENDPROC       _SENDCOMMAND
   -------         PROC          _DISPLAY_TEXT
-  X:031BH         SYMBOL        fg
-  X:031EH         SYMBOL        bg
-  X:0321H         SYMBOL        size
-  X:0322H         SYMBOL        message
-  X:0325H         SYMBOL        x
-  X:0327H         SYMBOL        y
+  X:0360H         SYMBOL        fg
+  X:0363H         SYMBOL        bg
+  X:0366H         SYMBOL        size
+  X:0367H         SYMBOL        message
+  X:036AH         SYMBOL        x
+  X:036CH         SYMBOL        y
   -------         DO            
-  X:0329H         SYMBOL        str
+  X:036EH         SYMBOL        str
   D:0006H         SYMBOL        i
   -------         ENDDO         
-  C:10F8H         LINE#         302
-  C:1103H         LINE#         303
-  C:1103H         LINE#         304
-  C:1116H         LINE#         306
-  C:1119H         LINE#         307
-  C:1124H         LINE#         309
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 8
+  C:110BH         LINE#         302
+  C:1116H         LINE#         303
+  C:1116H         LINE#         304
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 8
 
 
-  C:1165H         LINE#         310
-  C:1168H         LINE#         311
-  C:119FH         LINE#         312
-  C:11A2H         LINE#         313
-  C:11EAH         LINE#         314
+  C:1129H         LINE#         306
+  C:112CH         LINE#         307
+  C:1137H         LINE#         309
+  C:1178H         LINE#         310
+  C:117BH         LINE#         311
+  C:11B2H         LINE#         312
+  C:11B5H         LINE#         313
+  C:11FDH         LINE#         314
   -------         ENDPROC       _DISPLAY_TEXT
   -------         PROC          _DISPLAY_IMAGE
-  X:04A0H         SYMBOL        image_num
-  X:04A2H         SYMBOL        x
-  X:04A4H         SYMBOL        y
+  X:05A4H         SYMBOL        image_num
+  X:05A6H         SYMBOL        x
+  X:05A8H         SYMBOL        y
   -------         DO            
-  X:04A6H         SYMBOL        str
+  X:05AAH         SYMBOL        str
   D:0006H         SYMBOL        i
   -------         ENDDO         
-  C:127FH         LINE#         317
-  C:1293H         LINE#         318
-  C:1293H         LINE#         319
-  C:12A6H         LINE#         321
-  C:12A9H         LINE#         322
-  C:12B4H         LINE#         324
-  C:12F8H         LINE#         325
+  C:1410H         LINE#         317
+  C:1424H         LINE#         318
+  C:1424H         LINE#         319
+  C:1437H         LINE#         321
+  C:143AH         LINE#         322
+  C:1445H         LINE#         324
+  C:1489H         LINE#         325
   -------         ENDPROC       _DISPLAY_IMAGE
   -------         PROC          _SEND_MACRO
-  X:046EH         SYMBOL        macro_index
+  X:05CAH         SYMBOL        macro_index
   -------         DO            
-  X:0470H         SYMBOL        str
+  X:05CCH         SYMBOL        str
   D:0006H         SYMBOL        i
   -------         ENDDO         
-  C:13DBH         LINE#         328
-  C:13E3H         LINE#         329
-  C:13E3H         LINE#         330
-  C:13F6H         LINE#         332
-  C:13F9H         LINE#         333
-  C:1404H         LINE#         335
-  C:142AH         LINE#         336
+  C:1502H         LINE#         328
+  C:150AH         LINE#         329
+  C:150AH         LINE#         330
+  C:151DH         LINE#         332
+  C:1520H         LINE#         333
+  C:152BH         LINE#         335
+  C:1551H         LINE#         336
   -------         ENDPROC       _SEND_MACRO
+  -------         PROC          _DISPLAYTEXT
+  X:0496H         SYMBOL        fg
+  X:0499H         SYMBOL        bg
+  X:049CH         SYMBOL        size
+  X:049DH         SYMBOL        message
+  X:04A0H         SYMBOL        x
+  X:04A2H         SYMBOL        y
+  -------         DO            
+  X:04A4H         SYMBOL        str
+  -------         ENDDO         
+  C:1206H         LINE#         339
+  C:1211H         LINE#         340
+  C:1211H         LINE#         345
+  C:1252H         LINE#         346
+  C:125BH         LINE#         347
+  C:1292H         LINE#         348
+  C:129BH         LINE#         349
+  C:12E3H         LINE#         350
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 9
+
+
+  -------         ENDPROC       _DISPLAYTEXT
   -------         PROC          MAIN
   -------         DO            
   D:0004H         SYMBOL        i
-  X:042EH         SYMBOL        str
+  X:0320H         SYMBOL        str
   -------         ENDDO         
-  C:1371H         LINE#         339
-  C:1371H         LINE#         340
-  C:1371H         LINE#         341
-  C:1374H         LINE#         345
-  C:1377H         LINE#         346
-  C:137AH         LINE#         347
-  C:137DH         LINE#         348
-  C:1380H         LINE#         349
-  C:1382H         LINE#         350
-  C:138FH         LINE#         351
-  C:1391H         LINE#         355
-  C:1391H         LINE#         356
-  C:1391H         LINE#         357
-  C:13A8H         LINE#         358
-  C:13B1H         LINE#         360
-  C:13B4H         LINE#         362
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 9
-
-
-  C:13B4H         LINE#         363
-  C:13BFH         LINE#         372
-  C:13C6H         LINE#         375
-  C:13C9H         LINE#         377
-  C:13D4H         LINE#         378
+  C:12ECH         LINE#         375
+  C:12ECH         LINE#         376
+  C:12ECH         LINE#         377
+  C:12EFH         LINE#         381
+  C:12F2H         LINE#         382
+  C:12F5H         LINE#         383
+  C:12F8H         LINE#         384
+  C:12FBH         LINE#         385
+  C:12FDH         LINE#         386
+  C:130AH         LINE#         387
+  C:130CH         LINE#         391
+  C:130CH         LINE#         392
+  C:130CH         LINE#         393
+  C:1323H         LINE#         394
+  C:132CH         LINE#         396
+  C:132FH         LINE#         398
+  C:132FH         LINE#         399
+  C:133AH         LINE#         404
+  C:136FH         LINE#         411
+  C:1372H         LINE#         413
+  C:137DH         LINE#         414
   -------         ENDPROC       MAIN
   -------         ENDMOD        MAIN
 
@@ -517,10 +539,13 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   -------         ENDMOD        ?C?LSTKXDATA
 
   -------         MODULE        PRINTF
-  X:0478H         PUBLIC        ?_PRINTF517?BYTE
-  X:0478H         PUBLIC        ?_PRINTF?BYTE
-  X:0478H         PUBLIC        ?_SPRINTF517?BYTE
-  X:0478H         PUBLIC        ?_SPRINTF?BYTE
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  19:09:20  PAGE 10
+
+
+  X:046EH         PUBLIC        ?_PRINTF517?BYTE
+  X:046EH         PUBLIC        ?_PRINTF?BYTE
+  X:046EH         PUBLIC        ?_SPRINTF517?BYTE
+  X:046EH         PUBLIC        ?_SPRINTF?BYTE
   C:086BH         PUBLIC        _PRINTF
   C:086BH         PUBLIC        _PRINTF517
   C:0865H         PUBLIC        _SPRINTF
@@ -539,9 +564,6 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   C:0D40H         PUBLIC        ?C?PLDIXDATA
   -------         ENDMOD        ?C?PLDIXDATA
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2017  20:13:37  PAGE 10
-
-
   -------         MODULE        ?C?PSTXDATA
   C:0D57H         PUBLIC        ?C?PSTXDATA
   -------         ENDMOD        ?C?PSTXDATA
@@ -551,21 +573,24 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   -------         ENDMOD        ?C?CCASE
 
   -------         MODULE        PUTCHAR
-  C:1486H         PUBLIC        _PUTCHAR
+  C:15ADH         PUBLIC        _PUTCHAR
   -------         ENDMOD        PUTCHAR
 
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?DISABLEWATCHDOG?MAIN
 
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DISPLAY_TEXT?MAIN
-
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_DISPLAY_IMAGE?MAIN
 
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SEND_MACRO?MAIN
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DISPLAYTEXT?MAIN
+
 ******************************************************************************
-* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 06B3H BYTE (83%) *
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 07DAH BYTE (98%) *
 ******************************************************************************
 
-Program Size: data=24.1 xdata=1222 code=3312
-LINK/LOCATE RUN COMPLETE.  3 WARNING(S),  0 ERROR(S)
+Program Size: data=24.1 xdata=1492 code=3607
+LINK/LOCATE RUN COMPLETE.  4 WARNING(S),  0 ERROR(S)

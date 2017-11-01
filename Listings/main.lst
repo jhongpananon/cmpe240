@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              10/24/2017 20:13:37 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   50          unsigned char tsByte;
   51          
   52          bit splashEnd = 0;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/24/2017 20:13:37 PAGE 2   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 2   
 
   53          bit screenReset = 0;
   54          bit ackFromScreen = 0;
@@ -126,7 +126,7 @@ line level    source
  112          void uart0Init(void)
  113          {
  114   1         char SFRPAGE_SAVE;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/24/2017 20:13:37 PAGE 3   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 3   
 
  115   1      
  116   1         SFRPAGE_SAVE = SFRPAGE;                                                                      // Preserve SFRPAGE
@@ -190,7 +190,7 @@ line level    source
  166   4                                      {
  167   5                                              if(tsRxBuffer[1] == 'c' && tsRxBuffer[2] == 'm' && tsRxBuffer[3] == 'p' && tsRxBuffer[4] == 'e' && ts
              -RxBuffer[5] == '}')
-C51 COMPILER V9.56.0.0   MAIN                                                              10/24/2017 20:13:37 PAGE 4   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 4   
 
  168   5                                              {
  169   6                                                      splashEnd = 1;                                          // Detect end of splash screen
@@ -254,7 +254,7 @@ line level    source
  226   3                              if(txWaitCounter >= TX_WAIT_LIMIT)
  227   3                              {
  228   4                                      TI0 = 1;                                                                                                                // TI0 is not set by hardware, set it by software
-C51 COMPILER V9.56.0.0   MAIN                                                              10/24/2017 20:13:37 PAGE 5   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 5   
 
  229   4                              }                                                                                                                                       // When TI0 is set to 1, this ISR is executed again
  230   3                              
@@ -318,7 +318,7 @@ line level    source
  287   1                                                                                                                                                                      
  288   1              SFRPAGE = SFRPAGE_SAVE;                                                                 // Restore SFRPAGE
  289   1      }
-C51 COMPILER V9.56.0.0   MAIN                                                              10/24/2017 20:13:37 PAGE 6   
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 6   
 
  290          
  291          const char code * Font[] = { "m10B",    ///< Font size 0 
@@ -370,56 +370,95 @@ line level    source
  336   1          sendCommand(str);
  337   1      }
  338          
- 339          int main()
+ 339          void displayText(const char* fg, const char* bg, const unsigned char size, const char* message, const unsi
+             -gned int x, const unsigned int y)
  340          {
- 341   1              int i = 0;
- 342   1          char str[64];
- 343   1          
- 344   1          //disableWatchdog();
- 345   1          systemClockInit();
- 346   1              portInit();
- 347   1              enableInterrupts();
- 348   1              uart0Init();
- 349   1          tsLastCharGone = 1;
- 350   1          tsTxOut = tsTxIn = 0;
-C51 COMPILER V9.56.0.0   MAIN                                                              10/24/2017 20:13:37 PAGE 7   
+ 341   1              char str[TX_BUFFER_SIZE];                                                                                                       // String
+ 342   1      
+ 343   1              //delay(5);                                                                                                                                     // Do not remove this delay
+ 344   1                      
+ 345   1              sprintf(str, "S %s %s\r", fg, bg);                                                                                      // Set forground and background color
+ 346   1              sendCommand(str);                                                                                                               
+ 347   1              sprintf(str, "f %s\r", Font[size]);                                                                                     // Set text font
+ 348   1              sendCommand(str);                                                                                                               
+ 349   1              sprintf(str, "t \"%s\" %u %u\r", message, x, y);                                                        // Display text
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 7   
 
- 351   1          tsTxEmpty = 1;
- 352   1          
- 353   1          //send_macro(Splash);
- 354   1          
- 355   1              while(1)
- 356   1              {
- 357   2                      sprintf(str, "z\r");
- 358   2              sendCommand(str);
- 359   2              
- 360   2              i = 0;
- 361   2              
- 362   2              while(i < 10000)
- 363   2                  i++;
- 364   2              
- 365   2              //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
- 366   2              //sendCommand(str);
- 367   2              
- 368   2              //display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
- 369   2              
- 370   2              //if (splashEnd) 
- 371   2              //{
- 372   2                  send_macro(display_home);
- 373   2              //}
- 374   2              
- 375   2              i = 0;
- 376   2              
- 377   2              while(i < 10000)
- 378   2                  i++;
- 379   2              }
- 380   1      }
+ 350   1              sendCommand(str);                                                                                                               
+ 351   1      }
+ 352          /*
+ 353          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
+ 354          {
+ 355                  char str[TX_BUFFER_SIZE];
+ 356          
+ 357                  sprintf(str, "xi %u %u %u\r", index, x, y);                                                                     // Bitmap index
+ 358                  sendCommand(str);
+ 359          }
+ 360          
+ 361          void changeScreen(const unsigned char screenIndex)
+ 362          {
+ 363                  callMacro(screenIndex);                                                                                                         // Change screen                
+ 364          }
+ 365          
+ 366          void callMacro(const unsigned int macroNumber)
+ 367          {
+ 368                  char str[TX_BUFFER_SIZE];
+ 369          
+ 370                  sprintf(str, "m %u\r", macroNumber);                                                                            // Execute macro number
+ 371                  sendCommand(str);
+ 372          }
+ 373          */
+ 374          
+ 375          int main()
+ 376          {
+ 377   1              int i = 0;
+ 378   1          char str[64];
+ 379   1          
+ 380   1          //disableWatchdog();
+ 381   1          systemClockInit();
+ 382   1              portInit();
+ 383   1              enableInterrupts();
+ 384   1              uart0Init();
+ 385   1          tsLastCharGone = 1;
+ 386   1          tsTxOut = tsTxIn = 0;
+ 387   1          tsTxEmpty = 1;
+ 388   1          
+ 389   1          //send_macro(Splash);
+ 390   1          
+ 391   1              while(1)
+ 392   1              {
+ 393   2                      sprintf(str, "z\r");
+ 394   2              sendCommand(str);
+ 395   2              
+ 396   2              i = 0;
+ 397   2              
+ 398   2              while(i < 10000)
+ 399   2                  i++;
+ 400   2              
+ 401   2              //sprintf(str, "t \"San Jose State University, 1234\" 100 100\r");
+ 402   2              //sendCommand(str);
+ 403   2              
+ 404   2              display_text("FFFFFF", "000000", 2, "SJSU", 100, 100);
+ 405   2              
+ 406   2              //if (splashEnd) 
+ 407   2              //{
+ 408   2              //send_macro(display_home);
+ 409   2              //}
+ 410   2              
+ 411   2              i = 0;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/31/2017 19:33:32 PAGE 8   
+
+ 412   2              
+ 413   2              while(i < 10000)
+ 414   2                  i++;
+ 415   2              }
+ 416   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1289    ----
-   CONSTANT SIZE    =    392    ----
-   XDATA SIZE       =    795     390
+   CODE SIZE        =   1565    ----
+   CONSTANT SIZE    =    411    ----
+   XDATA SIZE       =    795     660
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
