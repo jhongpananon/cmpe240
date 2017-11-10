@@ -612,7 +612,7 @@ void writeBytes(unsigned char startAddr, int numberOfBytes) //data to be transmi
     int i = 0;
     
     //write data to sharedDataTX array
-    while (i <= numberOfBytes)
+    while (i < numberOfBytes)
     {
         sharedDataTx[startAddr + i] = data[i];
         i++;
@@ -1064,7 +1064,7 @@ void main()
         
         roomTemp = readOneByteFromSlave(ROOM_TEMP);
         
-        sprintf(str, "Room°C: %-5bu", roomTemp);
+        sprintf(str, "RoomÂ°C: %-5bu", roomTemp);
 		displayText("000000", "FFFFFF", 4, str, 100, 100);
 	}
 }
