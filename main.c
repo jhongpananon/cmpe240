@@ -1,4 +1,5 @@
 #include <main.h>
+#include "macros.h"
 
 //-------------------------------------------------------------------------------------------------------
 // Global Declarations
@@ -72,8 +73,6 @@ unsigned char slaveWriteDone;
 unsigned char slaveReadDone;
                             
 unsigned char roomTemp;
-
-unsigned char data[20];
 
 //-------------------------------------------------------------------------------------------------------
 // System Configurations
@@ -200,6 +199,16 @@ void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
 						splashEnd = 0;                                          // End of splash screen NOT detected
 						screenReset = 0;									
 					}
+				}
+				else if(tsRxBuffer[0] == 'x') 									// It is a command from touch screen controller
+				{																// A command starts with '('
+					for(i = 0; i < tsRxIn; i++)
+					{
+					 	userCommand[i] = tsRxBuffer[i];							// Copy to command array for later evaluation
+					}
+
+					ackFromScreen = 0;											// This is a command, NOT an ACK
+					tsCommandReceived = 1;										// Set flag when a complete command is received
 				}
 				else if(tsRxBuffer[0] == '(') 									// It is a command from touch screen controller
 				{																// A command starts with '('
@@ -607,33 +616,6 @@ unsigned char readOneByteFromSlave(unsigned char startAddr)
 	return sharedDataRx[startAddr];																								
 }
 
-void writeBytes(unsigned char startAddr, int numberOfBytes) //data to be transmitted is in the global array "data"
-{
-    int i = 0;
-    
-    //write data to sharedDataTX array
-    while (i < numberOfBytes)
-    {
-        sharedDataTx[startAddr + i] = data[i];
-        i++;
-    }
-    
-    smbWrite(MCU_SLAVE_ADDR, startAddr, numberOfBytes);
-    
-}
-
-void readBytes(unsigned char startAddr, int numberOfBytes) //first byte recieved holds the total number of bytes to read from startAddr into "data"
-{
-    int i = 0;
-    smbRead(MCU_SLAVE_ADDR, startAddr, numberOfBytes);
-    
-    //write the data from sharedDatatx array to global Data
-    while(i < n)
-    {
-        data[i] = sharedDataRx[startAddr + i];
-    }
-}
-
 //-------------------------------------------------------------------------------------------------------
 // Function Name: smbRead
 // Return Value: unsigned char * 
@@ -1037,6 +1019,33 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
 	SI = 0;                                                  						// Clear interrupt flag
 }
 
+void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
+{
+    char str[128] = { 0 };
+    
+    int i = 0;
+    while(i < 10000) i++;
+        
+    sprintf(str, "S %s %s\r", fg, bg);
+    sendCommand(str);
+    sprintf(str, "f %s\r", Font[size]);
+    sendCommand(str);
+    sprintf(str, "t \"%s\" %u %u\r", message, x, y);
+    sendCommand(str);
+}
+
+
+static void send_macro(const unsigned int macro_index)
+{
+    char str[8] = { 0 };
+    
+    int i = 0;
+    while(i < 10000) i++;
+        
+    sprintf(str, "m %u\r", macro_index);
+    sendCommand(str);
+}
+
 //-------------------------------------------------------------------------------------------------------
 // Main
 //-------------------------------------------------------------------------------------------------------
@@ -1044,6 +1053,9 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
 void main()
 {
 	int i = 0;
+    int count = 0;
+    int prev_temp = 0;
+    int display_celsius = 0;
     char str[SPRINTF_SIZE];
     
     disableWatchdog();
@@ -1058,13 +1070,32 @@ void main()
     tsTxOut = tsTxIn = 0;
     tsTxEmpty = 1;
     
+	sprintf(str, "z\r");
+    sendCommand(str);
+    
+    send_macro(display_temperature);
+    
 	while(1)
 	{
-		scanUserInput();                                                        // Detect a string input from the touch screen
+		//scanUserInput();                                                        // Detect a string input from the touch screen
         
         roomTemp = readOneByteFromSlave(ROOM_TEMP);
         
-        sprintf(str, "Room°C: %-5bu", roomTemp);
-		displayText("000000", "FFFFFF", 4, str, 100, 100);
+        if (tsCommandReceived || roomTemp != prev_temp) 
+        {
+            prev_temp = roomTemp;
+            
+            if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
+                display_celsius = 1;
+                sprintf(str, "%-3buC", roomTemp);
+                display_text("FFFFFF", "000000", 8, str, 240, 110);
+            }
+            else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
+                display_celsius = 0;
+                roomTemp = (roomTemp * 9) / 5 + 32;
+                sprintf(str, "%-3buF", roomTemp);
+                display_text("FFFFFF", "000000", 8, str, 240, 110);
+            }
+        }
 	}
 }
