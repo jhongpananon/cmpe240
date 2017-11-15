@@ -1,4 +1,4 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   50          unsigned char screen;
   51          unsigned char lastScreen;
   52          
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 2   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 2   
 
   53          const char code * Font[] = {/*0*/   "m10B", 
   54                                      /*1*/   "m12B",
@@ -126,7 +126,7 @@ line level    source
  105   1                                                                                      // TX1 = P1.0; RX1 = P1.1
  106   1          P3MDOUT = 0xCA;                                                             // P3.0, P3.2, P3.4, P3.5:
              - open drain; P3.1, P3.3, P3.6, P3.7: push pull
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 3   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 3   
 
  107   1          
  108   1          P4MDOUT = 0x0F;                                                             // P4.0, P4.1, P4.2, P4.3:
@@ -190,7 +190,7 @@ line level    source
              -e into timer 2
  150   1         TMR2CN = 0x04;                                                               // Enable timer 2 (Start t
              -imer 2)
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 4   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 4   
 
  151   1      
  152   1         SFRPAGE = UART0_PAGE;
@@ -254,7 +254,7 @@ line level    source
  198   5                          {
  199   6                              splashEnd = 0;                                          // End of splash screen NO
              -T detected
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 5   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 5   
 
  200   6                              screenReset = 0;                                    
  201   6                          }
@@ -318,7 +318,7 @@ line level    source
  246   3                  tsRxIn = 0;
  247   3                  tsCommandReceived = 0;
  248   3              }
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 6   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 6   
 
  249   2         }
  250   1      
@@ -382,7 +382,7 @@ line level    source
  297   1          while(*s != '\0')                                                           // Search for end of touch
              - screen command in buffer
  298   1          {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 7   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 7   
 
  299   2              if(tsTxEmpty == 1 || (tsTxOut != tsTxIn))                               // Tx is empty or two inde
              -xes are not equal
@@ -446,7 +446,7 @@ line level    source
  350          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
  351          {
  352   1          char str[TS_BUFFER_SIZE];
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 8   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 8   
 
  353   1      
  354   1          sprintf(str, "xi %u %u %u\r", index, x, y);                                 // Bitmap index
@@ -510,7 +510,7 @@ line level    source
  410   4                          break;
  411   4                      case 'B':
  412   4                          // Call a function here or do something here
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 9   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 9   
 
  413   4                          break;
  414   4                      case 'C':
@@ -574,7 +574,7 @@ line level    source
  470   1          {
  471   2              if(userCommand[0] == '(')
  472   2              {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 10  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 10  
 
  473   3                  switch (userCommand[1])
  474   3                  {
@@ -638,7 +638,7 @@ line level    source
  530   1          while(SDA == 0 && pollingCounter++ < SMB_POLLING_LIMIT)                         // If slave is holding
              - SDA low because of error or reset
  531   1          {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 11  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 11  
 
  532   2              SCL = 0;                                                                    // Drive the clock low
  533   2              for(i = 0; i < 255; i++);                                                   // Hold the clock low
@@ -702,7 +702,7 @@ line level    source
  582   1          char SFRPAGE_SAVE = SFRPAGE;                                                    // Save Current SFR pa
              -ge
  583   1      
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 12  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 12  
 
  584   1          SFRPAGE = SMB0_PAGE;
  585   1          SMB0CN &= ~0x40;                                                                // Disable SMBus
@@ -766,7 +766,7 @@ line level    source
  639   2                  smbWrite(deviceId, location, 0);                                        // Write address befor
              -e reading
  640   2                  break;
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 13  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 13  
 
  641   2              default:
  642   2                  break;  
@@ -830,7 +830,7 @@ line level    source
  690   1      
  691   1          switch(deviceId)
  692   1          {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 14  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 14  
 
  693   2              case MCU_SLAVE_ADDR:                                                        // Pass through
  694   2              case DEVICE_DUMP_ADDR:                                                      // Pass through
@@ -894,7 +894,7 @@ line level    source
  740   2                  STA = 0;                                                                // Manually clear STA 
              -bit
  741   2      
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 15  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 15  
 
  742   2                  RxCounter = 0;                                                          // Reset the counter
  743   2                  TxCounter = 0;                                                          // Reset the counter
@@ -958,7 +958,7 @@ line level    source
  793   4                          STA = 1;                                                        // Restart a new trans
              -fer
  794   4                      }
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 16  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 16  
 
  795   3                      else
  796   3                      {
@@ -1022,7 +1022,7 @@ line level    source
  849   2                  else if(slaveAddr == EEPROM_ADDR)
  850   2                  {
  851   3                      if(eepromCount < MAX_NACK_RETRY)
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 17  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 17  
 
  852   3                      {
  853   4                          eepromCount++;                                                  // Increment number of
@@ -1086,7 +1086,7 @@ line level    source
  901   4                          SMB_BUSY = 0;
  902   4                          FAIL = 1;
  903   4                      }   
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 18  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 18  
 
  904   3                  }
  905   2                  else if(slaveAddr == EEPROM_ADDR)
@@ -1150,7 +1150,7 @@ line level    source
              -read
  953   4                      }
  954   3                      else
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 19  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 19  
 
  955   3                      {
  956   4                          AA = 0;                                                         // Send NACK to indica
@@ -1214,7 +1214,7 @@ line level    source
 1006   2              SMB0CN |= 0x40;
 1007   2              STA = 0;
 1008   2              STO = 0;
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 20  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 20  
 
 1009   2              AA = 0;
 1010   2      
@@ -1277,8 +1277,8 @@ line level    source
 1062   1          int count = 0;
 1063   1          int prev_temp = 0;
 1064   1          int display_celsius = 0;
-1065   1          int first_boot = 1;
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 21  
+1065   1          int state_changed = 1;
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 21  
 
 1066   1          char str[SPRINTF_SIZE];
 1067   1          
@@ -1304,61 +1304,129 @@ line level    source
 1087   2              //scanUserInput();                                                        // Detect a string input
              - from the touch screen
 1088   2              
-1089   2              switch(current_page) 
-1090   2              {
-1091   3                  case (PAGE_SETTINGS):
-1092   3                  {
-1093   4                      break;
-1094   4                  }
-1095   3                  case (PAGE_CONFIG):
-1096   3                  {
-1097   4                      break;
-1098   4                  }
-1099   3                  case (PAGE_SERVICE):
-1100   3                  {
-1101   4                      break;
-1102   4                  }
-1103   3                  default:            // no break
-1104   3                  case (PAGE_MAIN) :
-1105   3                  {
-1106   4                      roomTemp = readOneByteFromSlave(ROOM_TEMP);
-1107   4                      
-1108   4                      if (tsCommandReceived || roomTemp != prev_temp || first_boot) 
-1109   4                      {
-1110   5                          if (first_boot) {
-1111   6                              first_boot = 0;
-1112   6                              sprintf(str, "%-3buC", 0);
-1113   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
-1114   6                          }
-1115   5                          prev_temp = roomTemp;
-1116   5                          
-1117   5                          if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
-1118   6                              display_celsius = 1;
-1119   6                              sprintf(str, "%-3buC", roomTemp);
-1120   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
-1121   6                          }
-1122   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
-1123   6                              display_celsius = 0;
-1124   6                              roomTemp = (roomTemp * 9) / 5 + 32;
-1125   6                              sprintf(str, "%-3buF", roomTemp);
-1126   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:08:30 PAGE 22  
+1089   2              #define change_state(state) \
+1090   2                  current_page = state;   \
+1091   2                  state_changed = 1
+1092   2      
+1093   2      
+1094   2              switch(current_page) 
+1095   2              {
+1096   3                  case (PAGE_SETTINGS):
+1097   3                  {
+1098   4                      if (state_changed) {
+1099   5                          state_changed = 0;
+1100   5                          display_text("000000", "FFFFFF", 8, "set!", 240, 110);
+1101   5                      }
+1102   4      
+1103   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1104   5                          change_state(PAGE_SETTINGS);
+1105   5                      }
+1106   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+1107   5                          change_state(PAGE_MAIN);
+1108   5                      }
+1109   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1110   5                          change_state(PAGE_SERVICE);
+1111   5                      }
+1112   4                      else {
+1113   5                          // NOOP
+1114   5                      }
+1115   4                      break;
+1116   4                  }
+1117   3                  case (PAGE_CONFIG):
+1118   3                  {
+1119   4                      if (state_changed) {
+1120   5                          state_changed = 0;
+1121   5                          display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
+1122   5                      }
+1123   4      
+1124   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1125   5                          change_state(PAGE_SETTINGS);
+1126   5                      }
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 22  
 
-1127   6                          }
-1128   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-1129   6                              current_page = PAGE_SETTINGS;
-1130   6                          }
-1131   5                      }
-1132   4                      break;
-1133   4                  }
-1134   3              }
-1135   2          }
-1136   1      }
+1127   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+1128   5                          change_state(PAGE_MAIN);
+1129   5                      }
+1130   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1131   5                          change_state(PAGE_SERVICE);
+1132   5                      }
+1133   4                      else {
+1134   5                          // NOOP
+1135   5                      }
+1136   4                      break;
+1137   4                  }
+1138   3                  case (PAGE_SERVICE):
+1139   3                  {
+1140   4                      if (state_changed) {
+1141   5                          state_changed = 0;
+1142   5                          display_text("000000", "FFFFFF", 8, "se!", 240, 110);
+1143   5                      }
+1144   4      
+1145   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1146   5                          change_state(PAGE_SETTINGS);
+1147   5                      }
+1148   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+1149   5                          change_state(PAGE_MAIN);
+1150   5                      }
+1151   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1152   5                          change_state(PAGE_SERVICE);
+1153   5                      }
+1154   4                      else {
+1155   5                          // NOOP
+1156   5                      }
+1157   4                      break;
+1158   4                  }
+1159   3                  default:            // no break
+1160   3                  case (PAGE_MAIN) :
+1161   3                  {
+1162   4                      roomTemp = readOneByteFromSlave(ROOM_TEMP);
+1163   4      
+1164   4                      if (state_changed) {
+1165   5                          state_changed = 0;
+1166   5                          sprintf(str, "%-3buC", roomTemp);
+1167   5                          display_text("000000", "FFFFFF", 8, str, 240, 110);
+1168   5                      }
+1169   4                      
+1170   4                      if (tsCommandReceived || roomTemp != prev_temp) 
+1171   4                      {
+1172   5                          prev_temp = roomTemp;
+1173   5                          
+1174   5                          if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
+1175   6                              display_celsius = 1;
+1176   6                              sprintf(str, "%-3buC", roomTemp);
+1177   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
+1178   6                          }
+1179   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
+1180   6                              display_celsius = 0;
+1181   6                              roomTemp = (roomTemp * 9) / 5 + 32;
+1182   6                              sprintf(str, "%-3buF", roomTemp);
+1183   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
+1184   6                          }
+1185   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1186   6                              change_state(PAGE_SETTINGS);
+1187   6                          }
+1188   5                          else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 23  
+
+1189   6                              change_state(PAGE_MAIN);
+1190   6                          }
+1191   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1192   6                              change_state(PAGE_SERVICE);
+1193   6                          }
+1194   5                          else {
+1195   6                              // Noop
+1196   6                          }
+1197   5                      }
+1198   4                      break;
+1199   4                  }
+1200   3              }
+1201   2          }
+1202   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   3705    ----
-   CONSTANT SIZE    =    258    ----
+   CODE SIZE        =   4358    ----
+   CONSTANT SIZE    =    272    ----
    XDATA SIZE       =   3417     654
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----

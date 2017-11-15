@@ -1062,7 +1062,7 @@ void main()
     int count = 0;
     int prev_temp = 0;
     int display_celsius = 0;
-    int first_boot = 1;
+    int state_changed = 1;
     char str[SPRINTF_SIZE];
     
     disableWatchdog();
@@ -1086,32 +1086,89 @@ void main()
     {
         //scanUserInput();                                                        // Detect a string input from the touch screen
         
+        #define change_state(state) \
+            current_page = state;   \
+            state_changed = 1
+
+
         switch(current_page) 
         {
             case (PAGE_SETTINGS):
             {
+                if (state_changed) {
+                    state_changed = 0;
+                    display_text("000000", "FFFFFF", 8, "set!", 240, 110);
+                }
+
+                if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+                    change_state(PAGE_SETTINGS);
+                }
+                else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+                    change_state(PAGE_MAIN);
+                }
+                else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+                    change_state(PAGE_SERVICE);
+                }
+                else {
+                    // NOOP
+                }
                 break;
             }
             case (PAGE_CONFIG):
             {
+                if (state_changed) {
+                    state_changed = 0;
+                    display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
+                }
+
+                if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+                    change_state(PAGE_SETTINGS);
+                }
+                else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+                    change_state(PAGE_MAIN);
+                }
+                else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+                    change_state(PAGE_SERVICE);
+                }
+                else {
+                    // NOOP
+                }
                 break;
             }
             case (PAGE_SERVICE):
             {
+                if (state_changed) {
+                    state_changed = 0;
+                    display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
+                }
+
+                if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+                    change_state(PAGE_SETTINGS);
+                }
+                else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+                    change_state(PAGE_MAIN);
+                }
+                else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+                    change_state(PAGE_SERVICE);
+                }
+                else {
+                    // NOOP
+                }
                 break;
             }
             default:            // no break
             case (PAGE_MAIN) :
             {
                 roomTemp = readOneByteFromSlave(ROOM_TEMP);
+
+                if (state_changed) {
+                    state_changed = 0;
+                    sprintf(str, "%-3buC", roomTemp);
+                    display_text("000000", "FFFFFF", 8, str, 240, 110);
+                }
                 
-                if (tsCommandReceived || roomTemp != prev_temp || first_boot) 
+                if (tsCommandReceived || roomTemp != prev_temp) 
                 {
-                    if (first_boot) {
-                        first_boot = 0;
-                        sprintf(str, "%-3buC", 0);
-                        display_text("000000", "FFFFFF", 8, str, 240, 110);
-                    }
                     prev_temp = roomTemp;
                     
                     if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
@@ -1126,7 +1183,16 @@ void main()
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
                     }
                     else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-                        current_page = PAGE_SETTINGS;
+                        change_state(PAGE_SETTINGS);
+                    }
+                    else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+                        change_state(PAGE_MAIN);
+                    }
+                    else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+                        change_state(PAGE_SERVICE);
+                    }
+                    else {
+                        // Noop
                     }
                 }
                 break;

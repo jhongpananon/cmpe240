@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        11/14/2017  19:08:30  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        11/14/2017  19:41:33  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -59,7 +59,7 @@ LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
-BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 2
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:41:33  PAGE 2
 
 
             CODE    0003H     001FH     UNIT         ?PR?TIMER3ISR?MAIN
@@ -72,31 +72,31 @@ LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
             CODE    006AH     0007H     UNIT         ?PR?DISABLEWATCHDOG?MAIN
                     0071H     0002H                  *** GAP ***
             CODE    0073H     0003H     ABSOLUTE     
-            CODE    0076H     036AH     UNIT         ?PR?SMBISR?MAIN
-            CODE    03E0H     0365H     UNIT         ?PR?PRINTF?PRINTF
-            CODE    0745H     02A1H     UNIT         ?C?LIB_CODE
-            CODE    09E6H     0228H     UNIT         ?PR?MAIN?MAIN
-            CODE    0C0EH     020FH     UNIT         ?PR?UART0INTERRUPT?MAIN
-            CODE    0E1DH     0182H     UNIT         ?PR?SCANUSERINPUT?MAIN
-            CODE    0F9FH     0102H     UNIT         ?CO?MAIN
-            CODE    10A1H     00E0H     UNIT         ?PR?_DISPLAY_TEXT?MAIN
-            CODE    1181H     00BFH     UNIT         ?PR?_DISPLAYTEXT?MAIN
-            CODE    1240H     009CH     UNIT         ?PR?_SMBREAD?MAIN
-            CODE    12DCH     0094H     UNIT         ?PR?SMBINIT?MAIN
-            CODE    1370H     008CH     UNIT         ?C_C51STARTUP
-            CODE    13FCH     006AH     UNIT         ?PR?_SENDCOMMAND?MAIN
-            CODE    1466H     0057H     UNIT         ?PR?_SEND_MACRO?MAIN
-            CODE    14BDH     004DH     UNIT         ?PR?_SMBWRITE?MAIN
-            CODE    150AH     004AH     UNIT         ?PR?_SHOWBITMAP?MAIN
-            CODE    1554H     0040H     UNIT         ?PR?PORTINIT?MAIN
-            CODE    1594H     0027H     UNIT         ?PR?UART0INIT?MAIN
-            CODE    15BBH     0027H     UNIT         ?PR?_CALLMACRO?MAIN
-            CODE    15E2H     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
-            CODE    1609H     0021H     UNIT         ?PR?_READONEBYTEFROMSLAVE?MAIN
-            CODE    162AH     001BH     UNIT         ?PR?TIMER3INIT?MAIN
-            CODE    1645H     001AH     UNIT         ?PR?_WRITEONEBYTETOSLAVE?MAIN
-            CODE    165FH     000DH     UNIT         ?PR?ENABLEINTERRUPTS?MAIN
-            CODE    166CH     0006H     UNIT         ?PR?_CHANGESCREEN?MAIN
+            CODE    0076H     04B5H     UNIT         ?PR?MAIN?MAIN
+            CODE    052BH     036AH     UNIT         ?PR?SMBISR?MAIN
+            CODE    0895H     0365H     UNIT         ?PR?PRINTF?PRINTF
+            CODE    0BFAH     02A1H     UNIT         ?C?LIB_CODE
+            CODE    0E9BH     020FH     UNIT         ?PR?UART0INTERRUPT?MAIN
+            CODE    10AAH     0182H     UNIT         ?PR?SCANUSERINPUT?MAIN
+            CODE    122CH     0110H     UNIT         ?CO?MAIN
+            CODE    133CH     00E0H     UNIT         ?PR?_DISPLAY_TEXT?MAIN
+            CODE    141CH     00BFH     UNIT         ?PR?_DISPLAYTEXT?MAIN
+            CODE    14DBH     009CH     UNIT         ?PR?_SMBREAD?MAIN
+            CODE    1577H     0094H     UNIT         ?PR?SMBINIT?MAIN
+            CODE    160BH     008CH     UNIT         ?C_C51STARTUP
+            CODE    1697H     006AH     UNIT         ?PR?_SENDCOMMAND?MAIN
+            CODE    1701H     0057H     UNIT         ?PR?_SEND_MACRO?MAIN
+            CODE    1758H     004DH     UNIT         ?PR?_SMBWRITE?MAIN
+            CODE    17A5H     004AH     UNIT         ?PR?_SHOWBITMAP?MAIN
+            CODE    17EFH     0040H     UNIT         ?PR?PORTINIT?MAIN
+            CODE    182FH     0027H     UNIT         ?PR?UART0INIT?MAIN
+            CODE    1856H     0027H     UNIT         ?PR?_CALLMACRO?MAIN
+            CODE    187DH     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
+            CODE    18A4H     0021H     UNIT         ?PR?_READONEBYTEFROMSLAVE?MAIN
+            CODE    18C5H     001BH     UNIT         ?PR?TIMER3INIT?MAIN
+            CODE    18E0H     001AH     UNIT         ?PR?_WRITEONEBYTETOSLAVE?MAIN
+            CODE    18FAH     000DH     UNIT         ?PR?ENABLEINTERRUPTS?MAIN
+            CODE    1907H     0006H     UNIT         ?PR?_CHANGESCREEN?MAIN
 
 
 
@@ -119,7 +119,7 @@ SEGMENT                                   BIT_GROUP          DATA_GROUP         
   +--> ?C_INITSEG
 
 ?PR?MAIN?MAIN                          -----    -----      -----    -----      0D5EH    004AH
-BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 3
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:41:33  PAGE 3
 
 
   +--> ?PR?DISABLEWATCHDOG?MAIN
@@ -133,8 +133,8 @@ SEGMENT                                   BIT_GROUP          DATA_GROUP         
   +--> ?PR?PRINTF?PRINTF
   +--> ?PR?_SENDCOMMAND?MAIN
   +--> ?PR?_SEND_MACRO?MAIN
-  +--> ?PR?_READONEBYTEFROMSLAVE?MAIN
   +--> ?PR?_DISPLAY_TEXT?MAIN
+  +--> ?PR?_READONEBYTEFROMSLAVE?MAIN
 
 ?PR?SYSTEMCLOCKINIT?MAIN               -----    -----      -----    -----      0DA8H    0002H
 
@@ -150,6 +150,11 @@ SEGMENT                                   BIT_GROUP          DATA_GROUP         
   +--> ?PR?PRINTF?PRINTF
   +--> ?PR?_SENDCOMMAND?MAIN
 
+?PR?_DISPLAY_TEXT?MAIN                 -----    -----      -----    -----      0DA8H    008EH
+  +--> ?CO?MAIN
+  +--> ?PR?PRINTF?PRINTF
+  +--> ?PR?_SENDCOMMAND?MAIN
+
 ?PR?_READONEBYTEFROMSLAVE?MAIN         -----    -----      -----    -----      0DA8H    0001H
   +--> ?PR?_SMBREAD?MAIN
 
@@ -157,11 +162,6 @@ SEGMENT                                   BIT_GROUP          DATA_GROUP         
   +--> ?PR?_SMBWRITE?MAIN
 
 ?PR?_SMBWRITE?MAIN                     -----    -----      -----    -----      0DAFH    0004H
-
-?PR?_DISPLAY_TEXT?MAIN                 -----    -----      -----    -----      0DA8H    008EH
-  +--> ?CO?MAIN
-  +--> ?PR?PRINTF?PRINTF
-  +--> ?PR?_SENDCOMMAND?MAIN
 
 ?C_INITSEG                             -----    -----      -----    -----      -----    -----
   +--> ?CO?MAIN
@@ -174,56 +174,56 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   ----------------------------------
 
   -------         MODULE        ?C?COPY
-  C:0815H         PUBLIC        ?C?COPY
+  C:0CCAH         PUBLIC        ?C?COPY
   -------         ENDMOD        ?C?COPY
 
   -------         MODULE        ?C?CLDPTR
-  C:083BH         PUBLIC        ?C?CLDPTR
-BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 4
+  C:0CF0H         PUBLIC        ?C?CLDPTR
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:41:33  PAGE 4
 
 
   -------         ENDMOD        ?C?CLDPTR
 
   -------         MODULE        ?C?UIDIV
-  C:0854H         PUBLIC        ?C?UIDIV
+  C:0D09H         PUBLIC        ?C?UIDIV
   -------         ENDMOD        ?C?UIDIV
 
   -------         MODULE        ?C?IILDX
-  C:08A9H         PUBLIC        ?C?IILDX
+  C:0D5EH         PUBLIC        ?C?IILDX
   -------         ENDMOD        ?C?IILDX
 
   -------         MODULE        ?C?ILDIX
-  C:08BFH         PUBLIC        ?C?ILDIX
+  C:0D74H         PUBLIC        ?C?ILDIX
   -------         ENDMOD        ?C?ILDIX
 
   -------         MODULE        ?C?ULCMP
-  C:08D5H         PUBLIC        ?C?ULCMP
+  C:0D8AH         PUBLIC        ?C?ULCMP
   -------         ENDMOD        ?C?ULCMP
 
   -------         MODULE        ?C?LLDXDATA0
-  C:08E6H         PUBLIC        ?C?LLDXDATA0
+  C:0D9BH         PUBLIC        ?C?LLDXDATA0
   -------         ENDMOD        ?C?LLDXDATA0
 
   -------         MODULE        ?C?LLDIXDATA
-  C:08FBH         PUBLIC        ?C?LLDIXDATA
-  C:08F2H         PUBLIC        ?C?LLDIXDATA1
-  C:08F4H         PUBLIC        ?C?LLDIXDATA8
+  C:0DB0H         PUBLIC        ?C?LLDIXDATA
+  C:0DA7H         PUBLIC        ?C?LLDIXDATA1
+  C:0DA9H         PUBLIC        ?C?LLDIXDATA8
   -------         ENDMOD        ?C?LLDIXDATA
 
   -------         MODULE        ?C?LSTKXDATA
-  C:0927H         PUBLIC        ?C?LSTKXDATA
+  C:0DDCH         PUBLIC        ?C?LSTKXDATA
   -------         ENDMOD        ?C?LSTKXDATA
 
   -------         MODULE        ?C?PLDXDATA
-  C:0958H         PUBLIC        ?C?PLDXDATA
+  C:0E0DH         PUBLIC        ?C?PLDXDATA
   -------         ENDMOD        ?C?PLDXDATA
 
   -------         MODULE        ?C?PSTXDATA
-  C:0961H         PUBLIC        ?C?PSTXDATA
+  C:0E16H         PUBLIC        ?C?PSTXDATA
   -------         ENDMOD        ?C?PSTXDATA
 
   -------         MODULE        ?C?CCASE
-  C:096AH         PUBLIC        ?C?CCASE
+  C:0E1FH         PUBLIC        ?C?CCASE
   -------         ENDMOD        ?C?CCASE
 
   -------         MODULE        PRINTF
@@ -231,29 +231,29 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   X:0E36H         PUBLIC        ?_PRINTF?BYTE
   X:0E36H         PUBLIC        ?_SPRINTF517?BYTE
   X:0E36H         PUBLIC        ?_SPRINTF?BYTE
-  C:044BH         PUBLIC        _PRINTF
-  C:044BH         PUBLIC        _PRINTF517
-  C:0445H         PUBLIC        _SPRINTF
-  C:0445H         PUBLIC        _SPRINTF517
+  C:0900H         PUBLIC        _PRINTF
+  C:0900H         PUBLIC        _PRINTF517
+  C:08FAH         PUBLIC        _SPRINTF
+  C:08FAH         PUBLIC        _SPRINTF517
   -------         ENDMOD        PRINTF
 
   -------         MODULE        ?C?CLDOPTR
-  C:0990H         PUBLIC        ?C?CLDOPTR
-BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 5
+  C:0E45H         PUBLIC        ?C?CLDOPTR
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:41:33  PAGE 5
 
 
   -------         ENDMOD        ?C?CLDOPTR
 
   -------         MODULE        ?C?CSTPTR
-  C:09BDH         PUBLIC        ?C?CSTPTR
+  C:0E72H         PUBLIC        ?C?CSTPTR
   -------         ENDMOD        ?C?CSTPTR
 
   -------         MODULE        ?C?PLDIXDATA
-  C:09CFH         PUBLIC        ?C?PLDIXDATA
+  C:0E84H         PUBLIC        ?C?PLDIXDATA
   -------         ENDMOD        ?C?PLDIXDATA
 
   -------         MODULE        PUTCHAR
-  C:15E2H         PUBLIC        _PUTCHAR
+  C:187DH         PUBLIC        _PUTCHAR
   -------         ENDMOD        PUTCHAR
 
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
@@ -268,5 +268,5 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_WRITEONEBYTETOSLAVE?MAIN
 
-Program Size: data=24.5 xdata=4080 code=5740
+Program Size: data=24.5 xdata=4080 code=6407
 LINK/LOCATE RUN COMPLETE.  4 WARNING(S),  0 ERROR(S)
