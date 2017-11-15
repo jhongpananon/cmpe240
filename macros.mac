@@ -1,19 +1,19 @@
 // 1
 #define display_settings
-//xi 3 0 0
-xc all
-z
-w 10
-r 0 0 640 480 000000
-r 270 30 370 60 1 000000        // draw button
-x 128 270 30 370 60
-xm 128 display_temperature
-r 394 30 481 60 1 000000        // draw button
-x 131 394 30 481 60
-xm 131 display_settings
-r 520 30 600 60 1 000000        // draw button
-x 132 520 30 600 60
-xm 132 display_service
+//xi 3 0 0                      // Draw background image
+xc all                          // Clear buttons
+z                               // Clear screen
+w 10							// wait 10ms
+r 0 0 640 480 000000            // Draw background
+r 270 30 370 60 1 000000        // draw button display_temperature
+x 128 270 30 370 60             // draw macro box display_temperature
+xm 128 display_temperature      // link macro display_temperature
+r 394 30 481 60 1 000000        // draw button display_settings
+x 131 394 30 481 60             // draw macro box display_settings
+xm 131 display_settings         // link macro display_settings
+r 520 30 600 60 1 000000        // draw button display_service
+x 132 520 30 600 60             // draw macro box display_service
+xm 132 display_service          // link macro display_service
 #end
 
 //2
@@ -21,17 +21,17 @@ xm 132 display_service
 // xi 2 0 0
 xc all
 z
-w 10
-r 0 0 640 480 000000
-r 270 30 370 60 1 000000        // draw button
-x 128 270 30 370 60
-xm 128 display_temperature
-r 394 30 481 60 1 000000        // draw button
-x 131 394 30 481 60
-xm 131 display_settings
-r 520 30 600 60 1 000000        // draw button
-x 132 520 30 600 60
-xm 132 display_service
+w 10							// wait 10ms
+r 0 0 640 480 000000            // Draw background
+r 270 30 370 60 1 000000        // draw button display_temperature
+x 128 270 30 370 60             // draw macro box display_temperature
+xm 128 display_temperature      // link macro display_temperature
+r 394 30 481 60 1 000000        // draw button display_settings
+x 131 394 30 481 60             // draw macro box display_settings
+xm 131 display_settings         // link macro display_settings
+r 520 30 600 60 1 000000        // draw button display_service
+x 132 520 30 600 60             // draw macro box display_service
+xm 132 display_service          // link macro display_service
 #end
 
 //2
@@ -39,34 +39,17 @@ xm 132 display_service
 // xi 2 0 0
 xc all
 z
-w 10
-r 0 0 640 480 000000
-r 270 30 370 60 1 000000        // draw button
-x 128 270 30 370 60
-xm 128 display_temperature
-r 394 30 481 60 1 000000        // draw button
-x 131 394 30 481 60
-xm 131 display_settings
-r 520 30 600 60 1 000000        // draw button
-x 132 520 30 600 60
-xm 132 display_service
-#end
-
-#define display_temperature
-//xi 4 0 0
-xc all
-z
-w 10
-r 0 0 640 480 000000
-r 270 30 370 60 1 000000        // draw button
-x 128 270 30 370 60
-xm 128 display_temperature
-r 394 30 481 60 1 000000        // draw button
-x 131 394 30 481 60
-xm 131 display_settings
-r 520 30 600 60 1 000000        // draw button
-x 132 520 30 600 60
-xm 132 display_service
+w 10							// wait 10ms
+r 0 0 640 480 000000            // Draw background
+r 270 30 370 60 1 000000        // draw button display_temperature
+x 128 270 30 370 60             // draw macro box display_temperature
+xm 128 display_temperature      // link macro display_temperature
+r 394 30 481 60 1 000000        // draw button display_settings
+x 131 394 30 481 60             // draw macro box display_settings
+xm 131 display_settings         // link macro display_settings
+r 520 30 600 60 1 000000        // draw button display_service
+x 132 520 30 600 60             // draw macro box display_service
+xm 132 display_service          // link macro display_service
 r 200 100 480 300 1 FFFFFF      // Big square box for temperature
 r 120 350 250 450 1 000000      // small left box for Fahrenheit button
 r 400 350 540 450 1 000000      // small right box for Celsius button
@@ -79,9 +62,9 @@ baud 115200                             //Set baud rate
 
 xc all
 xi 1 0 0
-                                       //Splash screen bitmap
+                                     //Splash screen bitmap
 // Place your macro code here
 
 out "{cmpe}\r"                          //Indicate that splash screen is complete
 #end
-Calvin • Now
+
