@@ -1,22 +1,69 @@
 // 1
-#define display_page1
+#define display_settings
 //xi 3 0 0
+xc all
+z
 r 0 0 640 480 000000
+r 270 30 370 60 1 FFFFFF        // draw button
 x 128 270 30 370 60
-xm 128 display_home
+xm 128 display_temperature
+r 394 30 481 60 FFFFFF        // draw button
+x 131 394 30 481 60
+xm 131 display_settings
+r 520 30 600 60 FFFFFF        // draw button
+x 132 520 30 600 60
+xm 132 display_service
 #end
 
 //2
-#define display_home
+#define display_main
 // xi 2 0 0
+xc all
+z
 r 0 0 640 480 000000
+r 270 30 370 60 1 FFFFFF        // draw button
 x 128 270 30 370 60
-xm 128 display_page1
+xm 128 display_temperature
+r 394 30 481 60 FFFFFF        // draw button
+x 131 394 30 481 60
+xm 131 display_settings
+r 520 30 600 60 FFFFFF        // draw button
+x 132 520 30 600 60
+xm 132 display_service
+#end
+
+//2
+#define display_service
+// xi 2 0 0
+xc all
+z
+r 0 0 640 480 000000
+r 270 30 370 60 1 FFFFFF        // draw button
+x 128 270 30 370 60
+xm 128 display_temperature
+r 394 30 481 60 FFFFFF        // draw button
+x 131 394 30 481 60
+xm 131 display_settings
+r 520 30 600 60 FFFFFF        // draw button
+x 132 520 30 600 60
+xm 132 display_service
 #end
 
 #define display_temperature
-xi 4 0 0
-r 220 100 450 300 1 FFFFFF      // Big square box for temperature
+//xi 4 0 0
+xc all
+z
+r 0 0 640 480 000000
+r 270 30 370 60 1 FFFFFF        // draw button
+x 128 270 30 370 60
+xm 128 display_temperature
+r 394 30 481 60 FFFFFF        // draw button
+x 131 394 30 481 60
+xm 131 display_settings
+r 520 30 600 60 FFFFFF        // draw button
+x 132 520 30 600 60
+xm 132 display_service
+r 200 100 480 300 1 FFFFFF      // Big square box for temperature
 r 120 350 250 450 1 FFFFFF      // small left box for Fahrenheit button
 r 400 350 540 450 1 FFFFFF      // small right box for Celsius button
 x 129 120 350 250 450           // button for small left box
@@ -33,3 +80,4 @@ xi 1 0 0
 
 out "{cmpe}\r"                          //Indicate that splash screen is complete
 #end
+Calvin • Now

@@ -1050,14 +1050,11 @@ static void send_macro(const unsigned int macro_index)
 // Main
 //-------------------------------------------------------------------------------------------------------
 
-typedef enum {
-    MAIN_PAGE = 0,
-    SETTINGS_PAGE,
-    SERVICE_PAGE,
-    CONFIG_PAGE,
-} pages_E;
-
-static page_E current_page = MAIN_PAGE;
+#define PAGE_MAIN            1
+#define PAGE_SETTINGS        2
+#define PAGE_SERVICE         3
+#define PAGE_CONFIG          4
+int current_page;
 
 void main()
 {
@@ -1065,7 +1062,7 @@ void main()
     int count = 0;
     int prev_temp = 0;
     int display_celsius = 0;
-    bool first_boot = true;
+    int first_boot = 1;
     char str[SPRINTF_SIZE];
     
     disableWatchdog();
@@ -1091,26 +1088,30 @@ void main()
         
         switch(current_page) 
         {
-            case (SETTINGS_PAGE):
+            case (PAGE_SETTINGS):
             {
                 break;
             }
-            case (CONFIG_PAGE):
+            case (PAGE_CONFIG):
             {
                 break;
             }
-            case (SERVICE_PAGE):
+            case (PAGE_SERVICE):
             {
                 break;
             }
             default:            // no break
-            case (MAIN_PAGE) :
+            case (PAGE_MAIN) :
             {
                 roomTemp = readOneByteFromSlave(ROOM_TEMP);
                 
                 if (tsCommandReceived || roomTemp != prev_temp || first_boot) 
                 {
-                    first_boot = false;
+                    if (first_boot) {
+                        first_boot = 0;
+                        sprintf(str, "%-3buC", 0);
+                        display_text("000000", "FFFFFF", 8, str, 240, 110);
+                    }
                     prev_temp = roomTemp;
                     
                     if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
@@ -1123,6 +1124,9 @@ void main()
                         roomTemp = (roomTemp * 9) / 5 + 32;
                         sprintf(str, "%-3buF", roomTemp);
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
+                    }
+                    else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+                        current_page = PAGE_SETTINGS;
                     }
                 }
                 break;

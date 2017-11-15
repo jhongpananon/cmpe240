@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        10/31/2017  20:41:35  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        11/14/2017  19:08:30  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -14,6 +14,7 @@ INPUT MODULES INCLUDED:
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C_STARTUP)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?COPY)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?CLDPTR)
+  C:\KEIL_V5\C51\LIB\C51L.LIB (?C?UIDIV)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?IILDX)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?ILDIX)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?ULCMP)
@@ -22,12 +23,12 @@ INPUT MODULES INCLUDED:
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?LSTKXDATA)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?PLDXDATA)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?PSTXDATA)
+  C:\KEIL_V5\C51\LIB\C51L.LIB (?C?CCASE)
   C:\KEIL_V5\C51\LIB\C51L.LIB (PRINTF)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C_INIT)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?CLDOPTR)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?CSTPTR)
   C:\KEIL_V5\C51\LIB\C51L.LIB (?C?PLDIXDATA)
-  C:\KEIL_V5\C51\LIB\C51L.LIB (?C?CCASE)
   C:\KEIL_V5\C51\LIB\C51L.LIB (PUTCHAR)
 
 
@@ -43,91 +44,126 @@ LINK MAP OF MODULE:  .\Objects\keil_project (MAIN)
                     000DH     0003H                  *** GAP ***
             REG     0010H     0008H     ABSOLUTE     "REG BANK 2"
                     0018H     0008H                  *** GAP ***
-            BIT     0020H.0   0001H.1   UNIT         _BIT_GROUP_
-            BIT     0021H.1   0001H.0   UNIT         ?BI?MAIN
-                    0022H.1   0000H.7                *** GAP ***
+            BIT     0020H.0   0001H.3   UNIT         ?BI?MAIN
+            BIT     0021H.3   0001H.2   UNIT         _BIT_GROUP_
+                    0022H.5   0000H.3                *** GAP ***
             IDATA   0023H     0001H     UNIT         ?STACK
 
             * * * * * * *  X D A T A   M E M O R Y  * * * * * * *
-            XDATA   0000H     031BH     UNIT         ?XD?MAIN
-            XDATA   031BH     00FDH     UNIT         _XDATA_GROUP_
-            XDATA   0418H     0026H     UNIT         ?XD?_DISPLAY_IMAGE?MAIN
+            XDATA   0000H     0D59H     UNIT         ?XD?MAIN
+            XDATA   0D59H     0105H     UNIT         _XDATA_GROUP_
+            XDATA   0E5EH     008EH     UNIT         ?XD?_DISPLAYTEXT?MAIN
+            XDATA   0EECH     0082H     UNIT         ?XD?_SHOWBITMAP?MAIN
+            XDATA   0F6EH     0080H     UNIT         ?XD?_CALLMACRO?MAIN
+            XDATA   0FEEH     0002H     UNIT         ?XD?SCANUSERINPUT?MAIN
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
-                    0003H     0020H                  *** GAP ***
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 2
+
+
+            CODE    0003H     001FH     UNIT         ?PR?TIMER3ISR?MAIN
+                    0022H     0001H                  *** GAP ***
             CODE    0023H     0003H     ABSOLUTE     
-                    0026H     07DAH                  *** GAP ***
-            CODE    0800H     0365H     UNIT         ?PR?PRINTF?PRINTF
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  20:41:35  PAGE 2
-
-
-            CODE    0B65H     024CH     UNIT         ?C?LIB_CODE
-            CODE    0DB1H     020AH     INBLOCK      ?PR?UART0INTERRUPT?MAIN
-            CODE    0FBBH     011DH     UNIT         ?CO?MAIN
-            CODE    10D8H     00E0H     INBLOCK      ?PR?_DISPLAY_TEXT?MAIN
-            CODE    11B8H     00DBH     INBLOCK      ?PR?MAIN?MAIN
-            CODE    1293H     008CH     UNIT         ?C_C51STARTUP
-            CODE    131FH     0081H     INBLOCK      ?PR?_DISPLAY_IMAGE?MAIN
-            CODE    13A0H     006AH     INBLOCK      ?PR?_SENDCOMMAND?MAIN
-            CODE    140AH     0057H     INBLOCK      ?PR?_SEND_MACRO?MAIN
-            CODE    1461H     002CH     INBLOCK      ?PR?PORTINIT?MAIN
-            CODE    148DH     0027H     INBLOCK      ?PR?UART0INIT?MAIN
-            CODE    14B4H     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
-            CODE    14DBH     0020H     UNIT         ?C_INITSEG
-            CODE    14FBH     0012H     INBLOCK      ?PR?SYSTEMCLOCKINIT?MAIN
-            CODE    150DH     0007H     INBLOCK      ?PR?DISABLEWATCHDOG?MAIN
-            CODE    1514H     0004H     INBLOCK      ?PR?ENABLEINTERRUPTS?MAIN
+            CODE    0026H     0012H     UNIT         ?PR?SYSTEMCLOCKINIT?MAIN
+                    0038H     0003H                  *** GAP ***
+            CODE    003BH     0003H     ABSOLUTE     
+            CODE    003EH     002CH     UNIT         ?C_INITSEG
+            CODE    006AH     0007H     UNIT         ?PR?DISABLEWATCHDOG?MAIN
+                    0071H     0002H                  *** GAP ***
+            CODE    0073H     0003H     ABSOLUTE     
+            CODE    0076H     036AH     UNIT         ?PR?SMBISR?MAIN
+            CODE    03E0H     0365H     UNIT         ?PR?PRINTF?PRINTF
+            CODE    0745H     02A1H     UNIT         ?C?LIB_CODE
+            CODE    09E6H     0228H     UNIT         ?PR?MAIN?MAIN
+            CODE    0C0EH     020FH     UNIT         ?PR?UART0INTERRUPT?MAIN
+            CODE    0E1DH     0182H     UNIT         ?PR?SCANUSERINPUT?MAIN
+            CODE    0F9FH     0102H     UNIT         ?CO?MAIN
+            CODE    10A1H     00E0H     UNIT         ?PR?_DISPLAY_TEXT?MAIN
+            CODE    1181H     00BFH     UNIT         ?PR?_DISPLAYTEXT?MAIN
+            CODE    1240H     009CH     UNIT         ?PR?_SMBREAD?MAIN
+            CODE    12DCH     0094H     UNIT         ?PR?SMBINIT?MAIN
+            CODE    1370H     008CH     UNIT         ?C_C51STARTUP
+            CODE    13FCH     006AH     UNIT         ?PR?_SENDCOMMAND?MAIN
+            CODE    1466H     0057H     UNIT         ?PR?_SEND_MACRO?MAIN
+            CODE    14BDH     004DH     UNIT         ?PR?_SMBWRITE?MAIN
+            CODE    150AH     004AH     UNIT         ?PR?_SHOWBITMAP?MAIN
+            CODE    1554H     0040H     UNIT         ?PR?PORTINIT?MAIN
+            CODE    1594H     0027H     UNIT         ?PR?UART0INIT?MAIN
+            CODE    15BBH     0027H     UNIT         ?PR?_CALLMACRO?MAIN
+            CODE    15E2H     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
+            CODE    1609H     0021H     UNIT         ?PR?_READONEBYTEFROMSLAVE?MAIN
+            CODE    162AH     001BH     UNIT         ?PR?TIMER3INIT?MAIN
+            CODE    1645H     001AH     UNIT         ?PR?_WRITEONEBYTETOSLAVE?MAIN
+            CODE    165FH     000DH     UNIT         ?PR?ENABLEINTERRUPTS?MAIN
+            CODE    166CH     0006H     UNIT         ?PR?_CHANGESCREEN?MAIN
 
 
 
 OVERLAY MAP OF MODULE:   .\Objects\keil_project (MAIN)
 
 
-SEGMENT                              BIT_GROUP          DATA_GROUP          XDATA_GROUP
-  +--> CALLED SEGMENT             START    LENGTH     START    LENGTH     START    LENGTH
------------------------------------------------------------------------------------------
-?PR?UART0INTERRUPT?MAIN           -----    -----      -----    -----      031BH    0005H
+SEGMENT                                   BIT_GROUP          DATA_GROUP          XDATA_GROUP
+  +--> CALLED SEGMENT                  START    LENGTH     START    LENGTH     START    LENGTH
+----------------------------------------------------------------------------------------------
+?PR?UART0INTERRUPT?MAIN                -----    -----      -----    -----      0D59H    0005H
 
 *** NEW ROOT ***************************************************
 
-?C_C51STARTUP                     -----    -----      -----    -----      -----    -----
+?PR?SMBISR?MAIN                        0021H.3  0000H.1    -----    -----      -----    -----
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP                          -----    -----      -----    -----      -----    -----
   +--> ?PR?MAIN?MAIN
   +--> ?C_INITSEG
 
-?PR?MAIN?MAIN                     -----    -----      -----    -----      0320H    0042H
+?PR?MAIN?MAIN                          -----    -----      -----    -----      0D5EH    004AH
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 3
+
+
   +--> ?PR?DISABLEWATCHDOG?MAIN
   +--> ?PR?SYSTEMCLOCKINIT?MAIN
   +--> ?PR?PORTINIT?MAIN
   +--> ?PR?ENABLEINTERRUPTS?MAIN
   +--> ?PR?UART0INIT?MAIN
+  +--> ?PR?SMBINIT?MAIN
+  +--> ?PR?TIMER3INIT?MAIN
   +--> ?CO?MAIN
   +--> ?PR?PRINTF?PRINTF
   +--> ?PR?_SENDCOMMAND?MAIN
   +--> ?PR?_SEND_MACRO?MAIN
+  +--> ?PR?_READONEBYTEFROMSLAVE?MAIN
   +--> ?PR?_DISPLAY_TEXT?MAIN
 
-?PR?SYSTEMCLOCKINIT?MAIN          -----    -----      -----    -----      0362H    0002H
+?PR?SYSTEMCLOCKINIT?MAIN               -----    -----      -----    -----      0DA8H    0002H
 
-?PR?PRINTF?PRINTF                 0020H.0  0001H.1    0008H    0005H      03F0H    0028H
+?PR?SMBINIT?MAIN                       -----    -----      -----    -----      0DA8H    0007H
+
+?PR?PRINTF?PRINTF                      0021H.4  0001H.1    0008H    0005H      0E36H    0028H
   +--> ?PR?PUTCHAR?PUTCHAR
 
-?PR?_SENDCOMMAND?MAIN             -----    -----      -----    -----      03F0H    0001H
+?PR?_SENDCOMMAND?MAIN                  -----    -----      -----    -----      0E36H    0001H
 
-?PR?_SEND_MACRO?MAIN              -----    -----      -----    -----      0362H    000AH
+?PR?_SEND_MACRO?MAIN                   -----    -----      -----    -----      0DA8H    000AH
   +--> ?CO?MAIN
   +--> ?PR?PRINTF?PRINTF
   +--> ?PR?_SENDCOMMAND?MAIN
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  20:41:35  PAGE 3
+?PR?_READONEBYTEFROMSLAVE?MAIN         -----    -----      -----    -----      0DA8H    0001H
+  +--> ?PR?_SMBREAD?MAIN
 
+?PR?_SMBREAD?MAIN                      -----    -----      -----    -----      0DA9H    0006H
+  +--> ?PR?_SMBWRITE?MAIN
 
-?PR?_DISPLAY_TEXT?MAIN            -----    -----      -----    -----      0362H    008EH
+?PR?_SMBWRITE?MAIN                     -----    -----      -----    -----      0DAFH    0004H
+
+?PR?_DISPLAY_TEXT?MAIN                 -----    -----      -----    -----      0DA8H    008EH
   +--> ?CO?MAIN
   +--> ?PR?PRINTF?PRINTF
   +--> ?PR?_SENDCOMMAND?MAIN
 
-?C_INITSEG                        -----    -----      -----    -----      -----    -----
+?C_INITSEG                             -----    -----      -----    -----      -----    -----
   +--> ?CO?MAIN
 
 
@@ -138,87 +174,99 @@ SYMBOL TABLE OF MODULE:  .\Objects\keil_project (MAIN)
   ----------------------------------
 
   -------         MODULE        ?C?COPY
-  C:0C35H         PUBLIC        ?C?COPY
+  C:0815H         PUBLIC        ?C?COPY
   -------         ENDMOD        ?C?COPY
 
   -------         MODULE        ?C?CLDPTR
-  C:0C5BH         PUBLIC        ?C?CLDPTR
+  C:083BH         PUBLIC        ?C?CLDPTR
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 4
+
+
   -------         ENDMOD        ?C?CLDPTR
 
+  -------         MODULE        ?C?UIDIV
+  C:0854H         PUBLIC        ?C?UIDIV
+  -------         ENDMOD        ?C?UIDIV
+
   -------         MODULE        ?C?IILDX
-  C:0C74H         PUBLIC        ?C?IILDX
+  C:08A9H         PUBLIC        ?C?IILDX
   -------         ENDMOD        ?C?IILDX
 
   -------         MODULE        ?C?ILDIX
-  C:0C8AH         PUBLIC        ?C?ILDIX
+  C:08BFH         PUBLIC        ?C?ILDIX
   -------         ENDMOD        ?C?ILDIX
 
   -------         MODULE        ?C?ULCMP
-  C:0CA0H         PUBLIC        ?C?ULCMP
+  C:08D5H         PUBLIC        ?C?ULCMP
   -------         ENDMOD        ?C?ULCMP
 
   -------         MODULE        ?C?LLDXDATA0
-  C:0CB1H         PUBLIC        ?C?LLDXDATA0
+  C:08E6H         PUBLIC        ?C?LLDXDATA0
   -------         ENDMOD        ?C?LLDXDATA0
 
   -------         MODULE        ?C?LLDIXDATA
-  C:0CC6H         PUBLIC        ?C?LLDIXDATA
-  C:0CBDH         PUBLIC        ?C?LLDIXDATA1
-  C:0CBFH         PUBLIC        ?C?LLDIXDATA8
+  C:08FBH         PUBLIC        ?C?LLDIXDATA
+  C:08F2H         PUBLIC        ?C?LLDIXDATA1
+  C:08F4H         PUBLIC        ?C?LLDIXDATA8
   -------         ENDMOD        ?C?LLDIXDATA
 
   -------         MODULE        ?C?LSTKXDATA
-  C:0CF2H         PUBLIC        ?C?LSTKXDATA
+  C:0927H         PUBLIC        ?C?LSTKXDATA
   -------         ENDMOD        ?C?LSTKXDATA
 
   -------         MODULE        ?C?PLDXDATA
-  C:0D23H         PUBLIC        ?C?PLDXDATA
+  C:0958H         PUBLIC        ?C?PLDXDATA
   -------         ENDMOD        ?C?PLDXDATA
 
   -------         MODULE        ?C?PSTXDATA
-  C:0D2CH         PUBLIC        ?C?PSTXDATA
+  C:0961H         PUBLIC        ?C?PSTXDATA
   -------         ENDMOD        ?C?PSTXDATA
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/31/2017  20:41:35  PAGE 4
-
+  -------         MODULE        ?C?CCASE
+  C:096AH         PUBLIC        ?C?CCASE
+  -------         ENDMOD        ?C?CCASE
 
   -------         MODULE        PRINTF
-  X:03F0H         PUBLIC        ?_PRINTF517?BYTE
-  X:03F0H         PUBLIC        ?_PRINTF?BYTE
-  X:03F0H         PUBLIC        ?_SPRINTF517?BYTE
-  X:03F0H         PUBLIC        ?_SPRINTF?BYTE
-  C:086BH         PUBLIC        _PRINTF
-  C:086BH         PUBLIC        _PRINTF517
-  C:0865H         PUBLIC        _SPRINTF
-  C:0865H         PUBLIC        _SPRINTF517
+  X:0E36H         PUBLIC        ?_PRINTF517?BYTE
+  X:0E36H         PUBLIC        ?_PRINTF?BYTE
+  X:0E36H         PUBLIC        ?_SPRINTF517?BYTE
+  X:0E36H         PUBLIC        ?_SPRINTF?BYTE
+  C:044BH         PUBLIC        _PRINTF
+  C:044BH         PUBLIC        _PRINTF517
+  C:0445H         PUBLIC        _SPRINTF
+  C:0445H         PUBLIC        _SPRINTF517
   -------         ENDMOD        PRINTF
 
   -------         MODULE        ?C?CLDOPTR
-  C:0D35H         PUBLIC        ?C?CLDOPTR
+  C:0990H         PUBLIC        ?C?CLDOPTR
+BL51 BANKED LINKER/LOCATER V6.22                                                      11/14/2017  19:08:30  PAGE 5
+
+
   -------         ENDMOD        ?C?CLDOPTR
 
   -------         MODULE        ?C?CSTPTR
-  C:0D62H         PUBLIC        ?C?CSTPTR
+  C:09BDH         PUBLIC        ?C?CSTPTR
   -------         ENDMOD        ?C?CSTPTR
 
   -------         MODULE        ?C?PLDIXDATA
-  C:0D74H         PUBLIC        ?C?PLDIXDATA
+  C:09CFH         PUBLIC        ?C?PLDIXDATA
   -------         ENDMOD        ?C?PLDIXDATA
 
-  -------         MODULE        ?C?CCASE
-  C:0D8BH         PUBLIC        ?C?CCASE
-  -------         ENDMOD        ?C?CCASE
-
   -------         MODULE        PUTCHAR
-  C:14B4H         PUBLIC        _PUTCHAR
+  C:15E2H         PUBLIC        _PUTCHAR
   -------         ENDMOD        PUTCHAR
 
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_DISPLAY_IMAGE?MAIN
+    SEGMENT: ?PR?_DISPLAYTEXT?MAIN
 
-******************************************************************************
-* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 06B6H BYTE (83%) *
-******************************************************************************
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SHOWBITMAP?MAIN
 
-Program Size: data=24.1 xdata=1086 code=3358
-LINK/LOCATE RUN COMPLETE.  1 WARNING(S),  0 ERROR(S)
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?SCANUSERINPUT?MAIN
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_WRITEONEBYTETOSLAVE?MAIN
+
+Program Size: data=24.5 xdata=4080 code=5740
+LINK/LOCATE RUN COMPLETE.  4 WARNING(S),  0 ERROR(S)
