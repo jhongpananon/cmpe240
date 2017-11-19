@@ -64,6 +64,64 @@ xc all
 xi 1 0 0
                                      //Splash screen bitmap
 // Place your macro code here
+xi 4 310 63 //display top most grey loading image
+
+
+w 300
+xc all
+xi 1 0 0
+xi 4 332 72 //display 2nd grey loading image
+xi 4 338 92
+
+
+w 300
+xc all
+xi 1 0 0
+xi 4 338 92
+xi 4 329 111
+xi 4 310 121
+
+
+w 300
+xc all
+xi 1 0 0
+xi 4 329 111
+xi 4 310 121
+xi 4 294 111
+xi 4 285 92
+
+
+w 300
+xc all
+xi 1 0 0
+xi 4 310 121
+xi 4 294 111
+xi 4 285 92
+xi 4 292 72
+xi 4 310 63
+
+
+w 300
+xc all
+xi 1 0 0
+xi 4 310 121
+xi 4 294 111
+xi 4 285 92
+xi 4 292 72
+xi 4 310 63
+xi 4 332 72
+
+w 300
+xc all
+xi 1 0 0
+xi 4 294 111
+xi 4 285 92
+xi 4 292 72
+xi 4 310 63
+xi 4 332 72
+xi 4 338 92
+xi 4 329 111
+xi 4 310 121
 
 out "{cmpe}\r"                          //Indicate that splash screen is complete
 #end
