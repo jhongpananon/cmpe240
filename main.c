@@ -1120,7 +1120,22 @@ void main()
                     state_changed = 0;
                     display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
                 }
-
+              	if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+										tsCommandReceived  = 0;
+										while(tsCommandReceived == 0);
+										if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]){
+											 tsCommandReceived = 0;
+											 while(tsCommandReceived == 0);
+											 if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]){
+												tsCommandReceived = 0;
+												while(tsCommandReceived == 0);
+												if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]){
+													tsCommandReceived = 0;
+													display_text("000000","FFFFFF", 8 , "OK!", 240, 200); 
+												}
+											}
+										}
+								}
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     change_state(PAGE_SETTINGS);
                 }
