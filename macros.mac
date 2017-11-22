@@ -137,20 +137,20 @@ xc all
 z
 w 10							              // wait 10ms
 
-x 140 270 30 370 60             // Keypad number 0 - define hotspot 
-x 141 394 30 481 60             // Keypad number 1 - define hotspot
-x 142 520 30 600 60             // Keypad number 2 - define hotspot
-x 143 520 30 600 60             // Keypad number 3 - define hotspot
-x 144 520 30 600 60             // Keypad number 4 - define hotspot
-x 145 520 30 600 60             // Keypad number 5 - define hotspot
-x 146 520 30 600 60             // Keypad number 6 - define hotspot
-x 147 520 30 600 60             // Keypad number 7 - define hotspot
-x 148 520 30 600 60             // Keypad number 8 - define hotspot
-x 149 520 30 600 60             // Keypad number 9 - define hotspot
-x 150 520 30 600 60             // Keypad * - define hotspot
-x 151 520 30 600 60             // Keypad # - define hotspot
-x 152 520 30 600 60             // Keypad Clear - define hotspot
-x 153 520 30 600 60             // Keypad Enter - define hotspot
+x 140 299 312 388 348             // Keypad number 0 - define hotspot 
+x 141 246 146 284 186             // Keypad number 1 - define hotspot
+x 142 299 146 338 186             // Keypad number 2 - define hotspot
+x 143 353 146 391 186             // Keypad number 3 - define hotspot
+x 144 246 200 284 236             // Keypad number 4 - define hotspot
+x 145 299 200 388 236             // Keypad number 5 - define hotspot
+x 146 353 200 391 236             // Keypad number 6 - define hotspot
+x 147 246 257 284 291             // Keypad number 7 - define hotspot
+x 148 299 257 388 291             // Keypad number 8 - define hotspot
+x 149 353 257 391 291             // Keypad number 9 - define hotspot
+x 150 246 312 284 348             // Keypad * - define hotspot
+x 151 353 312 391 348             // Keypad # - define hotspot
+x 152 246 388 312 416             // Keypad Clear - define hotspot
+x 153 330 388 396 418             // Keypad Enter - define hotspot
 
 xm 152 display_settings_new          // link macro display_service
 
