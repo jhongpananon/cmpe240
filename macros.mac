@@ -17,7 +17,7 @@ xm 132 display_service          // link macro display_service
 #end
 
 //2
-#define display_main
+#define display_service
 // xi 2 0 0
 xc all
 z
@@ -34,8 +34,8 @@ x 132 520 30 600 60             // draw macro box display_service
 xm 132 display_service          // link macro display_service
 #end
 
-//2
-#define display_service
+//3
+#define display_temperature
 // xi 2 0 0
 xc all
 z
@@ -57,6 +57,7 @@ x 129 120 350 250 450           // button for small left box
 x 130 400 350 540 450           // button for small right box
 #end
 
+//4
 #define Splash
 baud 115200                             //Set baud rate
 
