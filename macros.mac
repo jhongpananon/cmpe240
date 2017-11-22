@@ -61,10 +61,11 @@ x 130 400 350 540 450           // button for small right box
 baud 115200                             //Set baud rate
 
 xc all
-xi 1 0 0
-                                     //Splash screen bitmap
+xi 1 0 0                                //Splash screen bitmap
+                                        //04_splash.bmp holds the grey ball
+                                     
 // Place your macro code here
-xi 4 310 63 //display top most grey loading image
+xi 4 310 63                 //display top most grey loading image
 
 
 w 300
@@ -125,4 +126,42 @@ xi 4 310 121
 
 out "{cmpe}\r"                          //Indicate that splash screen is complete
 #end
+
+
+//6
+// 140 - 153 is used for keypad numbers in define hotspot "x ret_val x0 y0 x1 y1" command
+#define display_settings_new
+// xi 5 0 0                     //05_splash.bmp holds the dial pad 
+xc all
+z
+w 10							              // wait 10ms
+
+x 140 270 30 370 60             // Keypad number 0 - define hotspot 
+x 141 394 30 481 60             // Keypad number 1 - define hotspot
+x 142 520 30 600 60             // Keypad number 2 - define hotspot
+x 143 520 30 600 60             // Keypad number 3 - define hotspot
+x 144 520 30 600 60             // Keypad number 4 - define hotspot
+x 145 520 30 600 60             // Keypad number 5 - define hotspot
+x 146 520 30 600 60             // Keypad number 6 - define hotspot
+x 147 520 30 600 60             // Keypad number 7 - define hotspot
+x 148 520 30 600 60             // Keypad number 8 - define hotspot
+x 149 520 30 600 60             // Keypad number 9 - define hotspot
+x 150 520 30 600 60             // Keypad * - define hotspot
+x 151 520 30 600 60             // Keypad # - define hotspot
+x 152 520 30 600 60             // Keypad Clear - define hotspot
+x 153 520 30 600 60             // Keypad Enter - define hotspot
+
+xm 152 display_settings_new          // link macro display_service
+
+
+//if 153(Enter), the number is pressed, to master to check password validity
+//when the numbers are pressed, they are stored in memory in master
+//if password valid, the display_configuration is displayed by master, else display_settings_new is displayed
+
+#end
+
+#define display_configuration
+
+#end
+
 
