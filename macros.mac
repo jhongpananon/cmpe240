@@ -64,7 +64,7 @@ baud 115200                             //Set baud rate
 xc all
 xi 1 0 0                                //Splash screen bitmap
                                         //04_splash.bmp holds the grey ball
-                                     
+w 200                                     
 // Place your macro code here
 xi 4 310 63                 //display top most grey loading image
 
