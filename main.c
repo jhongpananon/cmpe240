@@ -7,7 +7,7 @@
 unsigned char tsByte;
 unsigned char passcode[4][3] = {"140", "141", "142","143"}; 
 
-int k = 0;
+
 
 bit splashEnd = 0;
 bit screenReset = 0;
@@ -16,6 +16,8 @@ bit tsCommandReceived = 0;
 bit tsCommandTransmitted = 0;
 bit SMB_RW;                                                                     // Software flag to indicate Read or Write
 
+
+int k = 0;
 unsigned char sharedDataRx[SHARED_DATA_MAX];
 unsigned char sharedDataTx[SHARED_DATA_MAX];
 unsigned char eepromTx[EEPROM_TX_BUFFER];
