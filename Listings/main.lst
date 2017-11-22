@@ -1,10 +1,10 @@
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 1   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 1   
 
 
 C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN .\Objects\main.obj
-COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(7,SIZE) PRINT(.\Listings\main.lst) OBJECT(.\Object
-                    -s\main.obj)
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
+                    -s\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
 
 line level    source
 
@@ -15,1419 +15,1438 @@ line level    source
    5          // Global Declarations
    6          //-------------------------------------------------------------------------------------------------------
    7          unsigned char tsByte;
-   8          
-   9          bit splashEnd = 0;
-  10          bit screenReset = 0;
-  11          bit ackFromScreen = 0;
-  12          bit tsCommandReceived = 0;
-  13          bit tsCommandTransmitted = 0;
-  14          bit SMB_RW;                                                                     // Software flag to indica
+   8          //unsigned char passcode[4][3] = {"140", "141", "142","143"}; 
+   9          
+  10          
+  11          
+  12          bit splashEnd = 0;
+  13          bit screenReset = 0;
+  14          bit ackFromScreen = 0;
+  15          bit tsCommandReceived = 0;
+  16          bit tsCommandTransmitted = 0;
+  17          bit SMB_RW;                                                                     // Software flag to indica
              -te Read or Write
-  15          
-  16          unsigned char sharedDataRx[SHARED_DATA_MAX];
-  17          unsigned char sharedDataTx[SHARED_DATA_MAX];
-  18          unsigned char eepromTx[EEPROM_TX_BUFFER];
-  19          unsigned char eepromRx[EEPROM_RX_BUFFER];
-  20          unsigned char eepromPageTx[EEPROM_PAGE_SIZE];
-  21          
-  22          unsigned int pageCount;
-  23          unsigned int bytesExtra;
-  24          unsigned int eepromPageCounter;
-  25          unsigned int startAddr;
-  26          unsigned char slaveAddr;                                                        // Target SMBus slave addr
+  18          
+  19          
+  20          int k = 0;
+  21          unsigned char sharedDataRx[SHARED_DATA_MAX];
+  22          unsigned char sharedDataTx[SHARED_DATA_MAX];
+  23          unsigned char eepromTx[EEPROM_TX_BUFFER];
+  24          unsigned char eepromRx[EEPROM_RX_BUFFER];
+  25          unsigned char eepromPageTx[EEPROM_PAGE_SIZE];
+  26          
+  27          unsigned int pageCount;
+  28          unsigned int bytesExtra;
+  29          unsigned int eepromPageCounter;
+  30          unsigned int startAddr;
+  31          unsigned char slaveAddr;                                                        // Target SMBus slave addr
              -ess
-  27          unsigned char eepromDataByte;
-  28          
-  29          unsigned int numBytesRD;
-  30          unsigned int numBytesWR;
-  31          unsigned char slaveWriteDone;
-  32          unsigned char slaveReadDone;
-  33          unsigned char eepromWriteDone;
-  34          unsigned char eepromReaddone;
-  35          
-  36          unsigned char tsRxBuffer[RX_BUFFER_SIZE];
-  37          unsigned char tsTxBuffer[TX_BUFFER_SIZE];
-  38          unsigned char userCommand[RX_BUFFER_SIZE];
-  39          
-  40          unsigned int tsRxIn;
-  41          unsigned int tsRxOut; 
-  42          unsigned int tsTxIn;
-  43          unsigned int tsTxOut;
+  32          unsigned char eepromDataByte;
+  33          
+  34          unsigned int numBytesRD;
+  35          unsigned int numBytesWR;
+  36          unsigned char slaveWriteDone;
+  37          unsigned char slaveReadDone;
+  38          unsigned char eepromWriteDone;
+  39          unsigned char eepromReaddone;
+  40          
+  41          unsigned char tsRxBuffer[RX_BUFFER_SIZE];
+  42          unsigned char tsTxBuffer[TX_BUFFER_SIZE];
+  43          unsigned char userCommand[RX_BUFFER_SIZE];
   44          
-  45          bit tsRxEmpty;
-  46          bit tsTxEmpty;
-  47          bit tsLastCharGone; 
-  48          
-  49          bit screenChanged;
-  50          unsigned char screen;
-  51          unsigned char lastScreen;
-  52          
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 2   
+  45          unsigned int tsRxIn;
+  46          unsigned int tsRxOut; 
+  47          unsigned int tsTxIn;
+  48          unsigned int tsTxOut;
+  49          
+  50          bit tsRxEmpty;
+  51          bit tsTxEmpty;
+  52          bit tsLastCharGone; 
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 2   
 
-  53          const char code * Font[] = {/*0*/   "m10B", 
-  54                                      /*1*/   "m12B",
-  55                                      /*2*/   "m14B",
-  56                                      /*3*/   "m16B",
-  57                                      /*4*/   "m20B",
-  58                                      /*5*/   "m24B",
-  59                                      /*6*/   "m32B",
-  60                                      /*7*/   "m48",
-  61                                      /*8*/   "m64"};
-  62          
-  63          bit SMB_BUSY = 0;                                                               // Set to claim the bus, c
+  53          
+  54          bit screenChanged;
+  55          unsigned char screen;
+  56          unsigned char lastScreen;
+  57          
+  58          const char code * Font[] = {/*0*/   "m10B", 
+  59                                      /*1*/   "m12B",
+  60                                      /*2*/   "m14B",
+  61                                      /*3*/   "m16B",
+  62                                      /*4*/   "m20B",
+  63                                      /*5*/   "m24B",
+  64                                      /*6*/   "m32B",
+  65                                      /*7*/   "m48",
+  66                                      /*8*/   "m64"};
+  67          
+  68          bit SMB_BUSY = 0;                                                               // Set to claim the bus, c
              -lear to free
-  64          bit SMB_RW;                                                                     // Software flag to indica
+  69          bit SMB_RW;                                                                     // Software flag to indica
              -te Read or Write
-  65          
-  66          unsigned int startAddr;
-  67          unsigned char slaveAddr;                                                        // Target SMBus slave addr
+  70          
+  71          unsigned int startAddr;
+  72          unsigned char slaveAddr;                                                        // Target SMBus slave addr
              -ess
-  68          
-  69          unsigned int numBytesRD;
-  70          unsigned int numBytesWR;
-  71          
-  72          unsigned char slaveWriteDone;
-  73          unsigned char slaveReadDone;
-  74                                      
-  75          unsigned char roomTemp;
+  73          
+  74          unsigned int numBytesRD;
+  75          unsigned int numBytesWR;
   76          
-  77          //-------------------------------------------------------------------------------------------------------
-  78          // System Configurations
-  79          //-------------------------------------------------------------------------------------------------------
-  80          void systemClockInit(void)
-  81          {
-  82   1          char SFRPAGE_SAVE = SFRPAGE;                                                // Save Current SFR page
-  83   1          int i = 0;
-  84   1          
-  85   1          SFRPAGE  = CONFIG_PAGE;
-  86   1          
-  87   1          OSCICN    = 0x83;
-  88   1      
-  89   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFRPAGE
-  90   1      }
-  91          
-  92          void portInit(void)
-  93          {
-  94   1          char SFRPAGE_SAVE = SFRPAGE;                                                // Save Current SFR page
-  95   1      
-  96   1          SFRPAGE = CONFIG_PAGE;                                                      // Set SFR page
-  97   1      
-  98   1          XBR0 = 0x2F;                                                                // Enable UART0, UART1, SP
+  77          unsigned char slaveWriteDone;
+  78          unsigned char slaveReadDone;
+  79                                      
+  80          unsigned char roomTemp;
+  81          
+  82          //-------------------------------------------------------------------------------------------------------
+  83          // System Configurations
+  84          //-------------------------------------------------------------------------------------------------------
+  85          void systemClockInit(void)
+  86          {
+  87   1          char SFRPAGE_SAVE = SFRPAGE;                                                // Save Current SFR page
+  88   1          int i = 0;
+  89   1          
+  90   1          SFRPAGE  = CONFIG_PAGE;
+  91   1          
+  92   1          OSCICN    = 0x83;
+  93   1      
+  94   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFRPAGE
+  95   1      }
+  96          
+  97          void portInit(void)
+  98          {
+  99   1          char SFRPAGE_SAVE = SFRPAGE;                                                // Save Current SFR page
+ 100   1      
+ 101   1          SFRPAGE = CONFIG_PAGE;                                                      // Set SFR page
+ 102   1      
+ 103   1          XBR0 = 0x2F;                                                                // Enable UART0, UART1, SP
              -I0, SMB, CEX0 - CEX4                                                                          
-  99   1          XBR1 = 0x01;                                        
- 100   1          XBR2 = 0xC4;                                                                // Enable crossbar and dis
+ 104   1          XBR1 = 0x01;                                        
+ 105   1          XBR2 = 0xC4;                                                                // Enable crossbar and dis
              -able weak pull-up                                             
- 101   1          
- 102   1          P0MDOUT = 0x01;                                                             // Set TX0 pin to push-pul
+ 106   1          
+ 107   1          P0MDOUT = 0x01;                                                             // Set TX0 pin to push-pul
              -l
- 103   1                                                                                      // TX0 = P0.0; RX0 = P0.1
- 104   1          P1MDOUT = 0x01;                                                             // Set TX1 pin to push-pul
+ 108   1                                                                                      // TX0 = P0.0; RX0 = P0.1
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 3   
+
+ 109   1          P1MDOUT = 0x01;                                                             // Set TX1 pin to push-pul
              -l, P1.0
- 105   1                                                                                      // TX1 = P1.0; RX1 = P1.1
- 106   1          P3MDOUT = 0xCA;                                                             // P3.0, P3.2, P3.4, P3.5:
+ 110   1                                                                                      // TX1 = P1.0; RX1 = P1.1
+ 111   1          P3MDOUT = 0xCA;                                                             // P3.0, P3.2, P3.4, P3.5:
              - open drain; P3.1, P3.3, P3.6, P3.7: push pull
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 3   
-
- 107   1          
- 108   1          P4MDOUT = 0x0F;                                                             // P4.0, P4.1, P4.2, P4.3:
+ 112   1          
+ 113   1          P4MDOUT = 0x0F;                                                             // P4.0, P4.1, P4.2, P4.3:
              - push pull
- 109   1                                                                                      
- 110   1          P5MDOUT = 0x04;                                                             // P5.0 open drain; P5.1 O
+ 114   1                                                                                      
+ 115   1          P5MDOUT = 0x04;                                                             // P5.0 open drain; P5.1 O
              -pen drain; P5.2 Push pull
- 111   1          
- 112   1          P6MDOUT = 0x00;
- 113   1                                                                                                                
+ 116   1          
+ 117   1          P6MDOUT = 0x00;
+ 118   1                                                                                                                
              -                                                  
- 114   1          P7MDOUT = 0x80;                                                             // Set P7.7 push-pull (smb
+ 119   1          P7MDOUT = 0x80;                                                             // Set P7.7 push-pull (smb
              - error line)
- 115   1          
- 116   1          P0 = 0xFF;                                                                  // Initialize port P0 latc
+ 120   1          
+ 121   1          P0 = 0xFF;                                                                  // Initialize port P0 latc
              -h
- 117   1          P1 = 0xFF;                                                                  // Initialize port P1 latc
+ 122   1          P1 = 0xFF;                                                                  // Initialize port P1 latc
              -h
- 118   1          P2 = 0xFF;                                                                  // Initialize port P2 latc
+ 123   1          P2 = 0xFF;                                                                  // Initialize port P2 latc
              -h
- 119   1          P3 = 0xFF;                                                                  // Initialize port P3 latc
+ 124   1          P3 = 0xFF;                                                                  // Initialize port P3 latc
              -h
- 120   1          P4 = 0xFF;                                                                  // Initialize port P4 latc
+ 125   1          P4 = 0xFF;                                                                  // Initialize port P4 latc
              -h
- 121   1          P5 = 0xFF;                                                                  // Initialize port P5 latc
+ 126   1          P5 = 0xFF;                                                                  // Initialize port P5 latc
              -h
- 122   1          P6 = 0xFF;                                                                  // Initialize port P6 latc
+ 127   1          P6 = 0xFF;                                                                  // Initialize port P6 latc
              -h
- 123   1          P7 = 0xFF;                                                                  // Initialize port P7 latc
+ 128   1          P7 = 0xFF;                                                                  // Initialize port P7 latc
              -h
- 124   1      
- 125   1          RHW = 0;                                                                    // Pull low SMB error line
- 126   1      
- 127   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFR page
- 128   1      }
- 129          
- 130          void enableInterrupts(void)
- 131          {
- 132   1          IE = 0x92;                                                                  // Enable all interrupts +
+ 129   1      
+ 130   1          RHW = 0;                                                                    // Pull low SMB error line
+ 131   1      
+ 132   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFR page
+ 133   1      }
+ 134          
+ 135          void enableInterrupts(void)
+ 136          {
+ 137   1          IE = 0x92;                                                                  // Enable all interrupts +
              - UART0 + Timer 0
- 133   1          EIE2 |= 0x01;                                                               // Enable Timer 3 interrup
+ 138   1          EIE2 |= 0x01;                                                               // Enable Timer 3 interrup
              -t
- 134   1          EIE2 |= 0x40;                                                               // Enable UART1 interrupt
- 135   1          EIE1 |= 0x0A;                                                               // Enable SMBus interrupt
- 136   1      }
- 137          
- 138          void uart0Init(void)
- 139          {
- 140   1         char SFRPAGE_SAVE;
- 141   1      
- 142   1         SFRPAGE_SAVE = SFRPAGE;                                                      // Preserve SFRPAGE
- 143   1      
- 144   1         SFRPAGE = TMR2_PAGE;
- 145   1         TMR2CN = 0x00;                                                               // Stop timer. Timer 2 in 
+ 139   1          EIE2 |= 0x40;                                                               // Enable UART1 interrupt
+ 140   1          EIE1 |= 0x0A;                                                               // Enable SMBus interrupt
+ 141   1      }
+ 142          
+ 143          void uart0Init(void)
+ 144          {
+ 145   1         char SFRPAGE_SAVE;
+ 146   1      
+ 147   1         SFRPAGE_SAVE = SFRPAGE;                                                      // Preserve SFRPAGE
+ 148   1      
+ 149   1         SFRPAGE = TMR2_PAGE;
+ 150   1         TMR2CN = 0x00;                                                               // Stop timer. Timer 2 in 
              -16-bit auto-reload up timer mode
- 146   1         TMR2CF = 0x08;                                                               // SYSCLK is time base; no
+ 151   1         TMR2CF = 0x08;                                                               // SYSCLK is time base; no
              - output; up count only
- 147   1         RCAP2L = 0xF3;                                                               // Low byte
- 148   1         RCAP2H = 0xFF;                                                               // High byte
- 149   1         TMR2 = RCAP2;                                                                // Load 16 bit reload valu
+ 152   1         RCAP2L = 0xF3;                                                               // Low byte
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 4   
+
+ 153   1         RCAP2H = 0xFF;                                                               // High byte
+ 154   1         TMR2 = RCAP2;                                                                // Load 16 bit reload valu
              -e into timer 2
- 150   1         TMR2CN = 0x04;                                                               // Enable timer 2 (Start t
+ 155   1         TMR2CN = 0x04;                                                               // Enable timer 2 (Start t
              -imer 2)
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 4   
-
- 151   1      
- 152   1         SFRPAGE = UART0_PAGE;
- 153   1         SCON0 = 0x50;                                                                // 8-bit variable baud rat
+ 156   1      
+ 157   1         SFRPAGE = UART0_PAGE;
+ 158   1         SCON0 = 0x50;                                                                // 8-bit variable baud rat
              -e; 9th bit ignored; RX enabled
- 154   1         SSTA0 = 0x05;                                                                // Enable baud rate       
+ 159   1         SSTA0 = 0x05;                                                                // Enable baud rate       
              -                                                                  
- 155   1                                                                                      // Use timer 2 as RX and T
+ 160   1                                                                                      // Use timer 2 as RX and T
              -X baud rate source
- 156   1         IE = 0x90;                                                                   // Enable all interrupts a
+ 161   1         IE = 0x90;                                                                   // Enable all interrupts a
              -nd UART0 Interrupt
- 157   1      
- 158   1         SFRPAGE = SFRPAGE_SAVE;                                                      // Restore SFRPAGE
- 159   1      }
- 160          
- 161          void disableWatchdog(void)
- 162          {
- 163   1          WDTCN = 0xDE;                                                               // Disable watchdog timer
- 164   1          WDTCN = 0xAD;
- 165   1      }
- 166          
- 167          void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
- 168          {
- 169   1          char SFRPAGE_SAVE = SFRPAGE;
- 170   1          unsigned int i = 0;
- 171   1          unsigned long txWaitCounter = 0;
- 172   1      
- 173   1          SFRPAGE = UART0_PAGE;
- 174   1      
- 175   1          if(RI0 == 1)                                                                // There is a char in SBUF
- 176   1          {
- 177   2              RI0 = 0;                                                                // Clear interrupt flag
- 178   2      
- 179   2              tsByte = SBUF0;                                                         // Read a character from U
+ 162   1      
+ 163   1         SFRPAGE = SFRPAGE_SAVE;                                                      // Restore SFRPAGE
+ 164   1      }
+ 165          
+ 166          void disableWatchdog(void)
+ 167          {
+ 168   1          WDTCN = 0xDE;                                                               // Disable watchdog timer
+ 169   1          WDTCN = 0xAD;
+ 170   1      }
+ 171          
+ 172          void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
+ 173          {
+ 174   1          char SFRPAGE_SAVE = SFRPAGE;
+ 175   1          unsigned int i = 0;
+ 176   1          unsigned long txWaitCounter = 0;
+ 177   1      
+ 178   1          SFRPAGE = UART0_PAGE;
+ 179   1      
+ 180   1          if(RI0 == 1)                                                                // There is a char in SBUF
+ 181   1          {
+ 182   2              RI0 = 0;                                                                // Clear interrupt flag
+ 183   2      
+ 184   2              tsByte = SBUF0;                                                         // Read a character from U
              -ART
- 180   2      
- 181   2              if(tsRxIn < RX_BUFFER_SIZE)                                             // If buffer size is withi
+ 185   2      
+ 186   2              if(tsRxIn < RX_BUFFER_SIZE)                                             // If buffer size is withi
              -n limit
- 182   2              {
- 183   3                  if(tsByte != '\r')                                                  // Check end of a command 
+ 187   2              {
+ 188   3                  if(tsByte != '\r')                                                  // Check end of a command 
              -from touch screen
- 184   3                  {
- 185   4                      tsRxBuffer[tsRxIn] = tsByte;                                    // Store a character in so
+ 189   3                  {
+ 190   4                      tsRxBuffer[tsRxIn] = tsByte;                                    // Store a character in so
              -ftware buffer
- 186   4                      tsRxIn++;                                                       // Increment index
- 187   4                  }
- 188   3                  else                                                                // If it is CR character, 
+ 191   4                      tsRxIn++;                                                       // Increment index
+ 192   4                  }
+ 193   3                  else                                                                // If it is CR character, 
              -it marks end of command
- 189   3                  {                                                               
- 190   4                      if(tsRxBuffer[0] == '{')                                        // Splash screen indicator
- 191   4                      {
- 192   5                          if(tsRxBuffer[1] == 'c' && tsRxBuffer[2] == 'm' && tsRxBuffer[3] == 'p' && tsRxBuffer[
+ 194   3                  {                                                               
+ 195   4                      if(tsRxBuffer[0] == '{')                                        // Splash screen indicator
+ 196   4                      {
+ 197   5                          if(tsRxBuffer[1] == 'c' && tsRxBuffer[2] == 'm' && tsRxBuffer[3] == 'p' && tsRxBuffer[
              -4] == 'e' && tsRxBuffer[5] == '}')
- 193   5                          {
- 194   6                              splashEnd = 1;                                          // Detect end of splash sc
-             -reen
- 195   6                              screenReset = 1;                                        // Screen was reset, so to
-             -uch screen sends {babe\r}
- 196   6                          }
- 197   5                          else
  198   5                          {
- 199   6                              splashEnd = 0;                                          // End of splash screen NO
-             -T detected
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 5   
+ 199   6                              splashEnd = 1;                                          // Detect end of splash sc
+             -reen
+ 200   6                              screenReset = 1;                                        // Screen was reset, so to
+             -uch screen sends {babe\r}
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 5   
 
- 200   6                              screenReset = 0;                                    
  201   6                          }
- 202   5                      }
- 203   4                      else if(tsRxBuffer[0] == 'x')                                   // It is a command from to
+ 202   5                          else
+ 203   5                          {
+ 204   6                              splashEnd = 0;                                          // End of splash screen NO
+             -T detected
+ 205   6                              screenReset = 0;                                    
+ 206   6                          }
+ 207   5                      }
+ 208   4                      else if(tsRxBuffer[0] == 'x')                                   // It is a command from to
              -uch screen controller
- 204   4                      {                                                               // A command starts with '
+ 209   4                      {                                                               // A command starts with '
              -('
- 205   5                          for(i = 0; i < tsRxIn; i++)
- 206   5                          {
- 207   6                              userCommand[i] = tsRxBuffer[i];                         // Copy to command array f
+ 210   5                          for(i = 0; i < tsRxIn; i++)
+ 211   5                          {
+ 212   6                              userCommand[i] = tsRxBuffer[i];                         // Copy to command array f
              -or later evaluation
- 208   6                          }
- 209   5      
- 210   5                          ackFromScreen = 0;                                          // This is a command, NOT 
+ 213   6                          }
+ 214   5      
+ 215   5                          ackFromScreen = 0;                                          // This is a command, NOT 
              -an ACK
- 211   5                          tsCommandReceived = 1;                                      // Set flag when a complet
+ 216   5                          tsCommandReceived = 1;                                      // Set flag when a complet
              -e command is received
- 212   5                      }
- 213   4                      else if(tsRxBuffer[0] == '(')                                   // It is a command from to
+ 217   5                      }
+ 218   4                      else if(tsRxBuffer[0] == '(')                                   // It is a command from to
              -uch screen controller
- 214   4                      {                                                               // A command starts with '
+ 219   4                      {                                                               // A command starts with '
              -('
- 215   5                          for(i = 0; i < tsRxIn; i++)
- 216   5                          {
- 217   6                              userCommand[i] = tsRxBuffer[i];                         // Copy to command array f
+ 220   5                          for(i = 0; i < tsRxIn; i++)
+ 221   5                          {
+ 222   6                              userCommand[i] = tsRxBuffer[i];                         // Copy to command array f
              -or later evaluation
- 218   6                          }
- 219   5      
- 220   5                          ackFromScreen = 0;                                          // This is a command, NOT 
+ 223   6                          }
+ 224   5      
+ 225   5                          ackFromScreen = 0;                                          // This is a command, NOT 
              -an ACK
- 221   5                          tsCommandReceived = 1;                                      // Set flag when a complet
+ 226   5                          tsCommandReceived = 1;                                      // Set flag when a complet
              -e command is received
- 222   5                      }
- 223   4                      else                                                            // Not a command from touc
-             -h screen controller
- 224   4                      {
- 225   5                          ackFromScreen = 1;                                          // Set a flag to indicate 
-             -it is an ACK from screen
- 226   5                          tsCommandReceived = 0;                                      // No need to set flag bec
-             -ause it is not a command
  227   5                      }
- 228   4      
- 229   4                      for(i = 0; i < tsRxIn; i++)
- 230   4                      {
- 231   5                          tsRxBuffer[i] = '\0';                                       // Delete all contents
+ 228   4                      else                                                            // Not a command from touc
+             -h screen controller
+ 229   4                      {
+ 230   5                          ackFromScreen = 1;                                          // Set a flag to indicate 
+             -it is an ACK from screen
+ 231   5                          tsCommandReceived = 0;                                      // No need to set flag bec
+             -ause it is not a command
  232   5                      }
- 233   4                      
- 234   4                      tsRxOut = 0;                                                    // Reset index Out
- 235   4                      tsRxIn = 0;                                                     // Reset index In
- 236   4                  }   
- 237   3              }
- 238   2              else                                                                    // Reset all indexes
- 239   2              {   
- 240   3                  while(tsRxOut < tsRxIn)
- 241   3                  {
- 242   4                      tsRxBuffer[tsRxOut] = '\0';
- 243   4                      tsRxOut++;
- 244   4                  }
- 245   3                  tsRxOut = 0;
- 246   3                  tsRxIn = 0;
- 247   3                  tsCommandReceived = 0;
- 248   3              }
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 6   
+ 233   4      
+ 234   4                      for(i = 0; i < tsRxIn; i++)
+ 235   4                      {
+ 236   5                          tsRxBuffer[i] = '\0';                                       // Delete all contents
+ 237   5                      }
+ 238   4                      
+ 239   4                      tsRxOut = 0;                                                    // Reset index Out
+ 240   4                      tsRxIn = 0;                                                     // Reset index In
+ 241   4                  }   
+ 242   3              }
+ 243   2              else                                                                    // Reset all indexes
+ 244   2              {   
+ 245   3                  while(tsRxOut < tsRxIn)
+ 246   3                  {
+ 247   4                      tsRxBuffer[tsRxOut] = '\0';
+ 248   4                      tsRxOut++;
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 6   
 
- 249   2         }
- 250   1      
- 251   1         if(TI0 == 1)                                                                 // Check if one character 
+ 249   4                  }
+ 250   3                  tsRxOut = 0;
+ 251   3                  tsRxIn = 0;
+ 252   3                  tsCommandReceived = 0;
+ 253   3              }
+ 254   2         }
+ 255   1      
+ 256   1         if(TI0 == 1)                                                                 // Check if one character 
              -is successfully sent out
- 252   1         {
- 253   2              TI0 = 0;                                                                // Clear interrupt flag
- 254   2      
- 255   2              if(tsTxEmpty == 0)                                                      // TX buffer has something
+ 257   1         {
+ 258   2              TI0 = 0;                                                                // Clear interrupt flag
+ 259   2      
+ 260   2              if(tsTxEmpty == 0)                                                      // TX buffer has something
              - to send
- 256   2              {
- 257   3                  SBUF0 = tsTxBuffer[tsTxOut];                                        // Send a character in TX 
+ 261   2              {
+ 262   3                  SBUF0 = tsTxBuffer[tsTxOut];                                        // Send a character in TX 
              -buffer
- 258   3                  tsTxOut++;                                                          // Move to next character
- 259   3      
- 260   3                  while(TI0 == 0 && txWaitCounter++ < TX_WAIT_LIMIT);                 // Wait until completion o
+ 263   3                  tsTxOut++;                                                          // Move to next character
+ 264   3      
+ 265   3                  while(TI0 == 0 && txWaitCounter++ < TX_WAIT_LIMIT);                 // Wait until completion o
              -f transmission TI0 = 1
- 261   3                  if(txWaitCounter >= TX_WAIT_LIMIT)
- 262   3                  {
- 263   4                      TI0 = 1;                                                        // TI0 is not set by hardw
+ 266   3                  if(txWaitCounter >= TX_WAIT_LIMIT)
+ 267   3                  {
+ 268   4                      TI0 = 1;                                                        // TI0 is not set by hardw
              -are, set it by software
- 264   4                  }                                                                   // When TI0 is set to 1, t
+ 269   4                  }                                                                   // When TI0 is set to 1, t
              -his ISR is executed again
- 265   3                  
- 266   3                  txWaitCounter = 0;                                                  // Reset counter for next 
+ 270   3                  
+ 271   3                  txWaitCounter = 0;                                                  // Reset counter for next 
              -execution 
- 267   3      
- 268   3                  if(tsTxOut >= TX_BUFFER_SIZE)
- 269   3                  {
- 270   4                      tsTxOut = 0;                                                    // Reset index to 0
- 271   4                  }                               
  272   3      
- 273   3                  if(tsTxOut == tsTxIn)                                               // If two indexes are equa
-             -l
+ 273   3                  if(tsTxOut >= TX_BUFFER_SIZE)
  274   3                  {
- 275   4                      tsTxEmpty = 1;                                                  // No more character in bu
+ 275   4                      tsTxOut = 0;                                                    // Reset index to 0
+ 276   4                  }                               
+ 277   3      
+ 278   3                  if(tsTxOut == tsTxIn)                                               // If two indexes are equa
+             -l
+ 279   3                  {
+ 280   4                      tsTxEmpty = 1;                                                  // No more character in bu
              -ffer. Empty
- 276   4                  }
- 277   3              }
- 278   2              else
- 279   2              {
- 280   3                  tsLastCharGone = 1;                                                 // Last character has gone
+ 281   4                  }
+ 282   3              }
+ 283   2              else
+ 284   2              {
+ 285   3                  tsLastCharGone = 1;                                                 // Last character has gone
              -. Buffer is empty
- 281   3              }
- 282   2          }
- 283   1          
- 284   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFR page detect
+ 286   3              }
+ 287   2          }
+ 288   1          
+ 289   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFR page detect
              -or
- 285   1      }
- 286          
- 287          //-------------------------------------------------------------------------------------------------------
- 288          // Function Name: sendCommand
- 289          // Return Value: None 
- 290          // Parmeters: s (a string to send)
- 291          // Function Description: This function sends a command from the touch screen
+ 290   1      }
+ 291          
  292          //-------------------------------------------------------------------------------------------------------
- 293          void sendCommand(const char * s)
- 294          {   
- 295   1          char SFRPAGE_SAVE = SFRPAGE;
- 296   1          
- 297   1          while(*s != '\0')                                                           // Search for end of touch
+ 293          // Function Name: sendCommand
+ 294          // Return Value: None 
+ 295          // Parmeters: s (a string to send)
+ 296          // Function Description: This function sends a command from the touch screen
+ 297          //-------------------------------------------------------------------------------------------------------
+ 298          void sendCommand(const char * s)
+ 299          {   
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 7   
+
+ 300   1          char SFRPAGE_SAVE = SFRPAGE;
+ 301   1          
+ 302   1          while(*s != '\0')                                                           // Search for end of touch
              - screen command in buffer
- 298   1          {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 7   
-
- 299   2              if(tsTxEmpty == 1 || (tsTxOut != tsTxIn))                               // Tx is empty or two inde
+ 303   1          {
+ 304   2              if(tsTxEmpty == 1 || (tsTxOut != tsTxIn))                               // Tx is empty or two inde
              -xes are not equal
- 300   2              {
- 301   3                  tsTxBuffer[tsTxIn++] = *s;
- 302   3                  if(tsTxIn >= TX_BUFFER_SIZE)                                        // Check for limit
- 303   3                  {
- 304   4                      tsTxIn = 0;                                                     // Reset if limit reached
- 305   4                  }
- 306   3      
- 307   3                  if(tsTxEmpty == 1)                                                  // If buffer is empty
+ 305   2              {
+ 306   3                  tsTxBuffer[tsTxIn++] = *s;
+ 307   3                  if(tsTxIn >= TX_BUFFER_SIZE)                                        // Check for limit
  308   3                  {
- 309   4                      tsTxEmpty = 0;                                                  // Now buffer has at leat 
-             -1 character, set flag
+ 309   4                      tsTxIn = 0;                                                     // Reset if limit reached
  310   4                  }
- 311   3              }
- 312   2              
- 313   2              s++;                                                                    // Point to next char to s
+ 311   3      
+ 312   3                  if(tsTxEmpty == 1)                                                  // If buffer is empty
+ 313   3                  {
+ 314   4                      tsTxEmpty = 0;                                                  // Now buffer has at leat 
+             -1 character, set flag
+ 315   4                  }
+ 316   3              }
+ 317   2              
+ 318   2              s++;                                                                    // Point to next char to s
              -end out
- 314   2          }
- 315   1                                                                                      
- 316   1          if(tsLastCharGone == 1)                                                     // All characters in buffe
+ 319   2          }
+ 320   1                                                                                      
+ 321   1          if(tsLastCharGone == 1)                                                     // All characters in buffe
              -r has sent out
- 317   1          {
- 318   2              tsLastCharGone = 0;                                                     // Reset flag to indicate 
+ 322   1          {
+ 323   2              tsLastCharGone = 0;                                                     // Reset flag to indicate 
              -no char left in buffer
- 319   2              SFRPAGE = UART0_PAGE;                                                                           
- 320   2              TI0 = 1;                                                                // Set this flage to call 
+ 324   2              SFRPAGE = UART0_PAGE;                                                                           
+ 325   2              TI0 = 1;                                                                // Set this flage to call 
              -ISR to send out one character
- 321   2          }                                                                           
- 322   1                                                                                      
- 323   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFRPAGE
- 324   1      }
- 325          
- 326          //-------------------------------------------------------------------------------------------------------
- 327          // Function Name: displayText
- 328          // Return Value: None 
- 329          // Parmeters: fg, bg, size, message, x, y
- 330          // Function Description: This function displays a text on the touch screen
+ 326   2          }                                                                           
+ 327   1                                                                                      
+ 328   1          SFRPAGE = SFRPAGE_SAVE;                                                     // Restore SFRPAGE
+ 329   1      }
+ 330          
  331          //-------------------------------------------------------------------------------------------------------
- 332          void displayText(const char* fg, const char* bg, const unsigned char size, const char* message, const unsi
+ 332          // Function Name: displayText
+ 333          // Return Value: None 
+ 334          // Parmeters: fg, bg, size, message, x, y
+ 335          // Function Description: This function displays a text on the touch screen
+ 336          //-------------------------------------------------------------------------------------------------------
+ 337          void displayText(const char* fg, const char* bg, const unsigned char size, const char* message, const unsi
              -gned int x, const unsigned int y)
- 333          {
- 334   1          char str[TS_BUFFER_SIZE];                                                   // String
- 335   1              
- 336   1          sprintf(str, "S %s %s\r", fg, bg);                                          // Set forground and backg
+ 338          {
+ 339   1          char str[TS_BUFFER_SIZE];                                                   // String
+ 340   1              
+ 341   1          sprintf(str, "S %s %s\r", fg, bg);                                          // Set forground and backg
              -round color
- 337   1          sendCommand(str);                                                       
- 338   1          sprintf(str, "f %s\r", Font[size]);                                         // Set text font
- 339   1          sendCommand(str);                                                       
- 340   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);                            // Display text
- 341   1          sendCommand(str);                                                       
- 342   1      }
- 343          
- 344          //-------------------------------------------------------------------------------------------------------
- 345          // Function Name: showBitmap
- 346          // Return Value: None 
- 347          // Parmeters: index, x, y (bitmap index and coordinates)
- 348          // Function Description: This function displays a bitmap image
- 349          //-------------------------------------------------------------------------------------------------------
- 350          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
- 351          {
- 352   1          char str[TS_BUFFER_SIZE];
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 8   
+ 342   1          sendCommand(str);                                                       
+ 343   1          sprintf(str, "f %s\r", Font[size]);                                         // Set text font
+ 344   1          sendCommand(str);                                                       
+ 345   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);                            // Display text
+ 346   1          sendCommand(str);                                                       
+ 347   1      }
+ 348          
+ 349          
+ 350          //-------------------------------------------------------------------------------------------------------
+ 351          // Function Name: showBitmap
+ 352          // Return Value: None 
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 8   
 
- 353   1      
- 354   1          sprintf(str, "xi %u %u %u\r", index, x, y);                                 // Bitmap index
- 355   1          sendCommand(str);
- 356   1      }
- 357          
- 358          //-------------------------------------------------------------------------------------------------------
- 359          // Function Name: changeScreen
- 360          // Return Value: None 
- 361          // Parmeters: screenIndex (macro number)
- 362          // Function Description: This function switches to the new screen
- 363          //-------------------------------------------------------------------------------------------------------
- 364          void changeScreen(const unsigned char screenIndex)
- 365          {
- 366   1          callMacro(screenIndex);                                                     // Change screen        
- 367   1      }
- 368          
+ 353          // Parmeters: index, x, y (bitmap index and coordinates)
+ 354          // Function Description: This function displays a bitmap image
+ 355          //-------------------------------------------------------------------------------------------------------
+ 356          void showBitmap(const unsigned int index, const unsigned int x, const unsigned int y)
+ 357          {
+ 358   1          char str[TS_BUFFER_SIZE];
+ 359   1      
+ 360   1          sprintf(str, "xi %u %u %u\r", index, x, y);                                 // Bitmap index
+ 361   1          sendCommand(str);
+ 362   1      }
+ 363          
+ 364          //-------------------------------------------------------------------------------------------------------
+ 365          // Function Name: changeScreen
+ 366          // Return Value: None 
+ 367          // Parmeters: screenIndex (macro number)
+ 368          // Function Description: This function switches to the new screen
  369          //-------------------------------------------------------------------------------------------------------
- 370          // Function Name: callMacro
- 371          // Return Value: None 
- 372          // Parmeters: macroNumber (macro number in the macro file)
- 373          // Function Description: This function calls a macro
- 374          //-------------------------------------------------------------------------------------------------------
- 375          void callMacro(const unsigned int macroNumber)
- 376          {
- 377   1          char str[TS_BUFFER_SIZE];
- 378   1      
- 379   1          sprintf(str, "m %u\r", macroNumber);                                        // Execute macro number
- 380   1          sendCommand(str);
- 381   1      }
- 382          
- 383          //-------------------------------------------------------------------------------------------------------
- 384          // Function Name: scanUserInput
- 385          // Return Value: None 
- 386          // Parmeters: None
- 387          // Function Description: This function processes commands from the touch screen
- 388          //-------------------------------------------------------------------------------------------------------
- 389          void scanUserInput(void)
- 390          {   
- 391   1          int i = 0;
- 392   1      
- 393   1          if(screen == MAIN_PAGE)                                                     // Main screen
- 394   1          {        
- 395   2              if(userCommand[0] == '(')                                               // Check for an actual com
+ 370          void changeScreen(const unsigned char screenIndex)
+ 371          {
+ 372   1          callMacro(screenIndex);                                                     // Change screen        
+ 373   1      }
+ 374          
+ 375          //-------------------------------------------------------------------------------------------------------
+ 376          // Function Name: callMacro
+ 377          // Return Value: None 
+ 378          // Parmeters: macroNumber (macro number in the macro file)
+ 379          // Function Description: This function calls a macro
+ 380          //-------------------------------------------------------------------------------------------------------
+ 381          void callMacro(const unsigned int macroNumber)
+ 382          {
+ 383   1          char str[TS_BUFFER_SIZE];
+ 384   1      
+ 385   1          sprintf(str, "m %u\r", macroNumber);                                        // Execute macro number
+ 386   1          sendCommand(str);
+ 387   1      }
+ 388          
+ 389          //-------------------------------------------------------------------------------------------------------
+ 390          // Function Name: scanUserInput
+ 391          // Return Value: None 
+ 392          // Parmeters: None
+ 393          // Function Description: This function processes commands from the touch screen
+ 394          //-------------------------------------------------------------------------------------------------------
+ 395          void scanUserInput(void)
+ 396          {   
+ 397   1          int i = 0;
+ 398   1      
+ 399   1          if(screen == MAIN_PAGE)                                                     // Main screen
+ 400   1          {        
+ 401   2              if(userCommand[0] == '(')                                               // Check for an actual com
              -mand followed by this '(' character
- 396   2              {
- 397   3                  switch (userCommand[1])                                             // Scan a command type
- 398   3                  {
- 399   4                      case '1':                                                       // Main page
- 400   4                          changeScreen(MAIN_PAGE);                                    // Stay in main page if ma
+ 402   2              {
+ 403   3                  switch (userCommand[1])                                             // Scan a command type
+ 404   3                  {
+ 405   4                      case '1':                                                       // Main page
+ 406   4                          changeScreen(MAIN_PAGE);                                    // Stay in main page if ma
              -in button is pressed again
- 401   4                          break;
- 402   4                      case '2':                                                       // Settings page
- 403   4                          changeScreen(SETTINGS_PAGE);
- 404   4                          break;
- 405   4                      case '3':                                                       // Service page
- 406   4                          changeScreen(SERVICE_PAGE);
  407   4                          break;
- 408   4                      case 'A':
- 409   4                          // Call a function here or do something here            
+ 408   4                      case '2':                                                       // Settings page
+ 409   4                          changeScreen(SETTINGS_PAGE);
  410   4                          break;
- 411   4                      case 'B':
- 412   4                          // Call a function here or do something here
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 9   
+ 411   4                      case '3':                                                       // Service page
+ 412   4                          changeScreen(SERVICE_PAGE);
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 9   
 
  413   4                          break;
- 414   4                      case 'C':
- 415   4                          // Call a function here or do something here
- 416   4                          break;  
- 417   4                      default:                                                        // Other options
- 418   4                          break;
- 419   4                      }
- 420   3              }
- 421   2              else                                                                    // Not a command, empty bu
+ 414   4                      case 'A':
+ 415   4                          // Call a function here or do something here            
+ 416   4                          break;
+ 417   4                      case 'B':
+ 418   4                          // Call a function here or do something here
+ 419   4                          break;
+ 420   4                      case 'C':
+ 421   4                          // Call a function here or do something here
+ 422   4                          break;  
+ 423   4                      default:                                                        // Other options
+ 424   4                          break;
+ 425   4                      }
+ 426   3              }
+ 427   2              else                                                                    // Not a command, empty bu
              -ffer with null char
- 422   2              {
- 423   3                  i = 0;
- 424   3                  while(userCommand[i] != '\0')
- 425   3                  {
- 426   4                      userCommand[i] = '\0';
- 427   4                      i++;
- 428   4                  }
- 429   3              }   
- 430   2          }
- 431   1          else if(screen == SETTINGS_PAGE)                                            // Settings page
- 432   1          {
- 433   2              if(userCommand[0] == '(')
- 434   2              {
- 435   3                  switch (userCommand[1])
- 436   3                  {
- 437   4                      case '1':
- 438   4                          changeScreen(MAIN_PAGE);
- 439   4                          break;
- 440   4                      case '2':
- 441   4                          changeScreen(SETTINGS_PAGE);
- 442   4                          break;
- 443   4                      case '3':
- 444   4                          changeScreen(SERVICE_PAGE);
+ 428   2              {
+ 429   3                  i = 0;
+ 430   3                  while(userCommand[i] != '\0')
+ 431   3                  {
+ 432   4                      userCommand[i] = '\0';
+ 433   4                      i++;
+ 434   4                  }
+ 435   3              }   
+ 436   2          }
+ 437   1          else if(screen == SETTINGS_PAGE)                                            // Settings page
+ 438   1          {
+ 439   2              if(userCommand[0] == '(')
+ 440   2              {
+ 441   3                  switch (userCommand[1])
+ 442   3                  {
+ 443   4                      case '1':
+ 444   4                          changeScreen(MAIN_PAGE);
  445   4                          break;
- 446   4                      case 'A':
- 447   4                          // Call a function here or do something here
+ 446   4                      case '2':
+ 447   4                          changeScreen(SETTINGS_PAGE);
  448   4                          break;
- 449   4                      case 'B':
- 450   4                          // Call a function here or do something here
+ 449   4                      case '3':
+ 450   4                          changeScreen(SERVICE_PAGE);
  451   4                          break;
- 452   4                      case 'C':
+ 452   4                      case 'A':
  453   4                          // Call a function here or do something here
  454   4                          break;
- 455   4                      default:
- 456   4                          break;
- 457   4                  }
- 458   3              }
- 459   2              else                                                                    // Not a command, empty bu
+ 455   4                      case 'B':
+ 456   4                          // Call a function here or do something here
+ 457   4                          break;
+ 458   4                      case 'C':
+ 459   4                          // Call a function here or do something here
+ 460   4                          break;
+ 461   4                      default:
+ 462   4                          break;
+ 463   4                  }
+ 464   3              }
+ 465   2              else                                                                    // Not a command, empty bu
              -ffer with null
- 460   2              {
- 461   3                  i = 0;
- 462   3                  while(userCommand[i] != '\0')
- 463   3                  {
- 464   4                      userCommand[i] = '\0';
- 465   4                      i++;
- 466   4                  }
- 467   3              }               
- 468   2          }
- 469   1          else if(screen == SERVICE_PAGE)
- 470   1          {
- 471   2              if(userCommand[0] == '(')
- 472   2              {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 10  
+ 466   2              {
+ 467   3                  i = 0;
+ 468   3                  while(userCommand[i] != '\0')
+ 469   3                  {
+ 470   4                      userCommand[i] = '\0';
+ 471   4                      i++;
+ 472   4                  }
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 10  
 
- 473   3                  switch (userCommand[1])
- 474   3                  {
- 475   4                      case '1':
- 476   4                          changeScreen(MAIN_PAGE);
- 477   4                          break;
- 478   4                      case '2':
- 479   4                          changeScreen(SETTINGS_PAGE);
- 480   4                          break;
- 481   4                      case '3':
- 482   4                          changeScreen(SERVICE_PAGE);
+ 473   3              }               
+ 474   2          }
+ 475   1          else if(screen == SERVICE_PAGE)
+ 476   1          {
+ 477   2              if(userCommand[0] == '(')
+ 478   2              {
+ 479   3                  switch (userCommand[1])
+ 480   3                  {
+ 481   4                      case '1':
+ 482   4                          changeScreen(MAIN_PAGE);
  483   4                          break;
- 484   4                      case 'A':
- 485   4                          // Call a function here or do something here
- 486   4                      case 'B':
- 487   4                          // Call a function here or do something here
- 488   4                      case 'C':
- 489   4                          // Call a function here or do something here
- 490   4                      default:
- 491   4                          break;
- 492   4                  }
- 493   3              }
- 494   2              else                                                                    // Not a command, empty bu
+ 484   4                      case '2':
+ 485   4                          changeScreen(SETTINGS_PAGE);
+ 486   4                          break;
+ 487   4                      case '3':
+ 488   4                          changeScreen(SERVICE_PAGE);
+ 489   4                          break;
+ 490   4                      case 'A':
+ 491   4                          // Call a function here or do something here
+ 492   4                      case 'B':
+ 493   4                          // Call a function here or do something here
+ 494   4                      case 'C':
+ 495   4                          // Call a function here or do something here
+ 496   4                      default:
+ 497   4                          break;
+ 498   4                  }
+ 499   3              }
+ 500   2              else                                                                    // Not a command, empty bu
              -ffer with null
- 495   2              {                                                           
- 496   3                  i = 0;
- 497   3                  while(userCommand[i] != '\0')
- 498   3                  {
- 499   4                      userCommand[i] = '\0';
- 500   4                      i++;
- 501   4                  }
- 502   3              }               
- 503   2          }   
- 504   1          else
- 505   1          {
- 506   2      
- 507   2          }
- 508   1      
- 509   1          i = 0;
- 510   1          while(userCommand[i] != '\0')
+ 501   2              {                                                           
+ 502   3                  i = 0;
+ 503   3                  while(userCommand[i] != '\0')
+ 504   3                  {
+ 505   4                      userCommand[i] = '\0';
+ 506   4                      i++;
+ 507   4                  }
+ 508   3              }               
+ 509   2          }   
+ 510   1          else
  511   1          {
- 512   2              userCommand[i] = '\0';                                                  // Delete all contents in 
+ 512   2      
+ 513   2          }
+ 514   1      
+ 515   1          i = 0;
+ 516   1          while(userCommand[i] != '\0')
+ 517   1          {
+ 518   2              userCommand[i] = '\0';                                                  // Delete all contents in 
              -array
- 513   2              i++;
- 514   2          }
- 515   1      }
- 516          
- 517          //-------------------------------------------------------------------------------------------------------
- 518          // Function Name: smbInit
- 519          // Return Value: None 
- 520          // Parmeters: None
- 521          // Function Description: This function initializes the SMB bus 
- 522          //-------------------------------------------------------------------------------------------------------
- 523          void smbInit(void)
- 524          {
- 525   1          int i;
- 526   1          unsigned long pollingCounter = 0;
- 527   1          char SFRPAGE_SAVE = SFRPAGE;
- 528   1      
- 529   1          SFRPAGE = SMB0_PAGE;
- 530   1          while(SDA == 0 && pollingCounter++ < SMB_POLLING_LIMIT)                         // If slave is holding
+ 519   2              i++;
+ 520   2          }
+ 521   1      }
+ 522          
+ 523          //-------------------------------------------------------------------------------------------------------
+ 524          // Function Name: smbInit
+ 525          // Return Value: None 
+ 526          // Parmeters: None
+ 527          // Function Description: This function initializes the SMB bus 
+ 528          //-------------------------------------------------------------------------------------------------------
+ 529          void smbInit(void)
+ 530          {
+ 531   1          int i;
+ 532   1          unsigned long pollingCounter = 0;
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 11  
+
+ 533   1          char SFRPAGE_SAVE = SFRPAGE;
+ 534   1      
+ 535   1          SFRPAGE = SMB0_PAGE;
+ 536   1          while(SDA == 0 && pollingCounter++ < SMB_POLLING_LIMIT)                         // If slave is holding
              - SDA low because of error or reset
- 531   1          {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 11  
-
- 532   2              SCL = 0;                                                                    // Drive the clock low
- 533   2              for(i = 0; i < 255; i++);                                                   // Hold the clock low
- 534   2              SCL = 1;                                                                    // Release the clock
- 535   2              while(SCL == 0 && pollingCounter++ < SMB_POLLING_LIMIT);                    // Wait for open-drain
- 536   2              for(i = 0; i < 10; i++);                                                    // Hold the clock high
- 537   2          }
- 538   1                  
- 539   1          SMB0CN = 0x07;                                                                  // Assert Acknowledge 
+ 537   1          {
+ 538   2              SCL = 0;                                                                    // Drive the clock low
+ 539   2              for(i = 0; i < 255; i++);                                                   // Hold the clock low
+ 540   2              SCL = 1;                                                                    // Release the clock
+ 541   2              while(SCL == 0 && pollingCounter++ < SMB_POLLING_LIMIT);                    // Wait for open-drain
+ 542   2              for(i = 0; i < 10; i++);                                                    // Hold the clock high
+ 543   2          }
+ 544   1                  
+ 545   1          SMB0CN = 0x07;                                                                  // Assert Acknowledge 
              -low (AA bit = 1b);
- 540   1                                                                                          // Enable SMBus Free t
+ 546   1                                                                                          // Enable SMBus Free t
              -imeout detect;
- 541   1          SMB0CR = 267 - (SYSTEM_CLOCK / (8 * SMB_FREQUENCY));                            // Derived approximati
+ 547   1          SMB0CR = 267 - (SYSTEM_CLOCK / (8 * SMB_FREQUENCY));                            // Derived approximati
              -on from the Tlow and Thigh equations
- 542   1                                                                          
- 543   1          SMB0CN |= 0x40;                                                                 // Enable SMBus;
- 544   1      
- 545   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page de
+ 548   1                                                                          
+ 549   1          SMB0CN |= 0x40;                                                                 // Enable SMBus;
+ 550   1      
+ 551   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page de
              -tector
- 546   1          
- 547   1          SMB_BUSY = 0;                                                                   // Release SMB
- 548   1      }
- 549          
- 550          //-------------------------------------------------------------------------------------------------------
- 551          // Function Name: timer3Init
- 552          // Return Value: None 
- 553          // Parmeters: None
- 554          // Function Description: This function nitializes timer 3 which is used to time out the SMB if errors occu
+ 552   1          
+ 553   1          SMB_BUSY = 0;                                                                   // Release SMB
+ 554   1      }
+ 555          
+ 556          //-------------------------------------------------------------------------------------------------------
+ 557          // Function Name: timer3Init
+ 558          // Return Value: None 
+ 559          // Parmeters: None
+ 560          // Function Description: This function nitializes timer 3 which is used to time out the SMB if errors occu
              -r
- 555          //-------------------------------------------------------------------------------------------------------
- 556          void timer3Init (void)
- 557          {
- 558   1          char SFRPAGE_SAVE = SFRPAGE;        
- 559   1      
- 560   1          SFRPAGE = TMR3_PAGE;
- 561   1      
- 562   1          TMR3CN = 0x00;                                                                  // Timer 3 in timer mo
-             -de
- 563   1                                                                                          // Timer 3 auto reload
- 564   1          TMR3CF = 0x00;                                                                  // Timer 3 prescaler =
-             - 12
+ 561          //-------------------------------------------------------------------------------------------------------
+ 562          void timer3Init (void)
+ 563          {
+ 564   1          char SFRPAGE_SAVE = SFRPAGE;        
  565   1      
- 566   1          RCAP3 = -(SYSTEM_CLOCK / 12 / 40);                                              // Timer 3 overflows a
+ 566   1          SFRPAGE = TMR3_PAGE;
+ 567   1      
+ 568   1          TMR3CN = 0x00;                                                                  // Timer 3 in timer mo
+             -de
+ 569   1                                                                                          // Timer 3 auto reload
+ 570   1          TMR3CF = 0x00;                                                                  // Timer 3 prescaler =
+             - 12
+ 571   1      
+ 572   1          RCAP3 = -(SYSTEM_CLOCK / 12 / 40);                                              // Timer 3 overflows a
              -fter 25 ms
- 567   1          TMR3 = RCAP3;                                                               
- 568   1      
- 569   1          TR3 = 1;                                                                        // Start Timer 3
- 570   1      
- 571   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page
- 572   1      }
- 573          
- 574          //-------------------------------------------------------------------------------------------------------
- 575          // Function Name: timer3ISR
- 576          // Return Value: None 
- 577          // Parmeters: None
- 578          // Function Description: This function is timer 3 ISR which is used to reset the SMB bus if the clock line
+ 573   1          TMR3 = RCAP3;                                                               
+ 574   1      
+ 575   1          TR3 = 1;                                                                        // Start Timer 3
+ 576   1      
+ 577   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page
+ 578   1      }
+ 579          
+ 580          //-------------------------------------------------------------------------------------------------------
+ 581          // Function Name: timer3ISR
+ 582          // Return Value: None 
+ 583          // Parmeters: None
+ 584          // Function Description: This function is timer 3 ISR which is used to reset the SMB bus if the clock line
              - is held for too long
- 579          //-------------------------------------------------------------------------------------------------------
- 580          void timer3ISR(void) interrupt INTERRUPT_Timer_3
- 581          {
- 582   1          char SFRPAGE_SAVE = SFRPAGE;                                                    // Save Current SFR pa
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 12  
+
+ 585          //-------------------------------------------------------------------------------------------------------
+ 586          void timer3ISR(void) interrupt INTERRUPT_Timer_3
+ 587          {
+ 588   1          char SFRPAGE_SAVE = SFRPAGE;                                                    // Save Current SFR pa
              -ge
- 583   1      
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 12  
-
- 584   1          SFRPAGE = SMB0_PAGE;
- 585   1          SMB0CN &= ~0x40;                                                                // Disable SMBus
- 586   1          SMB0CN |= 0x40;                                                                 // Re-enable SMBus
- 587   1      
- 588   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Switch back to the 
+ 589   1      
+ 590   1          SFRPAGE = SMB0_PAGE;
+ 591   1          SMB0CN &= ~0x40;                                                                // Disable SMBus
+ 592   1          SMB0CN |= 0x40;                                                                 // Re-enable SMBus
+ 593   1      
+ 594   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Switch back to the 
              -Timer3 SFRPAGE
- 589   1          TF3 = 0;                                                                        // Clear Timer3 interr
+ 595   1          TF3 = 0;                                                                        // Clear Timer3 interr
              -upt-pending flag
- 590   1          SMB_BUSY = 0;                                                                   // Free bus
- 591   1         
- 592   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page de
+ 596   1          SMB_BUSY = 0;                                                                   // Free bus
+ 597   1         
+ 598   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page de
              -tector
- 593   1      }
- 594          
- 595          //-------------------------------------------------------------------------------------------------------
- 596          // Function Name: writeOneByteToSlave
- 597          // Return Value: None 
- 598          // Parmeters: target, startAddr, content
- 599          // Function Description: This function writes one to the slave microprocessor
- 600          //-------------------------------------------------------------------------------------------------------
- 601          void writeOneByteToSlave(unsigned char startAddr, unsigned char content)
- 602          {           
- 603   1          sharedDataTx[startAddr] = content;
- 604   1          smbWrite(MCU_SLAVE_ADDR, startAddr, 1);
- 605   1      }
- 606          
- 607          //-------------------------------------------------------------------------------------------------------
- 608          // Function Name: readOneByteFromSlave
- 609          // Return Value: long 
- 610          // Parmeters: startAddr, bytes
- 611          // Function Description: This function reads one from the slave microprocessor
- 612          //-------------------------------------------------------------------------------------------------------
- 613          unsigned char readOneByteFromSlave(unsigned char startAddr)
- 614          {
- 615   1          smbRead(MCU_SLAVE_ADDR, startAddr, 1);
- 616   1          return sharedDataRx[startAddr];                                                                       
+ 599   1      }
+ 600          
+ 601          //-------------------------------------------------------------------------------------------------------
+ 602          // Function Name: writeOneByteToSlave
+ 603          // Return Value: None 
+ 604          // Parmeters: target, startAddr, content
+ 605          // Function Description: This function writes one to the slave microprocessor
+ 606          //-------------------------------------------------------------------------------------------------------
+ 607          void writeOneByteToSlave(unsigned char startAddr, unsigned char content)
+ 608          {           
+ 609   1          sharedDataTx[startAddr] = content;
+ 610   1          smbWrite(MCU_SLAVE_ADDR, startAddr, 1);
+ 611   1      }
+ 612          
+ 613          //-------------------------------------------------------------------------------------------------------
+ 614          // Function Name: readOneByteFromSlave
+ 615          // Return Value: long 
+ 616          // Parmeters: startAddr, bytes
+ 617          // Function Description: This function reads one from the slave microprocessor
+ 618          //-------------------------------------------------------------------------------------------------------
+ 619          unsigned char readOneByteFromSlave(unsigned char startAddr)
+ 620          {
+ 621   1          smbRead(MCU_SLAVE_ADDR, startAddr, 1);
+ 622   1          return sharedDataRx[startAddr];                                                                       
              -                      
- 617   1      }
- 618          
- 619          //-------------------------------------------------------------------------------------------------------
- 620          // Function Name: smbRead
- 621          // Return Value: unsigned char * 
- 622          // Parmeters: target, startAddr, bytes
- 623          // Function Description: This function reads from SM bus
- 624          //-------------------------------------------------------------------------------------------------------
- 625          void smbRead(unsigned char deviceId, unsigned int location, unsigned int bytes)
- 626          {
- 627   1          char SFRPAGE_SAVE = SFRPAGE;
- 628   1      
- 629   1          SFRPAGE = SMB0_PAGE;
- 630   1          
- 631   1          while(BUSY || SMB_BUSY);                                                        // Wait for free SMB
- 632   1      
- 633   1          SFRPAGE = SFRPAGE_SAVE;
- 634   1              
- 635   1          switch(deviceId)
- 636   1          {
- 637   2              case MCU_SLAVE_ADDR:
- 638   2              case EEPROM_ADDR:
- 639   2                  smbWrite(deviceId, location, 0);                                        // Write address befor
+ 623   1      }
+ 624          
+ 625          //-------------------------------------------------------------------------------------------------------
+ 626          // Function Name: smbRead
+ 627          // Return Value: unsigned char * 
+ 628          // Parmeters: target, startAddr, bytes
+ 629          // Function Description: This function reads from SM bus
+ 630          //-------------------------------------------------------------------------------------------------------
+ 631          void smbRead(unsigned char deviceId, unsigned int location, unsigned int bytes)
+ 632          {
+ 633   1          char SFRPAGE_SAVE = SFRPAGE;
+ 634   1      
+ 635   1          SFRPAGE = SMB0_PAGE;
+ 636   1          
+ 637   1          while(BUSY || SMB_BUSY);                                                        // Wait for free SMB
+ 638   1      
+ 639   1          SFRPAGE = SFRPAGE_SAVE;
+ 640   1              
+ 641   1          switch(deviceId)
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 13  
+
+ 642   1          {
+ 643   2              case MCU_SLAVE_ADDR:
+ 644   2              case EEPROM_ADDR:
+ 645   2                  smbWrite(deviceId, location, 0);                                        // Write address befor
              -e reading
- 640   2                  break;
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 13  
-
- 641   2              default:
- 642   2                  break;  
- 643   2          }
- 644   1      
- 645   1          SFRPAGE = SMB0_PAGE;
- 646   1              
- 647   1          while(BUSY || SMB_BUSY);
- 648   1          slaveAddr = deviceId;                                                           // Address of MCU slav
+ 646   2                  break;
+ 647   2              default:
+ 648   2                  break;  
+ 649   2          }
+ 650   1      
+ 651   1          SFRPAGE = SMB0_PAGE;
+ 652   1              
+ 653   1          while(BUSY || SMB_BUSY);
+ 654   1          slaveAddr = deviceId;                                                           // Address of MCU slav
              -e
- 649   1          startAddr = location;                                                           // Starting address to
+ 655   1          startAddr = location;                                                           // Starting address to
              - read from slave
- 650   1          numBytesRD = bytes;                                                             // Number of bytes to 
+ 656   1          numBytesRD = bytes;                                                             // Number of bytes to 
              -read
- 651   1          
- 652   1          SMB_BUSY = 1;                                                                   // Claim SMBus (set to
+ 657   1          
+ 658   1          SMB_BUSY = 1;                                                                   // Claim SMBus (set to
              - busy)
- 653   1          SMB_RW = 1;                                                                     // Mark this transfer 
+ 659   1          SMB_RW = 1;                                                                     // Mark this transfer 
              -as a READ
- 654   1          STA = 1;
- 655   1      
- 656   1          while(BUSY || SMB_BUSY);                                                        // Wait for SMB
- 657   1              
- 658   1          SFRPAGE = SFRPAGE_SAVE;
- 659   1                  
- 660   1          switch(deviceId)
- 661   1          {
- 662   2              case MCU_SLAVE_ADDR:
- 663   2                  while(slaveReadDone == 0);                                              // Wait until slave wr
+ 660   1          STA = 1;
+ 661   1      
+ 662   1          while(BUSY || SMB_BUSY);                                                        // Wait for SMB
+ 663   1              
+ 664   1          SFRPAGE = SFRPAGE_SAVE;
+ 665   1                  
+ 666   1          switch(deviceId)
+ 667   1          {
+ 668   2              case MCU_SLAVE_ADDR:
+ 669   2                  while(slaveReadDone == 0);                                              // Wait until slave wr
              -ite completed
- 664   2                  break;
- 665   2              case EEPROM_ADDR:
- 666   2                  while(eepromReadDone == 0);                                             // Wait until EEPROM w
+ 670   2                  break;
+ 671   2              case EEPROM_ADDR:
+ 672   2                  while(eepromReadDone == 0);                                             // Wait until EEPROM w
              -rite completed
- 667   2                  break;
- 668   2              default:
- 669   2                  break;  
- 670   2          }    
- 671   1      }
- 672          
- 673          //-------------------------------------------------------------------------------------------------------
- 674          // Function Name: smbWrite
- 675          // Return Value: unsigned char * 
- 676          // Parmeters: target, startAddr, bytes
- 677          // Function Description: This function reads to SM bus
- 678          //-------------------------------------------------------------------------------------------------------
- 679          void smbWrite(unsigned char deviceId, unsigned int location, unsigned int bytes)
- 680          {
- 681   1          unsigned char i = 0;
- 682   1          unsigned int pageWrittenDelay = 0;
- 683   1          char SFRPAGE_SAVE = SFRPAGE;
- 684   1              
- 685   1          SFRPAGE = SMB0_PAGE;
- 686   1          
- 687   1          while(BUSY || SMB_BUSY);                                                        // Wait for SMB to be 
+ 673   2                  break;
+ 674   2              default:
+ 675   2                  break;  
+ 676   2          }    
+ 677   1      }
+ 678          
+ 679          //-------------------------------------------------------------------------------------------------------
+ 680          // Function Name: smbWrite
+ 681          // Return Value: unsigned char * 
+ 682          // Parmeters: target, startAddr, bytes
+ 683          // Function Description: This function reads to SM bus
+ 684          //-------------------------------------------------------------------------------------------------------
+ 685          void smbWrite(unsigned char deviceId, unsigned int location, unsigned int bytes)
+ 686          {
+ 687   1          unsigned char i = 0;
+ 688   1          unsigned int pageWrittenDelay = 0;
+ 689   1          char SFRPAGE_SAVE = SFRPAGE;
+ 690   1              
+ 691   1          SFRPAGE = SMB0_PAGE;
+ 692   1          
+ 693   1          while(BUSY || SMB_BUSY);                                                        // Wait for SMB to be 
              -free
- 688   1          slaveAddr = deviceId;                                                           // Address of MCU slav
+ 694   1          slaveAddr = deviceId;                                                           // Address of MCU slav
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 14  
+
              -e board
- 689   1          startAddr = location;                                                           // Starting address to
+ 695   1          startAddr = location;                                                           // Starting address to
              - write to slave
- 690   1      
- 691   1          switch(deviceId)
- 692   1          {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 14  
-
- 693   2              case MCU_SLAVE_ADDR:                                                        // Pass through
- 694   2              case DEVICE_DUMP_ADDR:                                                      // Pass through
- 695   2                  numBytesWR = bytes;                                                     // Number of bytes to 
+ 696   1      
+ 697   1          switch(deviceId)
+ 698   1          {
+ 699   2              case MCU_SLAVE_ADDR:                                                        // Pass through
+ 700   2              case DEVICE_DUMP_ADDR:                                                      // Pass through
+ 701   2                  numBytesWR = bytes;                                                     // Number of bytes to 
              -read
- 696   2                  SMB_BUSY = 1;                                                           // Claim SMBus (set to
+ 702   2                  SMB_BUSY = 1;                                                           // Claim SMBus (set to
              - busy)
- 697   2                  SMB_RW = 0;                                                             // Mark this transfer 
+ 703   2                  SMB_RW = 0;                                                             // Mark this transfer 
              -as a WRITE
- 698   2                  STA = 1;                                                                // Start transfer
- 699   2                  while(slaveWriteDone == 0);                                             // Wait until SRAM wri
+ 704   2                  STA = 1;                                                                // Start transfer
+ 705   2                  while(slaveWriteDone == 0);                                             // Wait until SRAM wri
              -te completed or timeout occurs
- 700   2                  break;
- 701   2              default:
- 702   2                  break;      
- 703   2          }
- 704   1      
- 705   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page
- 706   1      }
- 707          
- 708          //-------------------------------------------------------------------------------------------------------
- 709          // Function Name: smbISR
- 710          // Return Value: None 
- 711          // Parmeters: None
- 712          // Function Description: 
- 713          // SMBus Interrupt Service Routine (ISR)
- 714          // Anytime the SDA is pulled low by the master, this ISR will be called. For example, if STA = 1,
- 715          // this ISR is called and SMB0STA = SMB_START = SMB_REPEAT_START. These cases are executed within the swit
+ 706   2                  break;
+ 707   2              default:
+ 708   2                  break;      
+ 709   2          }
+ 710   1      
+ 711   1          SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page
+ 712   1      }
+ 713          
+ 714          //-------------------------------------------------------------------------------------------------------
+ 715          // Function Name: smbISR
+ 716          // Return Value: None 
+ 717          // Parmeters: None
+ 718          // Function Description: 
+ 719          // SMBus Interrupt Service Routine (ISR)
+ 720          // Anytime the SDA is pulled low by the master, this ISR will be called. For example, if STA = 1,
+ 721          // this ISR is called and SMB0STA = SMB_START = SMB_REPEAT_START. These cases are executed within the swit
              -ch statement.
- 716          //-------------------------------------------------------------------------------------------------------
- 717          void smbISR (void) interrupt INTERRUPT_SMB using 2
- 718          {
- 719   1          bit FAIL = 0;                                                                   // Used by the ISR to 
+ 722          //-------------------------------------------------------------------------------------------------------
+ 723          void smbISR (void) interrupt INTERRUPT_SMB using 2
+ 724          {
+ 725   1          bit FAIL = 0;                                                                   // Used by the ISR to 
              -flag failed transfers
- 720   1          static unsigned int TxCounter;                                                  // Initialize counter
- 721   1          static unsigned int RxCounter;                                                  // Initialize counter
- 722   1          static unsigned int slaveCount = 0;
- 723   1          static unsigned int eepromCount = 0;
- 724   1          static unsigned char eepromAddrDone;
- 725   1          
- 726   1          switch (SMB0STA >> 3)                                                           // Check SMB bus statu
+ 726   1          static unsigned int TxCounter;                                                  // Initialize counter
+ 727   1          static unsigned int RxCounter;                                                  // Initialize counter
+ 728   1          static unsigned int slaveCount = 0;
+ 729   1          static unsigned int eepromCount = 0;
+ 730   1          static unsigned char eepromAddrDone;
+ 731   1          
+ 732   1          switch (SMB0STA >> 3)                                                           // Check SMB bus statu
              -s
- 727   1          {
- 728   2      //-------------------------------------------------------------------------------------------------------
- 729   2      // Master Transmitter/Receiver: START condition transmitted. Load SMB0DAT with slave device address
- 730   2      //-------------------------------------------------------------------------------------------------------
- 731   2              case SMB_START:                                                             // Master initiates a 
+ 733   1          {
+ 734   2      //-------------------------------------------------------------------------------------------------------
+ 735   2      // Master Transmitter/Receiver: START condition transmitted. Load SMB0DAT with slave device address
+ 736   2      //-------------------------------------------------------------------------------------------------------
+ 737   2              case SMB_START:                                                             // Master initiates a 
              -transfer
- 732   2      
- 733   2      //-------------------------------------------------------------------------------------------------------
- 734   2      // Master Transmitter/Receiver: repeated START condition transmitted. Load SMB0DAT with slave device addre
+ 738   2      
+ 739   2      //-------------------------------------------------------------------------------------------------------
+ 740   2      // Master Transmitter/Receiver: repeated START condition transmitted. Load SMB0DAT with slave device addre
              -ss
- 735   2      //-------------------------------------------------------------------------------------------------------
- 736   2              case SMB_REPEAT_START:
- 737   2                  SMB0DAT = slaveAddr;                                                    // Load address of the
+ 741   2      //-------------------------------------------------------------------------------------------------------
+ 742   2              case SMB_REPEAT_START:
+ 743   2                  SMB0DAT = slaveAddr;                                                    // Load address of the
              - slave.
- 738   2                  SMB0DAT &= 0xFE;                                                        // Clear the LSB of th
+ 744   2                  SMB0DAT &= 0xFE;                                                        // Clear the LSB of th
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 15  
+
              -e address for the R/W bit
- 739   2                  SMB0DAT |= SMB_RW;                                                      // Load R/W bit (Read 
+ 745   2                  SMB0DAT |= SMB_RW;                                                      // Load R/W bit (Read 
              -= 1; Write = 0)
- 740   2                  STA = 0;                                                                // Manually clear STA 
+ 746   2                  STA = 0;                                                                // Manually clear STA 
              -bit
- 741   2      
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 15  
-
- 742   2                  RxCounter = 0;                                                          // Reset the counter
- 743   2                  TxCounter = 0;                                                          // Reset the counter
- 744   2                  eepromAddrDone = CLEAR;                                                 // For 2 byte EEPROM a
-             -ddress    
- 745   2                  
- 746   2                  break;
  747   2      
- 748   2      //-------------------------------------------------------------------------------------------------------
- 749   2      // Master Transmitter: Slave address + WRITE transmitted.  ACK received. For a READ: N/A
- 750   2      // For a WRITE: Send the first data byte to the slave
- 751   2      //-------------------------------------------------------------------------------------------------------
- 752   2              case SMB_ADDR_W_TX_ACK_RX:
- 753   2                  if(slaveAddr == MCU_SLAVE_ADDR)
- 754   2                  {
- 755   3                      if(startAddr == DEVICE_DUMP_ADDR)                                   // Dump device address
+ 748   2                  RxCounter = 0;                                                          // Reset the counter
+ 749   2                  TxCounter = 0;                                                          // Reset the counter
+ 750   2                  eepromAddrDone = CLEAR;                                                 // For 2 byte EEPROM a
+             -ddress    
+ 751   2                  
+ 752   2                  break;
+ 753   2      
+ 754   2      //-------------------------------------------------------------------------------------------------------
+ 755   2      // Master Transmitter: Slave address + WRITE transmitted.  ACK received. For a READ: N/A
+ 756   2      // For a WRITE: Send the first data byte to the slave
+ 757   2      //-------------------------------------------------------------------------------------------------------
+ 758   2              case SMB_ADDR_W_TX_ACK_RX:
+ 759   2                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 760   2                  {
+ 761   3                      if(startAddr == DEVICE_DUMP_ADDR)                                   // Dump device address
              - to check slave presence only
- 756   3                      {
- 757   4                          STO = 1;                                                        // Stop this transfer
- 758   4                          SMB_BUSY = 0;                                                   // Releas SMB
- 759   4                      }
- 760   3                      else
- 761   3                      {
- 762   4                          SMB0DAT = startAddr;                                            // Send 1 byte address
+ 762   3                      {
+ 763   4                          STO = 1;                                                        // Stop this transfer
+ 764   4                          SMB_BUSY = 0;                                                   // Releas SMB
+ 765   4                      }
+ 766   3                      else
+ 767   3                      {
+ 768   4                          SMB0DAT = startAddr;                                            // Send 1 byte address
              - to slave
- 763   4                          slaveWriteDone = 0;                                             // Mark start of slave
+ 769   4                          slaveWriteDone = 0;                                             // Mark start of slave
              - write
- 764   4                      }
- 765   3                  }
- 766   2                  break;
- 767   2      
- 768   2      //-------------------------------------------------------------------------------------------------------
- 769   2      // Master Transmitter: Slave address + WRITE transmitted.  NACK received. Restart the transfer
- 770   2      //-------------------------------------------------------------------------------------------------------
- 771   2              case SMB_ADDR_W_TX_NACK_RX:
- 772   2                  if(slaveAddr == MCU_SLAVE_ADDR || slaveAddr == WAVEFORM_GEN_ADDR)
- 773   2                  {
- 774   3                      if(slaveCount < MAX_NACK_RETRY)
- 775   3                      {
- 776   4                          slaveCount++;                                                   // Increment number of
+ 770   4                      }
+ 771   3                  }
+ 772   2                  break;
+ 773   2      
+ 774   2      //-------------------------------------------------------------------------------------------------------
+ 775   2      // Master Transmitter: Slave address + WRITE transmitted.  NACK received. Restart the transfer
+ 776   2      //-------------------------------------------------------------------------------------------------------
+ 777   2              case SMB_ADDR_W_TX_NACK_RX:
+ 778   2                  if(slaveAddr == MCU_SLAVE_ADDR || slaveAddr == WAVEFORM_GEN_ADDR)
+ 779   2                  {
+ 780   3                      if(slaveCount < MAX_NACK_RETRY)
+ 781   3                      {
+ 782   4                          slaveCount++;                                                   // Increment number of
              - attempts when NACK is received
- 777   4                          STA = 1;                                                        // Restart a new trans
+ 783   4                          STA = 1;                                                        // Restart a new trans
              -fer
- 778   4                      }
- 779   3                      else
- 780   3                      {
- 781   4                          slaveCount = 0;                                                 // Reset this counter 
+ 784   4                      }
+ 785   3                      else
+ 786   3                      {
+ 787   4                          slaveCount = 0;                                                 // Reset this counter 
              -to keep retry seeking slave response
- 782   4                          slaveWriteDone = 1;
- 783   4                          STO = 1;
- 784   4                          SMB_BUSY = 0;
- 785   4                          FAIL = 1;
- 786   4                      }   
- 787   3                  }
- 788   2                  else if(slaveAddr == EEPROM_ADDR)
- 789   2                  {
- 790   3                      if(eepromCount < MAX_NACK_RETRY)
- 791   3                      {
- 792   4                          eepromCount++;                                                  // Increment number of
-             - attempts when NACK is received
- 793   4                          STA = 1;                                                        // Restart a new trans
-             -fer
- 794   4                      }
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 16  
+ 788   4                          slaveWriteDone = 1;
+ 789   4                          STO = 1;
+ 790   4                          SMB_BUSY = 0;
+ 791   4                          FAIL = 1;
+ 792   4                      }   
+ 793   3                  }
+ 794   2                  else if(slaveAddr == EEPROM_ADDR)
+ 795   2                  {
+ 796   3                      if(eepromCount < MAX_NACK_RETRY)
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 16  
 
- 795   3                      else
- 796   3                      {
- 797   4                          eepromCount = 0;
- 798   4                          eepromWriteDone = 1;
- 799   4                          STO = 1;
- 800   4                          SMB_BUSY = 0;
- 801   4                          FAIL = 1;
- 802   4                      }   
- 803   3                  }
- 804   2                  else
- 805   2                  {}
- 806   2      
- 807   2                  break;
- 808   2      
- 809   2      //-------------------------------------------------------------------------------------------------------
- 810   2      //Master Transmitter: Data byte transmitted.  ACK received. For a READ: N/A
- 811   2      //For a WRITE: Send all data.  After the last data byte, send the stop bit
- 812   2      //-------------------------------------------------------------------------------------------------------
- 813   2              case SMB_DATA_TX_ACK_RX:
- 814   2                  if(slaveAddr == MCU_SLAVE_ADDR)
- 815   2                  {
- 816   3                      if(TxCounter < numBytesWR)
- 817   3                      {
- 818   4                          SMB0DAT = sharedDataTx[startAddr + TxCounter];                  // Send data byte
- 819   4                          TxCounter++;
- 820   4                      }
- 821   3                      else
- 822   3                      {
- 823   4                          STO = 1;                                                        // Set STO to terminat
-             -e transfer                                                
- 824   4                          SMB_BUSY = 0;                                                   // And free SMBus inte
-             -rface
- 825   4                          slaveWriteDone = 1;                                             // Mark end of slave w
-             -rite
+ 797   3                      {
+ 798   4                          eepromCount++;                                                  // Increment number of
+             - attempts when NACK is received
+ 799   4                          STA = 1;                                                        // Restart a new trans
+             -fer
+ 800   4                      }
+ 801   3                      else
+ 802   3                      {
+ 803   4                          eepromCount = 0;
+ 804   4                          eepromWriteDone = 1;
+ 805   4                          STO = 1;
+ 806   4                          SMB_BUSY = 0;
+ 807   4                          FAIL = 1;
+ 808   4                      }   
+ 809   3                  }
+ 810   2                  else
+ 811   2                  {}
+ 812   2      
+ 813   2                  break;
+ 814   2      
+ 815   2      //-------------------------------------------------------------------------------------------------------
+ 816   2      //Master Transmitter: Data byte transmitted.  ACK received. For a READ: N/A
+ 817   2      //For a WRITE: Send all data.  After the last data byte, send the stop bit
+ 818   2      //-------------------------------------------------------------------------------------------------------
+ 819   2              case SMB_DATA_TX_ACK_RX:
+ 820   2                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 821   2                  {
+ 822   3                      if(TxCounter < numBytesWR)
+ 823   3                      {
+ 824   4                          SMB0DAT = sharedDataTx[startAddr + TxCounter];                  // Send data byte
+ 825   4                          TxCounter++;
  826   4                      }
- 827   3                  }
- 828   2                  break;
- 829   2      
- 830   2      //-------------------------------------------------------------------------------------------------------
- 831   2      // Master Transmitter: Data byte transmitted.  NACK received. Restart the transfer
- 832   2      //-------------------------------------------------------------------------------------------------------
- 833   2              case SMB_DATA_TX_NACK_RX:
- 834   2                  if(slaveAddr == MCU_SLAVE_ADDR)
- 835   2                  {
- 836   3                      if(slaveCount < MAX_NACK_RETRY)
- 837   3                      {
- 838   4                          slaveCount++;                                                   // Increment number of
+ 827   3                      else
+ 828   3                      {
+ 829   4                          STO = 1;                                                        // Set STO to terminat
+             -e transfer                                                
+ 830   4                          SMB_BUSY = 0;                                                   // And free SMBus inte
+             -rface
+ 831   4                          slaveWriteDone = 1;                                             // Mark end of slave w
+             -rite
+ 832   4                      }
+ 833   3                  }
+ 834   2                  break;
+ 835   2      
+ 836   2      //-------------------------------------------------------------------------------------------------------
+ 837   2      // Master Transmitter: Data byte transmitted.  NACK received. Restart the transfer
+ 838   2      //-------------------------------------------------------------------------------------------------------
+ 839   2              case SMB_DATA_TX_NACK_RX:
+ 840   2                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 841   2                  {
+ 842   3                      if(slaveCount < MAX_NACK_RETRY)
+ 843   3                      {
+ 844   4                          slaveCount++;                                                   // Increment number of
              - attempts when NACK is received
- 839   4                          STA = 1;                                                        // Restart a new trans
+ 845   4                          STA = 1;                                                        // Restart a new trans
              -fer
- 840   4                      }
- 841   3                      else
- 842   3                      {
- 843   4                          slaveCount = 0;
- 844   4                          STO = 1;
- 845   4                          SMB_BUSY = 0;
- 846   4                          FAIL = 1;
- 847   4                      }   
- 848   3                  }
- 849   2                  else if(slaveAddr == EEPROM_ADDR)
- 850   2                  {
- 851   3                      if(eepromCount < MAX_NACK_RETRY)
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 17  
+ 846   4                      }
+ 847   3                      else
+ 848   3                      {
+ 849   4                          slaveCount = 0;
+ 850   4                          STO = 1;
+ 851   4                          SMB_BUSY = 0;
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 17  
 
- 852   3                      {
- 853   4                          eepromCount++;                                                  // Increment number of
+ 852   4                          FAIL = 1;
+ 853   4                      }   
+ 854   3                  }
+ 855   2                  else if(slaveAddr == EEPROM_ADDR)
+ 856   2                  {
+ 857   3                      if(eepromCount < MAX_NACK_RETRY)
+ 858   3                      {
+ 859   4                          eepromCount++;                                                  // Increment number of
              - attempts when NACK is received
- 854   4                          STA = 1;                                                        // Restart a new trans
+ 860   4                          STA = 1;                                                        // Restart a new trans
              -fer
- 855   4                      }
- 856   3                      else
- 857   3                      {
- 858   4                          eepromCount = 0;
- 859   4                          STO = 1;
- 860   4                          SMB_BUSY = 0;
- 861   4                          FAIL = 1;
- 862   4                      }   
- 863   3                  }
- 864   2                  else
- 865   2                  {}
- 866   2                  break;
- 867   2      
- 868   2      //-------------------------------------------------------------------------------------------------------
- 869   2      // Master Receiver: Slave address + READ transmitted.  ACK received. 
- 870   2      // For a READ: check if this is a one-byte transfer. if so, set the NACK after the data byte
- 871   2      // is received to end the transfer. if not, set the ACK and receive the other data bytes
- 872   2      //-------------------------------------------------------------------------------------------------------
- 873   2              case SMB_ADDR_R_TX_ACK_RX:
- 874   2                  if(numBytesRD == 1)                                                     // If there is one byt
+ 861   4                      }
+ 862   3                      else
+ 863   3                      {
+ 864   4                          eepromCount = 0;
+ 865   4                          STO = 1;
+ 866   4                          SMB_BUSY = 0;
+ 867   4                          FAIL = 1;
+ 868   4                      }   
+ 869   3                  }
+ 870   2                  else
+ 871   2                  {}
+ 872   2                  break;
+ 873   2      
+ 874   2      //-------------------------------------------------------------------------------------------------------
+ 875   2      // Master Receiver: Slave address + READ transmitted.  ACK received. 
+ 876   2      // For a READ: check if this is a one-byte transfer. if so, set the NACK after the data byte
+ 877   2      // is received to end the transfer. if not, set the ACK and receive the other data bytes
+ 878   2      //-------------------------------------------------------------------------------------------------------
+ 879   2              case SMB_ADDR_R_TX_ACK_RX:
+ 880   2                  if(numBytesRD == 1)                                                     // If there is one byt
              -e to transfer, send a NACK and go to
- 875   2                  {                                                                       // SMB_DATA_RX_NACK_TX
+ 881   2                  {                                                                       // SMB_DATA_RX_NACK_TX
              - case to accept data from slave
- 876   3                      AA = 0;                                                             // Clear AA flag befor
+ 882   3                      AA = 0;                                                             // Clear AA flag befor
              -e data byte is received
- 877   3                                                                                          // send NACK signal to
+ 883   3                                                                                          // send NACK signal to
              - slave after byte is received
- 878   3                  }
- 879   2                  else
- 880   2                  {
- 881   3                      AA = 1;                                                             // More than one byte 
+ 884   3                  }
+ 885   2                  else
+ 886   2                  {
+ 887   3                      AA = 1;                                                             // More than one byte 
              -in this transfer,
- 882   3                                                                                          // send ACK after byte
+ 888   3                                                                                          // send ACK after byte
              - is received
- 883   3                  }
- 884   2                  break;
- 885   2      
- 886   2      //-------------------------------------------------------------------------------------------------------
- 887   2      // Master Receiver: Slave address + READ transmitted.  NACK received. Restart the transfer
- 888   2      //-------------------------------------------------------------------------------------------------------
- 889   2              case SMB_ADDR_R_TX_NACK_RX:
- 890   2                  if(slaveAddr == MCU_SLAVE_ADDR)
- 891   2                  {
- 892   3                      if(slaveCount < MAX_NACK_RETRY)
- 893   3                      {
- 894   4                          slaveCount++;                                                   // Increment number of
+ 889   3                  }
+ 890   2                  break;
+ 891   2      
+ 892   2      //-------------------------------------------------------------------------------------------------------
+ 893   2      // Master Receiver: Slave address + READ transmitted.  NACK received. Restart the transfer
+ 894   2      //-------------------------------------------------------------------------------------------------------
+ 895   2              case SMB_ADDR_R_TX_NACK_RX:
+ 896   2                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 897   2                  {
+ 898   3                      if(slaveCount < MAX_NACK_RETRY)
+ 899   3                      {
+ 900   4                          slaveCount++;                                                   // Increment number of
              - attempts when NACK is received
- 895   4                          STA = 1;                                                        // Restart transfer af
+ 901   4                          STA = 1;                                                        // Restart transfer af
              -ter receiving a NACK
- 896   4                      }
- 897   3                      else
- 898   3                      {
- 899   4                          slaveCount = 0;                                                 // Reset counter
- 900   4                          STO = 1;
- 901   4                          SMB_BUSY = 0;
- 902   4                          FAIL = 1;
- 903   4                      }   
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 18  
+ 902   4                      }
+ 903   3                      else
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 18  
 
- 904   3                  }
- 905   2                  else if(slaveAddr == EEPROM_ADDR)
- 906   2                  {
- 907   3                      if(eepromCount < MAX_NACK_RETRY)
- 908   3                      {
- 909   4                          eepromCount++;                                                  // Increment number of
+ 904   3                      {
+ 905   4                          slaveCount = 0;                                                 // Reset counter
+ 906   4                          STO = 1;
+ 907   4                          SMB_BUSY = 0;
+ 908   4                          FAIL = 1;
+ 909   4                      }   
+ 910   3                  }
+ 911   2                  else if(slaveAddr == EEPROM_ADDR)
+ 912   2                  {
+ 913   3                      if(eepromCount < MAX_NACK_RETRY)
+ 914   3                      {
+ 915   4                          eepromCount++;                                                  // Increment number of
              - attempts when NACK is received
- 910   4                          STA = 1;                                                        // Restart a new trans
+ 916   4                          STA = 1;                                                        // Restart a new trans
              -fer
- 911   4                      }
- 912   3                      else
- 913   3                      {
- 914   4                          eepromCount = 0;
- 915   4                          STO = 1;
- 916   4                          SMB_BUSY = 0;
- 917   4                          FAIL = 1;
- 918   4                      }   
- 919   3                  }
- 920   2                  else
- 921   2                  {}
- 922   2                  break;
- 923   2      
- 924   2      //-------------------------------------------------------------------------------------------------------
- 925   2      // Master Receiver: Data byte received. If AA flag was set beforehand, then ACK transmitted.
- 926   2      // For a READ: receive each byte from the slave.  if this is the last byte, send a NACK and set the STOP b
+ 917   4                      }
+ 918   3                      else
+ 919   3                      {
+ 920   4                          eepromCount = 0;
+ 921   4                          STO = 1;
+ 922   4                          SMB_BUSY = 0;
+ 923   4                          FAIL = 1;
+ 924   4                      }   
+ 925   3                  }
+ 926   2                  else
+ 927   2                  {}
+ 928   2                  break;
+ 929   2      
+ 930   2      //-------------------------------------------------------------------------------------------------------
+ 931   2      // Master Receiver: Data byte received. If AA flag was set beforehand, then ACK transmitted.
+ 932   2      // For a READ: receive each byte from the slave.  if this is the last byte, send a NACK and set the STOP b
              -it
- 927   2      //-------------------------------------------------------------------------------------------------------
- 928   2              case SMB_DATA_RX_ACK_TX:
- 929   2                  
- 930   2                  if(slaveAddr == MCU_SLAVE_ADDR)
- 931   2                  {
- 932   3                      if (RxCounter < numBytesRD)
- 933   3                      {
- 934   4                          sharedDataRx[startAddr + RxCounter] = SMB0DAT;
- 935   4                          AA = 1;                                                         // Send ACK to indicat
+ 933   2      //-------------------------------------------------------------------------------------------------------
+ 934   2              case SMB_DATA_RX_ACK_TX:
+ 935   2                  
+ 936   2                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 937   2                  {
+ 938   3                      if (RxCounter < numBytesRD)
+ 939   3                      {
+ 940   4                          sharedDataRx[startAddr + RxCounter] = SMB0DAT;
+ 941   4                          AA = 1;                                                         // Send ACK to indicat
              -e byte received
- 936   4                          RxCounter++;                                                    // Increment the byte 
+ 942   4                          RxCounter++;                                                    // Increment the byte 
              -counter
- 937   4                          slaveReadDone = 0;                                              // Mark start of slave
+ 943   4                          slaveReadDone = 0;                                              // Mark start of slave
              - read
- 938   4                      }
- 939   3                      else
- 940   3                      {
- 941   4                          AA = 0;                                                         // Send NACK to indica
+ 944   4                      }
+ 945   3                      else
+ 946   3                      {
+ 947   4                          AA = 0;                                                         // Send NACK to indica
              -te last byte is received
- 942   4                          slaveReadDone = 1;                                              // Mark end of slave r
+ 948   4                          slaveReadDone = 1;                                              // Mark end of slave r
              -ead
- 943   4                      }
- 944   3                  }
- 945   2                  else if(slaveAddr == EEPROM_ADDR)
- 946   2                  {
- 947   3                      if(RxCounter < numBytesRD)
- 948   3                      {
- 949   4                          eepromDataByte = eepromRx[RxCounter] = SMB0DAT;
- 950   4                          AA = 1;                                                         // Send ACK to indicat
+ 949   4                      }
+ 950   3                  }
+ 951   2                  else if(slaveAddr == EEPROM_ADDR)
+ 952   2                  {
+ 953   3                      if(RxCounter < numBytesRD)
+ 954   3                      {
+ 955   4                          eepromDataByte = eepromRx[RxCounter] = SMB0DAT;
+ 956   4                          AA = 1;                                                         // Send ACK to indicat
              -e byte received
- 951   4                          RxCounter++;                                                    // Increment the byte 
-             -counter
- 952   4                          eepromReadDone = 0;                                             // Mark start of fram 
-             -read
- 953   4                      }
- 954   3                      else
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 19  
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 19  
 
- 955   3                      {
- 956   4                          AA = 0;                                                         // Send NACK to indica
+ 957   4                          RxCounter++;                                                    // Increment the byte 
+             -counter
+ 958   4                          eepromReadDone = 0;                                             // Mark start of fram 
+             -read
+ 959   4                      }
+ 960   3                      else
+ 961   3                      {
+ 962   4                          AA = 0;                                                         // Send NACK to indica
              -te last byte is received
- 957   4                          eepromReadDone = 1;                                             // Mark end of fram re
+ 963   4                          eepromReadDone = 1;                                             // Mark end of fram re
              -ad
- 958   4                      }
- 959   3                  }
- 960   2                  break;
- 961   2      
- 962   2      //-------------------------------------------------------------------------------------------------------
- 963   2      // Master Receiver: Data byte received. If AA flag was cleared, then NACK transmitted.
- 964   2      // For a READ: Read operation has completed.  Read data register and send STOP
- 965   2      //-------------------------------------------------------------------------------------------------------
- 966   2              case SMB_DATA_RX_NACK_TX:
- 967   2                  if(slaveAddr == MCU_SLAVE_ADDR)
- 968   2                  {
- 969   3                      sharedDataRx[startAddr + RxCounter] = SMB0DAT;
- 970   3                      STO = 1;                                                            // Stop transfer
- 971   3                      SMB_BUSY = 0;                                                       // Release SMB
- 972   3                      AA = 1;
- 973   3                      slaveReadDone = 1;                                                  // Mark end of slave r
+ 964   4                      }
+ 965   3                  }
+ 966   2                  break;
+ 967   2      
+ 968   2      //-------------------------------------------------------------------------------------------------------
+ 969   2      // Master Receiver: Data byte received. If AA flag was cleared, then NACK transmitted.
+ 970   2      // For a READ: Read operation has completed.  Read data register and send STOP
+ 971   2      //-------------------------------------------------------------------------------------------------------
+ 972   2              case SMB_DATA_RX_NACK_TX:
+ 973   2                  if(slaveAddr == MCU_SLAVE_ADDR)
+ 974   2                  {
+ 975   3                      sharedDataRx[startAddr + RxCounter] = SMB0DAT;
+ 976   3                      STO = 1;                                                            // Stop transfer
+ 977   3                      SMB_BUSY = 0;                                                       // Release SMB
+ 978   3                      AA = 1;
+ 979   3                      slaveReadDone = 1;                                                  // Mark end of slave r
              -ead                                                               // Set AA for next transfer                           
              -                              
- 974   3                  }
- 975   2                  else if(slaveAddr == EEPROM_ADDR)
- 976   2                  {
- 977   3                      eepromRx[RxCounter] = SMB0DAT;
- 978   3                      STO = 1;                                                            // Stop transfer
- 979   3                      SMB_BUSY = 0;                                                       // Release SMB
- 980   3                      AA = 1;
- 981   3                      eepromReadDone = 1;                                                 // Mark end of eeprom 
+ 980   3                  }
+ 981   2                  else if(slaveAddr == EEPROM_ADDR)
+ 982   2                  {
+ 983   3                      eepromRx[RxCounter] = SMB0DAT;
+ 984   3                      STO = 1;                                                            // Stop transfer
+ 985   3                      SMB_BUSY = 0;                                                       // Release SMB
+ 986   3                      AA = 1;
+ 987   3                      eepromReadDone = 1;                                                 // Mark end of eeprom 
              -read      
- 982   3                  }
- 983   2                  break;
- 984   2      
- 985   2      //-------------------------------------------------------------------------------------------------------
- 986   2      // Master Transmitter: Arbitration lost
- 987   2      //-------------------------------------------------------------------------------------------------------
- 988   2              case SMB_ARBITRATION_LOST:
- 989   2                  FAIL = 1;                                                               // Indicate failed tra
-             -nsfer
- 990   2                                                                                          // and handle at end o
-             -f ISR
- 991   2                  break;
- 992   2      
+ 988   3                  }
+ 989   2                  break;
+ 990   2      
+ 991   2      //-------------------------------------------------------------------------------------------------------
+ 992   2      // Master Transmitter: Arbitration lost
  993   2      //-------------------------------------------------------------------------------------------------------
- 994   2      // All other status codes invalid.  Reset communication
- 995   2      //-------------------------------------------------------------------------------------------------------
- 996   2              default:
- 997   2                  FAIL = 1;
- 998   2                  break;
- 999   2         }
-1000   1      //-------------------------------------------------------------------------------------------------------
-1001   1      // If all failed, reset everything
-1002   1      //-------------------------------------------------------------------------------------------------------
-1003   1          if(FAIL)                                                                        // If the transfer fai
+ 994   2              case SMB_ARBITRATION_LOST:
+ 995   2                  FAIL = 1;                                                               // Indicate failed tra
+             -nsfer
+ 996   2                                                                                          // and handle at end o
+             -f ISR
+ 997   2                  break;
+ 998   2      
+ 999   2      //-------------------------------------------------------------------------------------------------------
+1000   2      // All other status codes invalid.  Reset communication
+1001   2      //-------------------------------------------------------------------------------------------------------
+1002   2              default:
+1003   2                  FAIL = 1;
+1004   2                  break;
+1005   2         }
+1006   1      //-------------------------------------------------------------------------------------------------------
+1007   1      // If all failed, reset everything
+1008   1      //-------------------------------------------------------------------------------------------------------
+1009   1          if(FAIL)                                                                        // If the transfer fai
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 20  
+
              -led,
-1004   1          {
-1005   2              SMB0CN &= ~0x40;                                                            // Reset communication
-1006   2              SMB0CN |= 0x40;
-1007   2              STA = 0;
-1008   2              STO = 0;
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 20  
-
-1009   2              AA = 0;
-1010   2      
-1011   2              SMB_BUSY = 0;                                                               // Free SMBus
-1012   2      
-1013   2              FAIL = 0;
-1014   2                                                                                          // Set to finish all p
+1010   1          {
+1011   2              SMB0CN &= ~0x40;                                                            // Reset communication
+1012   2              SMB0CN |= 0x40;
+1013   2              STA = 0;
+1014   2              STO = 0;
+1015   2              AA = 0;
+1016   2      
+1017   2              SMB_BUSY = 0;                                                               // Free SMBus
+1018   2      
+1019   2              FAIL = 0;
+1020   2                                                                                          // Set to finish all p
              -ending processes
-1015   2              slaveWriteDone = 1;                                                         // Mark end of slave w
+1021   2              slaveWriteDone = 1;                                                         // Mark end of slave w
              -rite
-1016   2              slaveReadDone = 1;                                                          // Mark end of slave r
+1022   2              slaveReadDone = 1;                                                          // Mark end of slave r
              -ead
-1017   2          }
-1018   1      
-1019   1          SI = 0;                                                                         // Clear interrupt fla
+1023   2          }
+1024   1      
+1025   1          SI = 0;                                                                         // Clear interrupt fla
              -g
-1020   1      }
-1021          
-1022          void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const 
+1026   1      }
+1027          
+1028          void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const 
              -int x, const int y)
-1023          {
-1024   1          char str[128] = { 0 };
-1025   1          
-1026   1          int i = 0;
-1027   1          while(i < 10000) i++;
-1028   1              
-1029   1          sprintf(str, "S %s %s\r", fg, bg);
-1030   1          sendCommand(str);
-1031   1          sprintf(str, "f %s\r", Font[size]);
-1032   1          sendCommand(str);
-1033   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);
-1034   1          sendCommand(str);
-1035   1      }
-1036          
-1037          
-1038          static void send_macro(const unsigned int macro_index)
-1039          {
-1040   1          char str[8] = { 0 };
-1041   1          
-1042   1          int i = 0;
-1043   1          while(i < 10000) i++;
-1044   1              
-1045   1          sprintf(str, "m %u\r", macro_index);
-1046   1          sendCommand(str);
-1047   1      }
-1048          
-1049          //-------------------------------------------------------------------------------------------------------
-1050          // Main
-1051          //-------------------------------------------------------------------------------------------------------
-1052          
-1053          #define PAGE_MAIN            1
-1054          #define PAGE_SETTINGS        2
-1055          #define PAGE_SERVICE         3
-1056          #define PAGE_CONFIG          4
-1057          int current_page;
+1029          {
+1030   1          char str[128] = { 0 };
+1031   1          
+1032   1          int i = 0;
+1033   1          while(i < 10000) i++;
+1034   1              
+1035   1          sprintf(str, "S %s %s\r", fg, bg);
+1036   1          sendCommand(str);
+1037   1          sprintf(str, "f %s\r", Font[size]);
+1038   1          sendCommand(str);
+1039   1          sprintf(str, "t \"%s\" %u %u\r", message, x, y);
+1040   1          sendCommand(str);
+1041   1      }
+1042          
+1043          
+1044          static void send_macro(const unsigned int macro_index)
+1045          {
+1046   1          char str[8] = { 0 };
+1047   1          
+1048   1          int i = 0;
+1049   1          while(i < 10000) i++;
+1050   1              
+1051   1          sprintf(str, "m %u\r", macro_index);
+1052   1          sendCommand(str);
+1053   1      }
+1054          
+1055          //-------------------------------------------------------------------------------------------------------
+1056          // Main
+1057          //-------------------------------------------------------------------------------------------------------
 1058          
-1059          void main()
-1060          {
-1061   1          int i = 0;
-1062   1          int count = 0;
-1063   1          int prev_temp = 0;
-1064   1          int display_celsius = 0;
-1065   1          int state_changed = 1;
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 21  
+1059          #define PAGE_MAIN            1
+1060          #define PAGE_SETTINGS        2
+1061          #define PAGE_SERVICE         3
+1062          #define PAGE_CONFIG          4
+1063          int current_page;
+1064          
+1065          void main()
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 21  
 
-1066   1          char str[SPRINTF_SIZE];
-1067   1          
-1068   1          disableWatchdog();
-1069   1          systemClockInit();
-1070   1          portInit();
-1071   1          enableInterrupts();
-1072   1          uart0Init();
-1073   1          smbInit();
-1074   1          timer3Init();
-1075   1          
-1076   1          tsLastCharGone = 1;
-1077   1          tsTxOut = tsTxIn = 0;
-1078   1          tsTxEmpty = 1;
-1079   1          
-1080   1          sprintf(str, "z\r");
-1081   1          sendCommand(str);
-1082   1          
-1083   1          send_macro(display_temperature);
-1084   1          
-1085   1          while(1)
-1086   1          {
-1087   2              //scanUserInput();                                                        // Detect a string input
+1066          {
+1067   1          int i = 0;
+1068   1          int count = 0;
+1069   1          int prev_temp = 0;
+1070   1          int display_celsius = 0;
+1071   1          int state_changed = 1;
+1072   1          char str[SPRINTF_SIZE];
+1073   1          
+1074   1          disableWatchdog();
+1075   1          systemClockInit();
+1076   1          portInit();
+1077   1          enableInterrupts();
+1078   1          uart0Init();
+1079   1          smbInit();
+1080   1          timer3Init();
+1081   1          
+1082   1          tsLastCharGone = 1;
+1083   1          tsTxOut = tsTxIn = 0;
+1084   1          tsTxEmpty = 1;
+1085   1          
+1086   1          sprintf(str, "z\r");
+1087   1          sendCommand(str);
+1088   1          
+1089   1          send_macro(Splash);
+1090   1          
+1091   1          while(1)
+1092   1          {
+1093   2              //scanUserInput();                                                        // Detect a string input
              - from the touch screen
-1088   2              
-1089   2              #define change_state(state) \
-1090   2                  current_page = state;   \
-1091   2                  state_changed = 1
-1092   2      
-1093   2      
-1094   2              switch(current_page) 
-1095   2              {
-1096   3                  case (PAGE_SETTINGS):
-1097   3                  {
-1098   4                      if (state_changed) {
-1099   5                          state_changed = 0;
-1100   5                          display_text("000000", "FFFFFF", 8, "set!", 240, 110);
-1101   5                      }
-1102   4      
-1103   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-1104   5                          change_state(PAGE_SETTINGS);
-1105   5                      }
-1106   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-1107   5                          change_state(PAGE_MAIN);
-1108   5                      }
-1109   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-1110   5                          change_state(PAGE_SERVICE);
+1094   2              
+1095   2              #define change_state(state) \
+1096   2                  current_page = state;   \
+1097   2                  state_changed = 1
+1098   2      
+1099   2      
+1100   2              switch(current_page) 
+1101   2              {
+1102   3                  case (PAGE_SETTINGS):
+1103   3                  {
+1104   4                      if (state_changed) {
+1105   5                          state_changed = 0;
+1106   5                          display_text("000000", "FFFFFF", 8, "set!", 240, 110);
+1107   5                      }
+1108   4      
+1109   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1110   5                          change_state(PAGE_SETTINGS);
 1111   5                      }
-1112   4                      else {
-1113   5                          // NOOP
+1112   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+1113   5                          change_state(PAGE_MAIN);
 1114   5                      }
-1115   4                      break;
-1116   4                  }
-1117   3                  case (PAGE_CONFIG):
-1118   3                  {
-1119   4                      if (state_changed) {
-1120   5                          state_changed = 0;
-1121   5                          display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
-1122   5                      }
-1123   4      
-1124   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-1125   5                          change_state(PAGE_SETTINGS);
-1126   5                      }
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 22  
+1115   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1116   5                          change_state(PAGE_SERVICE);
+1117   5                      }
+1118   4                      else {
+1119   5                          // NOOP
+1120   5                      }
+1121   4                      break;
+1122   4                  }
+1123   3                  case (PAGE_CONFIG):
+1124   3                  {
+1125   4                      if (state_changed) {
+1126   5                          state_changed = 0;
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 22  
 
-1127   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-1128   5                          change_state(PAGE_MAIN);
-1129   5                      }
-1130   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-1131   5                          change_state(PAGE_SERVICE);
+1127   5                          display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
+1128   5                      }
+1129   4              
+1130   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1131   5                          change_state(PAGE_SETTINGS);
 1132   5                      }
-1133   4                      else {
-1134   5                          // NOOP
+1133   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+1134   5                          change_state(PAGE_MAIN);
 1135   5                      }
-1136   4                      break;
-1137   4                  }
-1138   3                  case (PAGE_SERVICE):
-1139   3                  {
-1140   4                      if (state_changed) {
-1141   5                          state_changed = 0;
-1142   5                          display_text("000000", "FFFFFF", 8, "se!", 240, 110);
-1143   5                      }
-1144   4      
-1145   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-1146   5                          change_state(PAGE_SETTINGS);
-1147   5                      }
-1148   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-1149   5                          change_state(PAGE_MAIN);
-1150   5                      }
-1151   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-1152   5                          change_state(PAGE_SERVICE);
-1153   5                      }
-1154   4                      else {
-1155   5                          // NOOP
-1156   5                      }
-1157   4                      break;
-1158   4                  }
-1159   3                  default:            // no break
-1160   3                  case (PAGE_MAIN) :
-1161   3                  {
-1162   4                      roomTemp = readOneByteFromSlave(ROOM_TEMP);
-1163   4      
-1164   4                      if (state_changed) {
-1165   5                          state_changed = 0;
-1166   5                          sprintf(str, "%-3buC", roomTemp);
-1167   5                          display_text("000000", "FFFFFF", 8, str, 240, 110);
+1136   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1137   5                          change_state(PAGE_SERVICE);
+1138   5                      }
+1139   4                      else {
+1140   5                          // NOOP
+1141   5                      }
+1142   4                      break;
+1143   4                  }
+1144   3                  case (PAGE_SERVICE):
+1145   3                  {
+1146   4                      if (state_changed) {
+1147   5                          state_changed = 0;
+1148   5                          display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
+1149   5                      }
+1150   4                      
+1151   4                      
+1152   4                      /*for (k = 0; k < 4 ; k++){
+1153   4                        if (passcode[k][0] == userCommand[1] && passcode[k][1] == userCommand[2] && passcode[k][2] == use
+             -rCommand[3]) {
+1154   4                        tsCommandReceived  = 0;
+1155   4                          if (k == 3)
+1156   4                            display_text("000000","FFFFFF",8,"OK!", 240,200);
+1157   4                        while(tsCommandReceived == 0);
+1158   4                       }
+1159   4                        else{
+1160   4                          continue;
+1161   4                        }
+1162   4                     }  */              
+1163   4                      if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1164   5                          change_state(PAGE_SETTINGS);
+1165   5                      }
+1166   4                      else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+1167   5                          change_state(PAGE_MAIN);
 1168   5                      }
-1169   4                      
-1170   4                      if (tsCommandReceived || roomTemp != prev_temp) 
-1171   4                      {
-1172   5                          prev_temp = roomTemp;
-1173   5                          
-1174   5                          if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
-1175   6                              display_celsius = 1;
-1176   6                              sprintf(str, "%-3buC", roomTemp);
-1177   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
-1178   6                          }
-1179   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
-1180   6                              display_celsius = 0;
-1181   6                              roomTemp = (roomTemp * 9) / 5 + 32;
-1182   6                              sprintf(str, "%-3buF", roomTemp);
-1183   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
-1184   6                          }
-1185   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-1186   6                              change_state(PAGE_SETTINGS);
-1187   6                          }
-1188   5                          else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-C51 COMPILER V9.56.0.0   MAIN                                                              11/14/2017 19:41:33 PAGE 23  
+1169   4                      else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1170   5                          change_state(PAGE_SERVICE);
+1171   5                      }
+1172   4                      else {
+1173   5                          // NOOP
+1174   5                      }
+1175   4                      break;
+1176   4                  }
+1177   3                  default:            // no break
+1178   3                  case (PAGE_MAIN) :
+1179   3                  {
+1180   4                      roomTemp = readOneByteFromSlave(ROOM_TEMP);
+1181   4      
+1182   4                      if (state_changed) {
+1183   5                          state_changed = 0;
+1184   5                          sprintf(str, "%-3buC", roomTemp);
+1185   5                          display_text("000000", "FFFFFF", 8, str, 240, 110);
+1186   5                      }
+1187   4                      
+C51 COMPILER V9.56.0.0   MAIN                                                              11/21/2017 19:11:10 PAGE 23  
 
-1189   6                              change_state(PAGE_MAIN);
-1190   6                          }
-1191   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-1192   6                              change_state(PAGE_SERVICE);
-1193   6                          }
-1194   5                          else {
-1195   6                              // Noop
+1188   4                      if (tsCommandReceived || roomTemp != prev_temp) 
+1189   4                      {
+1190   5                          prev_temp = roomTemp;
+1191   5                          
+1192   5                          if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
+1193   6                              display_celsius = 1;
+1194   6                              sprintf(str, "%-3buC", roomTemp);
+1195   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
 1196   6                          }
-1197   5                      }
-1198   4                      break;
-1199   4                  }
-1200   3              }
-1201   2          }
-1202   1      }
+1197   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
+1198   6                              display_celsius = 0;
+1199   6                              roomTemp = (roomTemp * 9) / 5 + 32;
+1200   6                              sprintf(str, "%-3buF", roomTemp);
+1201   6                              display_text("000000", "FFFFFF", 8, str, 240, 110);
+1202   6                          }
+1203   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+1204   6                              change_state(PAGE_SETTINGS);
+1205   6                          }
+1206   5                          else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+1207   6                              change_state(PAGE_MAIN);
+1208   6                          }
+1209   5                          else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+1210   6                              change_state(PAGE_SERVICE);
+1211   6                          }
+1212   5                          else {
+1213   6                              // Noop
+1214   6                          }
+1215   5                      }
+1216   4                      break;
+1217   4                  }
+1218   3              }
+1219   2          }
+1220   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   4358    ----
-   CONSTANT SIZE    =    272    ----
-   XDATA SIZE       =   3417     654
+   CODE SIZE        =   4101    ----
+   CONSTANT SIZE    =    273    ----
+   XDATA SIZE       =   3419     654
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

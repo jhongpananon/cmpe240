@@ -5,7 +5,8 @@
 // Global Declarations
 //-------------------------------------------------------------------------------------------------------
 unsigned char tsByte;
-unsigned char passcode[4][3] = {"140", "141", "142","143"}; 
+
+//unsigned char passcode[4][3] = {"140", "141", "142","143"}; 
 
 
 
@@ -1086,7 +1087,7 @@ void main()
     sprintf(str, "z\r");
     sendCommand(str);
     
-    send_macro(display_temperature);
+    send_macro(Splash);
     
     while(1)
     {
@@ -1126,22 +1127,7 @@ void main()
                     state_changed = 0;
                     display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
                 }
-              	if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-										tsCommandReceived  = 0;
-										while(tsCommandReceived == 0);
-										if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]){
-											 tsCommandReceived = 0;
-											 while(tsCommandReceived == 0);
-											 if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]){
-												tsCommandReceived = 0;
-												while(tsCommandReceived == 0);
-												if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]){
-													tsCommandReceived = 0;
-													display_text("000000","FFFFFF", 8 , "OK!", 240, 200); 
-												}
-											}
-										}
-								}
+        
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     change_state(PAGE_SETTINGS);
                 }
@@ -1164,7 +1150,7 @@ void main()
                 }
 								
 								
-							  for (k = 0; k < 4 ; k++){
+							  /*for (k = 0; k < 4 ; k++){
 									if (passcode[k][0] == userCommand[1] && passcode[k][1] == userCommand[2] && passcode[k][2] == userCommand[3]) {
 									tsCommandReceived  = 0;
 										if (k == 3)
@@ -1174,7 +1160,7 @@ void main()
 									else{
 										continue;
 									}
-							 }								
+							 }	*/							
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     change_state(PAGE_SETTINGS);
                 }
