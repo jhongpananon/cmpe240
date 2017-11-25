@@ -336,9 +336,9 @@ sbit 		RHW 						= P7^7;								// SMB error line
 #define		SLAVE_SW_VERSION			0x30								// Slave software version (2 bytes)
 #define     AIR_FLOW_VOLTAGE			0x32								// Air flow voltage (2 bytes)
 #define		PRESSURE_VOLTAGE			0x34								// Pressure in mV (2 bytes)
-#define     ROOM_TEMP					0x36								// Room temp (1 byte)
-#define		WATER_IN_TEMP				0x37								// Water in temp (1 byte)
-#define		WATER_OUT_TEMP				0x38								// Water out temp (1 byte)
+#define     ROOM_TEMP_1					0x36								// Room temp 1 (1 byte)
+#define		ROOM_TEMP_2				    0x37								// Room temp 2 (1 byte)
+#define		ROOM_TEMP_3				    0x38								// Room temp 3 (1 byte)
 #define		INTERNAL_ENERGY				0x39								// Internal energy reading (2 byte)
 #define		FAN_DUTY_CYCLE				0x3B								// Fan speed (1 byte)
 #define		PULSEWIDTH					0x3C								// Pulsewidth (2 bytes)
@@ -528,6 +528,81 @@ sbit 		RHW 						= P7^7;								// SMB error line
 #define		POWER_METER_READING			0
 
 #define		POWER_METER_SCALER			0.010000000
+
+#define		TEMP_DISPLAY				0
+#define		TEMP_CAL					1
+#define		MINUTES_START_ADDR			0x0000								// Start at index 0 to index 59 (60 bytes)
+#define		HOURS_START_ADDR			0x003C								// Start at index 60 to index 83 (24 bytes)
+
+#define		DATE_DISPLAY_FG				"00FF00"
+#define		DATE_DISPLAY_BG				"000000"
+#define		DATE_DISPLAY_FONT			3
+#define		DATE_DISPLAY_X				36
+#define 	DATE_DISPLAY_Y				147
+
+#define		TIME_DISPLAY_FG				"00FF00"
+#define		TIME_DISPLAY_BG				"000000"
+#define		TIME_DISPLAY_FONT			3
+#define		TIME_DISPLAY_X				36
+#define 	TIME_DISPLAY_Y				215
+
+#define 	TITLE_DISPLAY_FG			"FFFFFF"
+#define		TITLE_DISPLAY_BG			"000000"
+#define		TITLE_DISPLAY_FONT			3
+#define		TITLE_DISPLAY_X				256
+#define 	TITLE_DISPLAY_Y				147
+
+#define		VALUE_DISPLAY_FG			"FFFFFF"
+#define		VALUE_DISPLAY_BG			"000000"
+#define		VALUE_DISPLAY_FONT			3
+#define		VALUE_DISPLAY_X				256
+#define 	VALUE_DISPLAY_Y				215
+
+#define		START_INDEX					0
+
+#define		SETTINGS_DATE_FG			"00FF00"
+#define		SETTINGS_DATE_BG			"000000"
+#define		SETTINGS_DATE_FONT			2
+#define		SETTINGS_DATE_X				22
+#define		SETTINGS_DATE_Y				262
+
+#define		SETTINGS_TIME_FG			"00FF00"
+#define		SETTINGS_TIME_BG			SETTINGS_DATE_BG
+#define		SETTINGS_TIME_FONT			SETTINGS_DATE_FONT
+#define		SETTINGS_TIME_X				SETTINGS_DATE_X
+#define		SETTINGS_TIME_Y				SETTINGS_DATE_Y + 20
+
+#define		RTC_START_ADDR				0x00
+#define		SECONDS						0
+#define		MINUTES						1
+#define		HOURS						2
+#define		DAY							3
+#define		DATE						4
+#define		MONTH						5
+#define		YEAR						6
+
+#define		RTC_CONTROL					0x0E
+#define		RTC_CONTROL_STATUS			0x0F
+#define		RTC_AGING_OFFSET			0x10
+#define		RTC_MSB_TEMP				0x11
+#define		RTC_LSB_TEMP				0x12
+
+#define		MONTH_ADJUST				0
+#define		DATE_ADJUST					1
+#define		YEAR_ADJUST					2
+#define		HOUR_ADJUST					3
+#define		MINUTE_ADJUST				4
+#define		AMPM_ADJUST					5
+#define		DONE_ADJUST					6
+#define		ROLL_OVER_ADJUST			7
+
+#define		TWENTY_FOUR_HR_MODE			0
+#define		TWELVE_HR_MODE				1
+
+#define		REAL_TIME_CLOCK_ITEMS		20
+
+#define		TX_START_INDEX				0
+#define		RX_START_INDEX				0
 
 //------------------------------------------------------------------------------------------------------
 // Scheduler constants and structures
