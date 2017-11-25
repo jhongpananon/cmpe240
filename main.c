@@ -1,4 +1,5 @@
 #include <main.h>
+#include "macros.h"
 
 //-------------------------------------------------------------------------------------------------------
 // Global Declarations
@@ -273,6 +274,16 @@ void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
 						screenReset = 0;									
 					}
 				}
+                else if(tsRxBuffer[0] == 'x')                                   // It is a command from touch screen controller
+                {                                                               // A command starts with '('
+                    for(i = 0; i < tsRxIn; i++)
+                    {
+                        userCommand[i] = tsRxBuffer[i];                         // Copy to command array for later evaluation
+                    }
+
+                    ackFromScreen = 0;                                          // This is a command, NOT an ACK
+                    tsCommandReceived = 1;                                      // Set flag when a complete command is received
+                }
 				else if(tsRxBuffer[0] == '(') 									// It is a command from touch screen controller
 				{																// A command starts with '('
 					for(i = 0; i < tsRxIn; i++)
@@ -1855,9 +1866,9 @@ static void send_macro(const unsigned int macro_index)
 #define PAGE_SETTINGS        2
 #define PAGE_SERVICE         3
 #define PAGE_CONFIG          4
-int current_page = PAGE_SPLASH;
+int current_page = PAGE_MAIN;
 
-static bool user_cmd_equals(char * cmd)
+static int user_cmd_equals(char * cmd)
 {
     return (cmd[0] == userCommand[1] && cmd[1] == userCommand[2] && cmd[2] == userCommand[3]);
 }
@@ -1885,6 +1896,8 @@ void main()
     
     sprintf(str, "z\r");
     sendCommand(str);
+
+    // send_macro(Splash);
     
     #define change_state(state) \
         current_page = state;   \
@@ -1979,27 +1992,27 @@ void main()
             default:            // no break
             case (PAGE_MAIN) :
             {
-                roomTemp = readOneByteFromSlave(ROOM_TEMP);
+                roomTemp1 = readOneByteFromSlave(ROOM_TEMP_1);
 
                 if (state_changed) {
                     state_changed = 0;
-                    sprintf(str, "%-3buC", roomTemp);
+                    sprintf(str, "%-3buC", roomTemp1);
                     display_text("000000", "FFFFFF", 8, str, 240, 110);
                 }
                 
-                if (tsCommandReceived || roomTemp != prev_temp) 
+                if (tsCommandReceived || roomTemp1 != prev_temp) 
                 {
-                    prev_temp = roomTemp;
+                    prev_temp = roomTemp1;
                     
                     if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
                         display_celsius = 1;
-                        sprintf(str, "%-3buC", roomTemp);
+                        sprintf(str, "%-3buC", roomTemp1);
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
                     }
                     else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
                         display_celsius = 0;
-                        roomTemp = (roomTemp * 9) / 5 + 32;
-                        sprintf(str, "%-3buF", roomTemp);
+                        roomTemp1 = (roomTemp1 * 9) / 5 + 32;
+                        sprintf(str, "%-3buF", roomTemp1);
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
                     }
                     else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
