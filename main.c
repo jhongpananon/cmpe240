@@ -1848,6 +1848,20 @@ static void send_macro(const unsigned int macro_index)
 //-------------------------------------------------------------------------------------------------------
 // Main
 //-------------------------------------------------------------------------------------------------------
+#define NOOP(x)              // do nothings
+
+#define PAGE_SPLASH          0
+#define PAGE_MAIN            1
+#define PAGE_SETTINGS        2
+#define PAGE_SERVICE         3
+#define PAGE_CONFIG          4
+int current_page = PAGE_SPLASH;
+
+static bool user_cmd_equals(char * cmd)
+{
+    return (cmd[0] == userCommand[1] && cmd[1] == userCommand[2] && cmd[2] == userCommand[3]);
+}
+
 void main()
 {
     int i = 0;
@@ -1872,7 +1886,9 @@ void main()
     sprintf(str, "z\r");
     sendCommand(str);
     
-    send_macro(Splash);
+    #define change_state(state) \
+        current_page = state;   \
+        state_changed = 1
     
     while(1)
     {
