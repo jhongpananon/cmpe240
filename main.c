@@ -5,14 +5,15 @@
 // Global Declarations
 //-------------------------------------------------------------------------------------------------------
 unsigned char tsByte;
-
+int k = 0;
 bit splashEnd = 0;
 bit screenReset = 0;
 bit ackFromScreen = 0;
 bit tsCommandReceived = 0;
 bit tsCommandTransmitted = 0;
 bit SMB_RW;                                                 					// Software flag to indicate Read or Write
-
+char *passcode = "";
+char *ACTUAL = "1457";
 unsigned char sharedDataRx[SHARED_DATA_MAX];
 unsigned char sharedDataTx[SHARED_DATA_MAX];
 unsigned char eepromTx[EEPROM_TX_BUFFER];
@@ -1856,6 +1857,59 @@ static void send_macro(const unsigned int macro_index)
     sendCommand(str);
 }
 
+
+int handle_passcode(){
+		int isValid = 0;
+		if ('1' == userCommand[1] && '4' == userCommand[2] && '1' == userCommand[3]) {
+				strcat(passcode,"1");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '2' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '3' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '4' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '5' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '6' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '7' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '8' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '9' == userCommand[3]) {
+				strcat(passcode,"2");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '4' == userCommand[2] && '0' == userCommand[3]) {
+				strcat(passcode,"0");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '5' == userCommand[2] && '0' == userCommand[3]) {
+				strcat(passcode,"*");
+				isValid = 1;
+		}
+		else if ('1' == userCommand[1] && '5' == userCommand[2] && '1' == userCommand[3]) {
+				strcat(passcode,"#");
+				isValid = 1;
+		}
+		return isValid;
+}
 //-------------------------------------------------------------------------------------------------------
 // Main
 //-------------------------------------------------------------------------------------------------------
@@ -1914,7 +1968,7 @@ void main()
 
         switch(current_page) 
         {
-            case (PAGE_SETTINGS):
+           case (PAGE_SETTINGS):
             {
                 if (state_changed) {
                     state_changed = 0;
@@ -1931,10 +1985,50 @@ void main()
                     change_state(PAGE_SERVICE);
                 }
                 else {
-                    // NOOP
-                }
+                     for (k = 0; k < 4 ; k++){
+												while(tsCommandReceived == 0);
+												if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+														change_state(PAGE_SETTINGS);
+														continue;
+												}
+												else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+														change_state(PAGE_MAIN);
+														continue;
+												}
+												else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+														change_state(PAGE_SERVICE);
+														continue;
+												}
+												else if ('1' == userCommand[1] && '5' == userCommand[2] && '3' == userCommand[3]) {
+														if(strcmp(passcode,ACTUAL) == 0){
+																display_text("000000","FFFFFF",8,"OK!", 240,200);
+														}
+														else{
+																display_text("000000","FFFFFF",8,"INCORRECT!", 240,200);
+														}
+																
+														continue;
+												}
+												else if ('1' == userCommand[1] && '5' == userCommand[2] && '2' == userCommand[3]) {
+														size_t len = strlen(passcode);
+														if(len > 0)
+															passcode[len-1]=0;
+												}
+												else if(k < 3){
+														if(handle_passcode())
+															k++;
+														
+												}
+												//tsCommandReceived  = 0;
+												
+											}
+									}
+								
+                
                 break;
+							
             }
+
             case (PAGE_CONFIG):
             {
                 if (state_changed) {
