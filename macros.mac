@@ -1,6 +1,6 @@
 // 1
-#define display_settings
-//xi 3 0 0                      // Draw background image
+#define display_settings_new
+//xi 5 0 0                      // Draw background image
 xc all                          // Clear buttons
 z                               // Clear screen
 w 10							// wait 10ms
@@ -10,10 +10,31 @@ x 128 270 30 370 60             // draw macro box display_temperature
 xm 128 display_temperature      // link macro display_temperature
 r 394 30 481 60 1 000000        // draw button display_settings
 x 131 394 30 481 60             // draw macro box display_settings
-xm 131 display_settings         // link macro display_settings
+xm 131 display_settings_new         // link macro display_settings
 r 520 30 600 60 1 000000        // draw button display_service
 x 132 520 30 600 60             // draw macro box display_service
 xm 132 display_service          // link macro display_service
+
+
+x 141 246 146 284 186             // Keypad number 1 - define hotspot
+x 142 299 146 338 186             // Keypad number 2 - define hotspot
+x 143 353 146 391 186             // Keypad number 3 - define hotspot
+x 144 246 200 284 236             // Keypad number 4 - define hotspot
+x 145 299 200 338 236             // Keypad number 5 - define hotspot
+x 146 353 200 391 236             // Keypad number 6 - define hotspot
+x 147 246 257 284 291             // Keypad number 7 - define hotspot
+x 148 299 257 338 291             // Keypad number 8 - define hotspot
+x 149 353 257 391 291             // Keypad number 9 - define hotspot
+x 150 246 312 284 348             // Keypad * - define hotspot
+x 140 299 312 338 348             // Keypad number 0 - define hotspot 
+x 151 353 312 391 348             // Keypad # - define hotspot
+x 152 246 388 312 416             // Keypad Clear - define hotspot
+x 153 330 388 396 418             // Keypad Enter - define hotspot
+
+xm 152 display_settings_new          // link macro display_service
+
+
+
 #end
 
 //2
@@ -28,7 +49,7 @@ x 128 270 30 370 60             // draw macro box display_temperature
 xm 128 display_temperature      // link macro display_temperature
 r 394 30 481 60 1 000000        // draw button display_settings
 x 131 394 30 481 60             // draw macro box display_settings
-xm 131 display_settings         // link macro display_settings
+xm 131 display_settings_new         // link macro display_settings
 r 520 30 600 60 1 000000        // draw button display_service
 x 132 520 30 600 60             // draw macro box display_service
 xm 132 display_service          // link macro display_service
@@ -46,7 +67,7 @@ x 128 270 30 370 60             // draw macro box display_temperature
 xm 128 display_temperature      // link macro display_temperature
 r 394 30 481 60 1 000000        // draw button display_settings
 x 131 394 30 481 60             // draw macro box display_settings
-xm 131 display_settings         // link macro display_settings
+xm 131 display_settings_new         // link macro display_settings
 r 520 30 600 60 1 000000        // draw button display_service
 x 132 520 30 600 60             // draw macro box display_service
 xm 132 display_service          // link macro display_service
@@ -129,37 +150,9 @@ out "{cmpe}\r"                          //Indicate that splash screen is complet
 #end
 
 
-//6
+//5
 // 140 - 153 is used for keypad numbers in define hotspot "x ret_val x0 y0 x1 y1" command
-#define display_settings_new
-xi 5 0 0                     //05_splash.bmp holds the dial pad 
-xc all
-z
-w 10							              // wait 10ms
 
-x 141 246 146 284 186             // Keypad number 1 - define hotspot
-x 142 299 146 338 186             // Keypad number 2 - define hotspot
-x 143 353 146 391 186             // Keypad number 3 - define hotspot
-x 144 246 200 284 236             // Keypad number 4 - define hotspot
-x 145 299 200 338 236             // Keypad number 5 - define hotspot
-x 146 353 200 391 236             // Keypad number 6 - define hotspot
-x 147 246 257 284 291             // Keypad number 7 - define hotspot
-x 148 299 257 338 291             // Keypad number 8 - define hotspot
-x 149 353 257 391 291             // Keypad number 9 - define hotspot
-x 150 246 312 284 348             // Keypad * - define hotspot
-x 140 299 312 338 348             // Keypad number 0 - define hotspot 
-x 151 353 312 391 348             // Keypad # - define hotspot
-x 152 246 388 312 416             // Keypad Clear - define hotspot
-x 153 330 388 396 418             // Keypad Enter - define hotspot
-
-xm 152 display_settings_new          // link macro display_service
-
-
-//if 153(Enter), the number is pressed, to master to check password validity
-//when the numbers are pressed, they are stored in memory in master
-//if password valid, the display_configuration is displayed by master, else display_settings_new is displayed
-
-#end
 
 #define display_configuration
 
