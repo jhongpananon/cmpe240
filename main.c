@@ -4,8 +4,38 @@
 //-------------------------------------------------------------------------------------------------------
 // Global Declarations
 //-------------------------------------------------------------------------------------------------------
-unsigned char tsByte;
+
+//edits - added new
+
+//Passcode
 int k = 0;
+char passcode[] = "";
+char *ACTUAL = "1457";
+
+// real time clock
+unsigned char seconds_l;
+unsigned char minutes_l;
+unsigned char hours_l;
+unsigned char amPm_l;
+unsigned char date_l;
+unsigned char month_l;
+unsigned char year_l;
+unsigned char selection;
+unsigned char set;
+
+const char code *setDateTime[] =    {/*0*/  "SET SECONDS",
+                                     /*1*/  "SET MINUTES",
+                                     /*2*/  "SET HOURS", 
+                                     /*3*/  "SET AM/PM",
+                                     /*4*/  "SET DATE", 
+                                     /*5*/  "SET MONTH",
+                                     /*6*/  "SET YEAR"};
+
+
+//original code's variables
+
+unsigned char tsByte;
+
 bit splashEnd = 0;
 bit screenReset = 0;
 bit ackFromScreen = 0;
@@ -13,9 +43,6 @@ bit tsCommandReceived = 0;
 bit tsCommandTransmitted = 0;
 bit SMB_RW;                                                                     // Software flag to indicate Read or Write
 
-
-char passcode[] = "";
-char *ACTUAL = "1457";
 unsigned char sharedDataRx[SHARED_DATA_MAX];
 unsigned char sharedDataTx[SHARED_DATA_MAX];
 unsigned char eepromTx[EEPROM_TX_BUFFER];
@@ -35,6 +62,8 @@ unsigned char slaveWriteDone;
 unsigned char slaveReadDone;
 unsigned char eepromWriteDone;
 unsigned char eepromReaddone;
+unsigned char rtcWriteDone;
+unsigned char rtcReadDone;
 
 unsigned char tsRxBuffer[RX_BUFFER_SIZE];
 unsigned char tsTxBuffer[TX_BUFFER_SIZE];
@@ -75,7 +104,80 @@ unsigned int numBytesWR;
 unsigned char slaveWriteDone;
 unsigned char slaveReadDone;
                             
-unsigned char roomTemp;
+unsigned char roomTemp1;
+unsigned char roomTemp2;
+unsigned char roomTemp3;
+                            
+unsigned char seconds;
+unsigned char minutes;
+unsigned char hours;
+unsigned char hours24;
+unsigned char amPm;
+unsigned char day;
+unsigned char date;
+unsigned char month;
+unsigned char year;
+unsigned char century;
+unsigned char timeMode;
+unsigned char currentIndex = 0;
+unsigned char minuteIndex = 0;
+unsigned char hourIndex = 0;
+
+unsigned char currentDate;
+unsigned char currentMonth;
+unsigned char currentYear;
+
+unsigned char realTimeClockItems;
+
+unsigned char adjustedSeconds;
+unsigned char adjustedMinutes;
+unsigned char adjustedHours;
+unsigned char adjustedAmPm;
+unsigned char adjustedDay;
+unsigned char adjustedDate;
+unsigned char adjustedMonth;
+unsigned char adjustedYear;
+unsigned char adjustedCentury;
+unsigned char adjustedTimeMode;
+
+bit monthUpdated;
+bit dateUpdated;
+bit yearUpdated;
+bit hoursUpdated;
+bit minutesUpdated;
+bit secondsUpdated;
+bit amPmUpdated;
+bit timeUpdated;
+bit monthDateYearUpdated;
+
+const char code * dayOfWeek[] =     {/*0*/  "NON",
+                                     /*1*/  "SUN",
+                                     /*2*/  "MON", 
+                                     /*3*/  "TUE",
+                                     /*4*/  "WED", 
+                                     /*5*/  "THU",
+                                     /*6*/  "FRI", 
+                                     /*7*/  "SAT"}; 
+
+const char code * monthOfYear[] =   {/*0*/  "NON",
+                                     /*1*/  "JAN",
+                                     /*2*/  "FEB", 
+                                     /*3*/  "MAR",
+                                     /*4*/  "APR", 
+                                     /*5*/  "MAY",
+                                     /*6*/  "JUN", 
+                                     /*7*/  "JUL",
+                                     /*8*/  "AUG",
+                                     /*9*/  "SEP",
+                                     /*10*/ "OCT", 
+                                     /*11*/ "NOV",
+                                     /*12*/ "DEC"};
+
+
+const char code * clockSetupMsg[] = {/*0*/  "SET DATE AND TIME      ",
+                                    /*1*/   "WRITING DATA... WAIT!  ",
+                                    /*2*/   "DATA SUCCESSFULLY SAVED",
+                                    /*3*/   "ERROR                  "};
 
 //-------------------------------------------------------------------------------------------------------
 // System Configurations
@@ -202,16 +304,6 @@ void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
                         splashEnd = 0;                                          // End of splash screen NOT detected
                         screenReset = 0;                                    
                     }
-                }
-                else if(tsRxBuffer[0] == 'x')                                   // It is a command from touch screen controller
-                {                                                               // A command starts with '('
-                    for(i = 0; i < tsRxIn; i++)
-                    {
-                        userCommand[i] = tsRxBuffer[i];                         // Copy to command array for later evaluation
-                    }
-
-                    ackFromScreen = 0;                                          // This is a command, NOT an ACK
-                    tsCommandReceived = 1;                                      // Set flag when a complete command is received
                 }
                 else if(tsRxBuffer[0] == '(')                                   // It is a command from touch screen controller
                 {                                                               // A command starts with '('
@@ -547,7 +639,14 @@ void smbInit(void)
 
     SFRPAGE = SFRPAGE_SAVE;                                                         // Restore SFR page detector
     
-    SMB_BUSY = 0;                                                                   // Release SMB
+    SMB_BUSY = 0;
+                                                                                    // Release SMB
+    slaveWriteDone = FALSE;
+    slaveReadDone = FALSE;
+    eepromWriteDone = FALSE;
+    eepromReadDone = FALSE;
+    rtcWriteDone = FALSE;
+    rtcReadDone = FALSE;
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -620,6 +719,28 @@ unsigned char readOneByteFromSlave(unsigned char startAddr)
 }
 
 //-------------------------------------------------------------------------------------------------------
+// Function Name: writeBytesToRealTimeClock
+// Return Value: None 
+// Parmeters: target, startAddr, bytes
+// Function Description: This function writes data byte to the real time clock DS3232
+//-------------------------------------------------------------------------------------------------------
+void writeBytesToRealTimeClock(unsigned char startAddr, unsigned char numBytes)
+{
+    smbWrite(REAL_TIME_CLOCK_ADDR, startAddr, numBytes);
+}
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: readBytesFromRealTimeClock
+// Return Value: None 
+// Parmeters: target, startAddr, bytes
+// Function Description: This function reads data byte from the real time clock DS3232
+//-------------------------------------------------------------------------------------------------------
+void readBytesFromRealTimeClock(unsigned char startAddr, unsigned char numBytes)
+{
+    smbRead(REAL_TIME_CLOCK_ADDR, startAddr, numBytes);
+}
+
+//-------------------------------------------------------------------------------------------------------
 // Function Name: smbRead
 // Return Value: unsigned char * 
 // Parmeters: target, startAddr, bytes
@@ -638,6 +759,7 @@ void smbRead(unsigned char deviceId, unsigned int location, unsigned int bytes)
     switch(deviceId)
     {
         case MCU_SLAVE_ADDR:
+        case REAL_TIME_CLOCK_ADDR:
         case EEPROM_ADDR:
             smbWrite(deviceId, location, 0);                                        // Write address before reading
             break;
@@ -664,6 +786,9 @@ void smbRead(unsigned char deviceId, unsigned int location, unsigned int bytes)
     {
         case MCU_SLAVE_ADDR:
             while(slaveReadDone == 0);                                              // Wait until slave write completed
+            break;
+        case REAL_TIME_CLOCK_ADDR:
+            while(rtcReadDone == 0);                                                // Wait until real time clock write completed or timeout occurs
             break;
         case EEPROM_ADDR:
             while(eepromReadDone == 0);                                             // Wait until EEPROM write completed
@@ -701,6 +826,13 @@ void smbWrite(unsigned char deviceId, unsigned int location, unsigned int bytes)
             STA = 1;                                                                // Start transfer
             while(slaveWriteDone == 0);                                             // Wait until SRAM write completed or timeout occurs
             break;
+        case REAL_TIME_CLOCK_ADDR:
+            numBytesWR = bytes;                                                     // Number of bytes to read
+            SMB_BUSY = 1;                                                           // Claim SMBus (set to busy)
+            SMB_RW = 0;                                                             // Mark this transfer as a WRITE
+            STA = 1;                                                                // Start transfer
+            while(rtcWriteDone == 0);                                               // Wait until SRAM write completed or timeout occurs
+            break;
         default:
             break;      
     }
@@ -723,6 +855,7 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
     static unsigned int TxCounter;                                                  // Initialize counter
     static unsigned int RxCounter;                                                  // Initialize counter
     static unsigned int slaveCount = 0;
+    static unsigned int realTimeClockCount = 0;
     static unsigned int eepromCount = 0;
     static unsigned char eepromAddrDone;
     
@@ -766,13 +899,19 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                     slaveWriteDone = 0;                                             // Mark start of slave write
                 }
             }
+            else if(slaveAddr == REAL_TIME_CLOCK_ADDR)
+            {
+                SMB0DAT = startAddr;                                                // Point to byte address to write on real time clock
+                rtcWriteDone = 0;                                                   // Mark start of rtc write
+            }
+            else{}
             break;
 
 //-------------------------------------------------------------------------------------------------------
 // Master Transmitter: Slave address + WRITE transmitted.  NACK received. Restart the transfer
 //-------------------------------------------------------------------------------------------------------
         case SMB_ADDR_W_TX_NACK_RX:
-            if(slaveAddr == MCU_SLAVE_ADDR || slaveAddr == WAVEFORM_GEN_ADDR)
+            if(slaveAddr == MCU_SLAVE_ADDR)
             {
                 if(slaveCount < MAX_NACK_RETRY)
                 {
@@ -783,6 +922,22 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                 {
                     slaveCount = 0;                                                 // Reset this counter to keep retry seeking slave response
                     slaveWriteDone = 1;
+                    STO = 1;
+                    SMB_BUSY = 0;
+                    FAIL = 1;
+                }   
+            }
+            else if(slaveAddr == REAL_TIME_CLOCK_ADDR)
+            {
+                if(realTimeClockCount < MAX_NACK_RETRY)
+                {
+                    realTimeClockCount++;                                           // Increment number of attempts when NACK is received
+                    STA = 1;                                                        // Restart a new transfer
+                }
+                else
+                {
+                    realTimeClockCount = 0;
+                    rtcWriteDone = 1;
                     STO = 1;
                     SMB_BUSY = 0;
                     FAIL = 1;
@@ -828,6 +983,20 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                     slaveWriteDone = 1;                                             // Mark end of slave write
                 }
             }
+            else if(slaveAddr == REAL_TIME_CLOCK_ADDR)
+            {
+                if(TxCounter < numBytesWR)
+                {
+                    SMB0DAT = sharedDataTx[startAddr + TxCounter];                  // Send data byte
+                    TxCounter++;
+                }
+                else
+                {
+                    STO = 1;                                                        // Set STO to terminate transfer                                                
+                    SMB_BUSY = 0;                                                   // And free SMBus interface
+                    rtcWriteDone = 1;                                               // Mark end of slave write
+                }
+            }
             break;
 
 //-------------------------------------------------------------------------------------------------------
@@ -844,6 +1013,21 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                 else
                 {
                     slaveCount = 0;
+                    STO = 1;
+                    SMB_BUSY = 0;
+                    FAIL = 1;
+                }   
+            }
+            else if(slaveAddr == REAL_TIME_CLOCK_ADDR)
+            {
+                if(realTimeClockCount < MAX_NACK_RETRY)
+                {
+                    realTimeClockCount++;                                           // Increment number of attempts when NACK is received
+                    STA = 1;                                                        // Restart a new transfer
+                }
+                else
+                {
+                    realTimeClockCount = 0;
                     STO = 1;
                     SMB_BUSY = 0;
                     FAIL = 1;
@@ -905,6 +1089,21 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                     FAIL = 1;
                 }   
             }
+            else if(slaveAddr == REAL_TIME_CLOCK_ADDR)
+            {
+                if(realTimeClockCount < MAX_NACK_RETRY)
+                {
+                    realTimeClockCount++;                                           // Increment number of attempts when NACK is received
+                    STA = 1;                                                        // Restart a new transfer
+                }
+                else
+                {
+                    realTimeClockCount = 0;
+                    STO = 1;
+                    SMB_BUSY = 0;
+                    FAIL = 1;
+                }   
+            }
             else if(slaveAddr == EEPROM_ADDR)
             {
                 if(eepromCount < MAX_NACK_RETRY)
@@ -945,6 +1144,22 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                     slaveReadDone = 1;                                              // Mark end of slave read
                 }
             }
+            else if(slaveAddr == REAL_TIME_CLOCK_ADDR)
+            {
+                if(RxCounter < numBytesRD)
+                {
+                    sharedDataRx[startAddr + RxCounter] = SMB0DAT;                  // RTC
+                    rtcReadDone = 0;
+                    
+                    AA = 1;                                                         // Send ACK to indicate byte received
+                    RxCounter++;                                                    // Increment the byte counter
+                }
+                else
+                {
+                    rtcReadDone = 1;
+                    AA = 0;                                                         // Send NACK to indicate last byte is received
+                }
+            }
             else if(slaveAddr == EEPROM_ADDR)
             {
                 if(RxCounter < numBytesRD)
@@ -974,6 +1189,15 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                 SMB_BUSY = 0;                                                       // Release SMB
                 AA = 1;
                 slaveReadDone = 1;                                                  // Mark end of slave read                                                               // Set AA for next transfer                                                         
+            }
+            else if(slaveAddr == REAL_TIME_CLOCK_ADDR)
+            {
+                sharedDataRx[startAddr + RxCounter] = SMB0DAT;                      // RTC
+                rtcReadDone = 1;
+
+                STO = 1;                                                            // Stop transfer
+                SMB_BUSY = 0;                                                       // Release SMB
+                AA = 1;                                                             // Send ACK to indicate byte received
             }
             else if(slaveAddr == EEPROM_ADDR)
             {
@@ -1017,10 +1241,446 @@ void smbISR (void) interrupt INTERRUPT_SMB using 2
                                                                                     // Set to finish all pending processes
         slaveWriteDone = 1;                                                         // Mark end of slave write
         slaveReadDone = 1;                                                          // Mark end of slave read
+        rtcWriteDone = 1;
+        rtcReadDone = 1;
+        eepromWriteDone = 1;                                                        // Mark end of eeprom write
+        eepromReadDone = 1;                                                         // Mark end of eeprom read
     }
 
     SI = 0;                                                                         // Clear interrupt flag
 }
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: setClockControl
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function sets values to the real time clock control register
+// Check DS3232 documentation for more details of this this control register
+//-------------------------------------------------------------------------------------------------------
+void setClockControl(void)
+{
+    sharedDataTx[RTC_START_ADDR + RTC_CONTROL] = 0x04;
+    sharedDataTx[RTC_START_ADDR + RTC_CONTROL_STATUS] = 0x30; 
+    writeBytesToRealTimeClock(RTC_START_ADDR + RTC_CONTROL, 2);                         // Set control registers (2 byte)
+}
+                                  
+//-------------------------------------------------------------------------------------------------------
+// Function Name: setClock
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function sets the new values to the real time clock
+//-------------------------------------------------------------------------------------------------------
+void setClock(void)
+{   
+    unsigned char hoursAux;
+    
+    sharedDataTx[RTC_START_ADDR + SECONDS] = convertDecimalToBCD(seconds);              // Load all data from PC to array before writing
+    sharedDataTx[RTC_START_ADDR + MINUTES] = convertDecimalToBCD(minutes);              // All data: seconds,.... are already converted to BCD
+    sharedDataTx[RTC_START_ADDR + DAY] = convertDecimalToBCD(day);
+    sharedDataTx[RTC_START_ADDR + DATE] = convertDecimalToBCD(date);
+    sharedDataTx[RTC_START_ADDR + MONTH] = convertDecimalToBCD(month);
+    sharedDataTx[RTC_START_ADDR + YEAR] = convertDecimalToBCD(year);
+    
+    hoursAux = convertDecimalToBCD(hours);                                              // Get updated hours from user on screen
+
+    hoursAux = hoursAux | 0x40;                                                         // Set 12/24 bit --> 12 hour mode
+    
+    if(amPm == 'P')
+    {
+         hoursAux = hoursAux | 0x60;                                                    // Set AM/PM bit --> PM mode
+    }
+    else if(amPm == 'A')
+    {
+         hoursAux = hoursAux & 0x5F;                                                    // Clear AM/PM bit --> AM mode
+    }
+    
+    sharedDataTx[RTC_START_ADDR + HOURS] = hoursAux;
+    
+    writeBytesToRealTimeClock(RTC_START_ADDR, 7);                                       // Write 7 bytes to RTC
+
+    //resetAllDisplayCounters();                                                            // Update new values on screen
+}           
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: getClockData()
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function gets the new values from the real time clock
+//-------------------------------------------------------------------------------------------------------
+void getClockData()
+{
+    static unsigned char previousMonth = 0;
+    static unsigned char previousDate = 0;
+    static unsigned char previousYear = 0;
+    static unsigned char previousHours = 0;
+    static unsigned char previousMinutes = 0;
+    static unsigned char previousSeconds = 0;
+    
+    unsigned int currentIndex = 0;
+    unsigned char tempHours;
+    
+    readBytesFromRealTimeClock(RTC_START_ADDR, 7);                                      // Get date and time (7 bytes)
+
+    seconds = convertBCDToDecimal(sharedDataRx[RTC_START_ADDR + SECONDS]);              // Convert BCD to decimal for seconds (1 byte)
+    minutes = convertBCDToDecimal(sharedDataRx[RTC_START_ADDR + MINUTES]);              // Convert BCD to decimal for minutes (1 byte)
+
+    tempHours = sharedDataRx[RTC_START_ADDR + HOURS];                                   // Get BCD without conversion and check AM/PM
+
+    if(tempHours & 0x40)                                                                // 12/24 bit (bit 6) is set --> 12 hour mode
+    {
+        timeMode = TWELVE_HR_MODE;
+
+        if(tempHours & 0x20)                                                            // PM/AM bit (bit 5) is set --> PM
+        {
+            amPm = 'P';
+        }
+        else
+        {
+            amPm = 'A';
+        }
+    }
+    else
+    {
+        timeMode = TWENTY_FOUR_HR_MODE;
+    }
+
+    hours = convertBCDToDecimal(tempHours & 0x1F);                                      // Get hours (bit 4 to bit 0 only. Ignore others)
+
+    if(hours == 12)
+    {
+        if(amPm == 'A')
+        {
+            hours24 = 0;
+        }
+        else
+        {
+            hours24 = hours;
+        }   
+    }
+    else
+    {
+        if(amPm == 'P')
+        {
+            hours24 = hours + 12;                                                       // Twenty four hour format if PM
+        }
+        else
+        {
+            hours24 = hours;                                                            // Twenty four hour format if AM
+        }
+    }
+
+    day = convertBCDToDecimal(sharedDataRx[RTC_START_ADDR + DAY]);                      // Convert BCD to decimal for day (1 byte)
+    date = convertBCDToDecimal(sharedDataRx[RTC_START_ADDR + DATE]);                    // Convert BCD to decimal for date (1 byte)
+    month = convertBCDToDecimal(sharedDataRx[RTC_START_ADDR + MONTH]);                  // Convert BCD to decimal for month (1 byte)
+    year = convertBCDToDecimal(sharedDataRx[RTC_START_ADDR + YEAR]);                    // Convert BCD to decimal for year (1 byte)
+
+    if(month != previousMonth || date != previousDate || year != previousYear)
+    {
+        monthDateYearUpdated = SET;     
+    }
+    if(hours != previousHours || minutes != previousMinutes || seconds != previousSeconds)
+    {
+        timeUpdated = SET;
+    }
+
+    if(amPm == 'P')
+    {
+        currentIndex = ((12 + hours) * 60) + minutes;
+    }
+    else if(amPm == 'A')
+    {
+        if(hours == 12)
+        {
+            hours = 0;
+        }
+        
+        currentIndex = (hours * 60) + minutes;
+    }
+    else
+    {}
+
+    minuteIndex = currentIndex % 60;                                                    // Get minute index from 0 - 59
+    hourIndex = currentIndex / 60;                                                      // Get hour index from 0 - 23
+
+    previousDate = date;
+    previousMonth = month;
+    previousYear = year;
+    previousHours = hours;
+    previousMinutes = minutes;
+    previousSeconds = seconds;
+}
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: moveDateTimeUp
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function sets date and time of the clock from the touch screen by pressing the up button
+//-------------------------------------------------------------------------------------------------------
+/*
+void moveDateTimeUp(void)
+{
+}
+*/
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: moveDateTimeDown
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function sets date and time of the clock from the touch screen by pressing the down button
+//-------------------------------------------------------------------------------------------------------
+/*
+void moveDateTimeDown(void)
+{
+    
+}
+*/
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: enterDateTime
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function confirms the date or time set by the user on the touch screen
+//-------------------------------------------------------------------------------------------------------
+/*
+void enterDateTime(void)
+{
+    char str[SPRINTF_SIZE];
+    
+    realTimeClockItems++;                                                               // Move to next item
+    
+    if(realTimeClockItems == MONTH_ADJUST)
+    {
+        monthUpdated = SET;
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "SET MONTH ", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        sprintf(str, "%s ", monthOfYear[adjustedMonth]);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == DATE_ADJUST)
+    {
+        dateUpdated = SET;
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "SET DATE  ", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        sprintf(str, "%bu   ", adjustedDate);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == YEAR_ADJUST)
+    {
+        yearUpdated = SET;
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "SET YEAR  ", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        sprintf(str, "20%02bu", adjustedYear);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == HOUR_ADJUST)
+    {
+        hoursUpdated = SET;
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "SET HOUR  ", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        sprintf(str, "%bu   ", adjustedHours);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == MINUTE_ADJUST)
+    {
+        minutesUpdated = SET;
+        amPmUpdated = SET;                                                              // Set it anyway because user usually does not set at the end
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "SET MINUTE", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        sprintf(str, "%bu   ", adjustedMinutes);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == AMPM_ADJUST)
+    {
+        amPmUpdated = SET;                                                              // Set it anyway because user usually does not set at the end
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "SET AM/PM ", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        sprintf(str, "%cM  ", adjustedAmPm);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == DONE_ADJUST)
+    {
+        amPmUpdated = SET;                                                              // Set it if user explicitly press enter button
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "PRESS DONE", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, "----", VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == ROLL_OVER_ADJUST)
+    {
+        realTimeClockItems = MONTH_ADJUST;                                              // Set it for next round of real time clock items
+        monthUpdated = SET;
+        displayText(TITLE_DISPLAY_FG, TITLE_DISPLAY_BG, TITLE_DISPLAY_FONT, "SET MONTH ", TITLE_DISPLAY_X, TITLE_DISPLAY_Y);
+        sprintf(str, "%s ", monthOfYear[adjustedMonth]);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else
+    {}
+}
+*/
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: setClockOnScreen
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function sets the real time clock on the touch screen
+//-------------------------------------------------------------------------------------------------------
+/*
+void setClockOnScreen(void)
+{       
+    unsigned char hoursAux;
+    
+    if(monthUpdated == SET)
+    {
+        sharedDataTx[RTC_START_ADDR + MONTH] = convertDecimalToBCD(adjustedMonth);      // Get updated month from user on screen
+        writeBytesToRealTimeClock(RTC_START_ADDR + MONTH, 1);                           // Set month only (1 byte)
+        monthUpdated = CLEAR;                                                           //Clear flag after writing to real time clock                                                   
+    }
+    
+    if(dateUpdated == SET)
+    {
+        sharedDataTx[RTC_START_ADDR + DATE] = convertDecimalToBCD(adjustedDate);        // Get updated date from user on screen
+        writeBytesToRealTimeClock(RTC_START_ADDR + DATE, 1);                            // Set date only (1 byte)
+        dateUpdated = CLEAR;
+    }
+
+    if(yearUpdated == SET)
+    {
+        sharedDataTx[RTC_START_ADDR + YEAR] = convertDecimalToBCD(adjustedYear);        // Get updated year from user on screen
+        writeBytesToRealTimeClock(RTC_START_ADDR + YEAR, 1);                            // Set year only (1 byte)
+        yearUpdated = CLEAR;
+    }
+
+    if(hoursUpdated == SET || amPmUpdated == SET)
+    {
+        hoursAux = convertDecimalToBCD(adjustedHours);                                  // Get updated hours from user on screen
+        
+        if(amPmUpdated == SET)
+        {
+            amPm = adjustedAmPm;                                                        // Set updated amPm from user on screen
+        
+            hoursAux = hoursAux | 0x40;                                                 // Set 12/24 bit --> 12 hour mode
+            
+            if(adjustedAmPm == 'P')
+            {                                                                   
+                hoursAux = hoursAux | 0x60;                                             // Set AM/PM bit --> PM mode
+            }
+            else if(adjustedAmPm == 'A')
+            {                                                                   
+                hoursAux = hoursAux & 0x5F;                                             // Clear AM/PM bit --> AM mode
+            }
+            else
+            {}
+
+            amPmUpdated = CLEAR;
+        }
+        
+        sharedDataTx[RTC_START_ADDR + HOURS] = hoursAux;
+        writeBytesToRealTimeClock(RTC_START_ADDR + HOURS, 1);                           // Set hours only (1 byte)
+        hoursUpdated = CLEAR; 
+    }
+
+    if(minutesUpdated == SET)
+    {
+        sharedDataTx[RTC_START_ADDR + MINUTES] = convertDecimalToBCD(adjustedMinutes);  // Get updated minutes from user on screen
+        writeBytesToRealTimeClock(RTC_START_ADDR + MINUTES, 1);                         // Set minutes only (1 byte)
+        minutesUpdated = CLEAR;
+    }
+
+    realTimeClockItems = MONTH_ADJUST;                                                  // Set starting item = Month for adjustment
+
+    getClockData();                                                                     // Get current month, date, year set by user
+
+    //clockSetupDisplayRepeat = 0;                                                      // Display clock updates on screen                                                                      // System goes back to main page                    
+}
+*/
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: resetClock
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function resets the real time clock to 0:00:00 1/1/2000
+//-------------------------------------------------------------------------------------------------------
+void resetClock(void)
+{
+    seconds = 0;
+    minutes = 0;
+    hours = 0;
+    amPm = 'P';
+    day = 1;
+    date = 1;
+    month = 1;
+    year = 0;
+    century = 0;
+    timeMode = 1;
+
+    setClock();                                                                         // Set real time clock
+}
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: convertDecimalToBCD
+// Return Value: bcd 
+// Parmeters: decimal
+// Function Description: This function converts a decimal number to a BCD when writing the new value to the real time clock
+//-------------------------------------------------------------------------------------------------------
+unsigned char convertDecimalToBCD(unsigned char decimal)
+{
+    unsigned char bcd;
+
+    bcd = (decimal / 10) << 4;                                                          // Get upper 4 bits
+    bcd = bcd | (decimal % 10);                                                         // Get a BCD
+
+    return bcd;
+}
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: convertBCDToDecimal
+// Return Value: decimal value 
+// Parmeters: bcd
+// Function Description: This function converts a BCD to a decimal number when reading the current value from the real time clock
+//-------------------------------------------------------------------------------------------------------
+unsigned char convertBCDToDecimal(unsigned char bcd)
+{
+    unsigned char decimal;
+
+    decimal = ((bcd >> 4) * 10) + (bcd & 0x0F);                                         // Combine upper and lower nibbles to get
+                                                                                        // 8 bit number
+    return decimal;
+}
+
+//-------------------------------------------------------------------------------------------------------
+// Function Name: displayClock
+// Return Value: None 
+// Parmeters: None
+// Function Description: This function displays clock data on the touch screen
+// The clock format is MM/DD/YYYY hour/minute/second
+//-------------------------------------------------------------------------------------------------------
+void displayClock(void)
+{
+    char str[SPRINTF_SIZE];
+    
+    //if(screen == MAIN_PAGE)
+    //{
+        getClockData();
+
+        sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month], date, year);
+        displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, SETTINGS_DATE_X, SETTINGS_DATE_Y);
+        monthDateYearUpdated = CLEAR;
+        
+        sprintf(str, "%2bu:%02bu:%02bu %cM ", hours, minutes, seconds, amPm);
+        displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, SETTINGS_TIME_X, SETTINGS_TIME_Y);
+    //}
+    /*else if(screen == CLOCK_SETUP_PAGE)
+    {
+        if(buttonPressed == CLEAR)
+        {
+            getClockData();
+    
+            sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month], date, year);
+            displayText(DATE_DISPLAY_FG, DATE_DISPLAY_BG, DATE_DISPLAY_FONT, str, DATE_DISPLAY_X, DATE_DISPLAY_Y);
+            monthDateYearUpdated = CLEAR;
+
+            sprintf(str, "%2bu:%02bu:%02bu %cM ", hours, minutes, seconds, amPm);
+            displayText(TIME_DISPLAY_FG, TIME_DISPLAY_BG, TIME_DISPLAY_FONT, str, TIME_DISPLAY_X, TIME_DISPLAY_Y);
+            timeUpdated = CLEAR;
+        }
+    }*/
+}
+
+//------------------------------------------------------------------------------------------------------
+// Utility functions by team 1 
+//------------------------------------------------------------------------------------------------------
 
 void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
 {
@@ -1037,7 +1697,6 @@ void display_text(const char * fg, const char * bg, const unsigned char size, co
     sendCommand(str);
 }
 
-
 static void send_macro(const unsigned int macro_index)
 {
     char str[8] = { 0 };
@@ -1050,71 +1709,304 @@ static void send_macro(const unsigned int macro_index)
 }
 
 int handle_passcode(int k){
-		int isValid = 0,i = 0;
-		char str[SPRINTF_SIZE];
-		sprintf(str, "%s", "    ");
-		display_text("000000", "FFFFFF", 8, str, 240, 40);
-		if(k == 0){
-			passcode[0]='\0';
-		}
-		
-		if ('1' == userCommand[1] && '4' == userCommand[2] && '1' == userCommand[3]) {
-				strcat(passcode,"1");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '2' == userCommand[3]) {
-				strcat(passcode,"2");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '3' == userCommand[3]) {
-				strcat(passcode,"3");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '4' == userCommand[3]) {
-				strcat(passcode,"4");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '5' == userCommand[3]) {
-				strcat(passcode,"5");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '6' == userCommand[3]) {
-				strcat(passcode,"6");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '7' == userCommand[3]) {
-				strcat(passcode,"7");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '8' == userCommand[3]) {
-				strcat(passcode,"8");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '9' == userCommand[3]) {
-				strcat(passcode,"9");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '4' == userCommand[2] && '0' == userCommand[3]) {
-				strcat(passcode,"0");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '5' == userCommand[2] && '0' == userCommand[3]) {
-				strcat(passcode,"*");
-				isValid = 1;
-		}
-		else if ('1' == userCommand[1] && '5' == userCommand[2] && '1' == userCommand[3]) {
-				strcat(passcode,"#");
-				isValid = 1;
-		}
-		if(isValid){
-			str[0] = '\0';
-			for(i=0;i<=k;i++){
-				strcat(str,"*");
-			}
-		}
-		//sprintf(str, "%s", passcode);
-		display_text("000000", "FFFFFF", 6, str, 240, 80);
-		return isValid;
+        int isValid = 0,i = 0;
+        char str[SPRINTF_SIZE];
+        sprintf(str, "%s", "    ");
+        display_text("000000", "FFFFFF", 8, str, 240, 40);
+        if(k == 0){
+            passcode[0]='\0';
+        }
+        
+        if ('1' == userCommand[1] && '4' == userCommand[2] && '1' == userCommand[3]) {
+                strcat(passcode,"1");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '2' == userCommand[3]) {
+                strcat(passcode,"2");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '3' == userCommand[3]) {
+                strcat(passcode,"3");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '4' == userCommand[3]) {
+                strcat(passcode,"4");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '5' == userCommand[3]) {
+                strcat(passcode,"5");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '6' == userCommand[3]) {
+                strcat(passcode,"6");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '7' == userCommand[3]) {
+                strcat(passcode,"7");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '8' == userCommand[3]) {
+                strcat(passcode,"8");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '9' == userCommand[3]) {
+                strcat(passcode,"9");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '4' == userCommand[2] && '0' == userCommand[3]) {
+                strcat(passcode,"0");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '5' == userCommand[2] && '0' == userCommand[3]) {
+                strcat(passcode,"*");
+                isValid = 1;
+        }
+        else if ('1' == userCommand[1] && '5' == userCommand[2] && '1' == userCommand[3]) {
+                strcat(passcode,"#");
+                isValid = 1;
+        }
+        if(isValid){
+            str[0] = '\0';
+            for(i=0;i<=k;i++){
+                strcat(str,"*");
+            }
+        }
+        //sprintf(str, "%s", passcode);
+        display_text("000000", "FFFFFF", 6, str, 240, 80);
+        return isValid;
+}
+
+
+void display_time(unsigned char Seconds_l, unsigned char Minutes_l, unsigned char Hours_l, unsigned char AmPm, unsigned char Date_l, unsigned char Month_l, unsigned char Year_l) {
+        char *str;
+    sprintf(str, "%s %02bu, 20%02bu", monthOfYear[Month_l], Date_l, Year_l);
+    display_text("000000","FFFFFF",8,str, 240,100);
+    
+    sprintf(str, "%2bu:%02bu:%02bu %cM ", Hours_l, Minutes_l, Seconds_l, AmPm);
+    display_text("000000","FFFFFF",8,str, 400,100);
+}
+
+
+void set_Clock(void)
+{
+    //154 - previous, 155 - next, 156 - enter, 157 -> value - 1, 158 -> value + 1;
+    getClockData();
+    seconds_l = seconds;
+    minutes_l = minutes;
+    hours_l = hours;
+    amPm_l = amPm;
+    date_l = date;
+    month_l = month;
+    year_l = year;
+
+    
+    set = 0;
+    selection = 0;
+    
+    while (!set) {
+        display_text("000000","FFFFFF",8,setDateTime[selection], 400,100);
+        if (selection == 0) { //to set seconds in time
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase seconds
+                if (seconds_l == 59) {
+                    seconds_l = 0;
+                }
+                else {
+                    seconds_l += 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease seconds
+                if (seconds_l == 0) {
+                    seconds_l = 59;
+                }
+                else {
+                    seconds_l -= 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+        }
+        
+        else if (selection == 1) { //to set minutes
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase seconds
+                if (minutes_l == 59) {
+                    minutes_l = 0;
+                }
+                else {
+                    minutes_l += 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease seconds
+                if (minutes_l == 0) {
+                    minutes_l = 59;
+                }
+                else {
+                    minutes_l -= 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+        }
+        
+        else if (selection == 2) { //to set hours
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase hours
+                if (hours_l == 12) {
+                    hours_l = 1;
+                }
+                else {
+                    hours_l += 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease hours
+                if (hours_l == 0) {
+                    hours_l = 12;
+                }
+                else {
+                    hours_l -= 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l,  date_l, month_l, year_l);
+            }
+        }
+        
+        else if (selection == 3) { //to set Am/ Pm
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //changes AM / PM
+                if (amPm_l == 'P') {
+                    amPm_l = 'A';
+                }
+                else {
+                    amPm_l = 'P';
+                }
+               display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //changes AM / PM
+                if (amPm_l == 'P') {
+                    amPm_l = 'A';
+                }
+                else {
+                    amPm_l = 'P';
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+        }
+        
+        else if (selection == 4) { //to set date
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase date
+                if (date_l == 31) {
+                    date_l = 1;
+                }
+                else {
+                    date_l += 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l,  date_l, month_l, year_l);
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease date
+                if (date_l == 1) {
+                    date_l = 31;
+                }
+                else {
+                    date_l -= 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            }
+        }
+        
+        else if (selection == 5) { //to set month
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase month
+                if (month_l == 12) {
+                    month_l = 1;
+                }
+                else {
+                    month_l += 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l,    date_l, month_l, year_l);
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease month
+                if (month_l == 1) {
+                    month_l = 12;
+                }
+                else {
+                    month_l -= 1;
+                }
+                display_time(seconds_l, minutes_l, hours_l, amPm_l,    date_l, month_l, year_l);
+            }
+        }
+        
+        else if (selection == 6) { //to set year
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase year
+                year_l += 1;
+                display_time(seconds_l, minutes_l, hours_l, amPm_l,    date_l, month_l, year_l);
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease year
+                year_l -= 1;
+                display_time(seconds_l, minutes_l, hours_l, amPm_l,    date_l, month_l, year_l);
+            }
+        }
+        
+        
+        if ('1' == userCommand[1] && '5' == userCommand[2] && '4' == userCommand[3]) {
+            //previous in menu
+            if (selection == 0) {
+                selection = 6;
+            }
+            else {
+                selection -= 1;
+            }
+            
+        }
+        if ('1' == userCommand[1] && '5' == userCommand[2] && '5' == userCommand[3]) {
+            //next in menu
+            if (selection == 6) {
+                selection = 0;
+            }
+            else {
+                selection += 1;
+            }
+            
+        }
+        if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+            // store the values (Enter is pressed)
+            seconds = seconds_l;
+            minutes = minutes_l;
+            hours = hours_l;
+            amPm = amPm_l;
+            //day = day_l;
+            date = date_l;
+            month = month_l;
+            year = year_l;
+            set = 1;
+        }
+        
+    }
+    
+    setClock();                                                                            // Set real time clock
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -1156,81 +2048,74 @@ void main()
    while(1)
     {
         //scanUserInput();                                                        // Detect a string input from the touch screen
-        
-        #define change_state(state) \
-            current_page = state;   \
-            state_changed = 1
+
 
 
         switch(current_page) 
         {
             case (PAGE_SETTINGS):
             {
-								
+                                
                 if (state_changed) {
-										//send_macro(display_settings_new);
+                                        //send_macro(display_settings_new);
                     state_changed = 0;
-										
+                                        
                 }
 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-                    change_state(PAGE_SETTINGS);
+                    current_page = PAGE_SETTINGS;
+            state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-                    change_state(PAGE_MAIN);
+                    current_page = PAGE_MAIN;
+            state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-                    change_state(PAGE_SERVICE);
+                    current_page = PAGE_SERVICE;
+            state_changed = 1;
                 }
                 else {
                      for (k = 0; k < 4 ; ){
-												
-												while(tsCommandReceived == 0);
-												if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-														change_state(PAGE_SETTINGS);
-														continue;
-												}
-												else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-														change_state(PAGE_MAIN);
-														continue;
-												}
-												else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-														change_state(PAGE_SERVICE);
-														continue;
-												}
-												else if ('1' == userCommand[1] && '5' == userCommand[2] && '3' == userCommand[3]) {
-														if(strcmp(passcode,ACTUAL) == 0){
-																display_text("000000","FFFFFF",6,"OK!", 240,200);
-														}
-														else{
-																display_text("000000","FFFFFF",6,"INCORRECT!", 160,200);
-																k = 0;
-																sprintf(str,"%s","");
-																display_text("000000","FFFFFF",6,str, 240,40);
-														}
-																
-														continue;
-												}
-												else if ('1' == userCommand[1] && '5' == userCommand[2] && '2' == userCommand[3]) {
-														size_t len = strlen(passcode);
-														if(len > 0)
-															passcode[len-1]=0;
-												}
-												else if(k < 4){
-														if(handle_passcode(k))
-															k++;
-														
-												}
-												
-												
-												//tsCommandReceived  = 0;
-												
-											}
-									}
-								
+                                                
+            while(tsCommandReceived == 0);
+            if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+                            current_page = PAGE_SETTINGS;
+                    state_changed = 1;
+                        }
+                    else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+                            current_page = PAGE_MAIN;
+                    state_changed = 1;
+                        }
+                    else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+                            current_page = PAGE_SERVICE;
+                    state_changed = 1;
+                    }
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '3' == userCommand[3]) {
+                if(strcmp(passcode,ACTUAL) == 0){
+                    display_text("000000","FFFFFF",6,"OK!", 240,200);
+                }
+                else {
+                display_text("000000","FFFFFF",6,"INCORRECT!", 160,200);
+                k = 0;
+                sprintf(str,"%s","");
+                display_text("000000","FFFFFF",6,str, 240,40);
+                }
+                continue;
+            }
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '2' == userCommand[3]) {
+                size_t len = strlen(passcode);
+                if(len > 0) passcode[len-1]=0;
+                }
+            else if(k < 4) {
+                if(handle_passcode(k)) k++;
+            }           
+                                            //tsCommandReceived  = 0;
+            }
+            }
+                                
                 
-                break;
-							
+            break;
+                            
             }
             case (PAGE_CONFIG):
             {
@@ -1240,16 +2125,19 @@ void main()
                 }
 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-                    change_state(PAGE_SETTINGS);
+                    current_page = PAGE_SETTINGS;
+            state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-                    change_state(PAGE_MAIN);
+                    current_page = PAGE_MAIN;
+            state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-                    change_state(PAGE_SERVICE);
+                    current_page = PAGE_SERVICE;
+            state_changed = 1;
                 }
                 else {
-                    // NOOP
+                    set_Clock();
                 }
                 break;
             }
@@ -1261,13 +2149,16 @@ void main()
                 }
 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-                    change_state(PAGE_SETTINGS);
+                    current_page = PAGE_SETTINGS;
+            state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-                    change_state(PAGE_MAIN);
+                    current_page = PAGE_MAIN;
+            state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-                    change_state(PAGE_SERVICE);
+                    current_page = PAGE_SERVICE;
+            state_changed = 1;
                 }
                 else {
                     // NOOP
@@ -1277,38 +2168,41 @@ void main()
             default:            // no break
             case (PAGE_MAIN) :
             {
-                roomTemp = readOneByteFromSlave(ROOM_TEMP_1);
+                roomTemp1 = readOneByteFromSlave(ROOM_TEMP_1);
 
                 if (state_changed) {
                     state_changed = 0;
-                    sprintf(str, "%-3buC", roomTemp);
+                    sprintf(str, "%-3buC", roomTemp1);
                     display_text("000000", "FFFFFF", 8, str, 240, 110);
                 }
                 
-                if (tsCommandReceived || roomTemp != prev_temp) 
+                if (tsCommandReceived || roomTemp1 != prev_temp) 
                 {
-                    prev_temp = roomTemp;
+                    prev_temp = roomTemp1;
                     
                     if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
                         display_celsius = 1;
-                        sprintf(str, "%-3buC", roomTemp);
+                        sprintf(str, "%-3buC", roomTemp1);
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
                     }
                     else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
                         display_celsius = 0;
-                        roomTemp = (roomTemp * 9) / 5 + 32;
-                        sprintf(str, "%-3buF", roomTemp);
+                        roomTemp1 = (roomTemp1 * 9) / 5 + 32;
+                        sprintf(str, "%-3buF", roomTemp1);
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
                     }
                     else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
-                        change_state(PAGE_SETTINGS);
-                    }
-                    else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
-                        change_state(PAGE_MAIN);
-                    }
-                    else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
-                        change_state(PAGE_SERVICE);
-                    }
+                    current_page = PAGE_SETTINGS;
+            state_changed = 1;
+                }
+                else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+                    current_page = PAGE_MAIN;
+            state_changed = 1;
+                }
+                else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+                    current_page = PAGE_SERVICE;
+            state_changed = 1;
+                }
                     else {
                         // Noop
                     }
