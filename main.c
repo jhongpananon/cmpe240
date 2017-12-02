@@ -4,10 +4,8 @@
 //-------------------------------------------------------------------------------------------------------
 // Global Declarations
 //-------------------------------------------------------------------------------------------------------
+unsigned char tsByte;
 
-//edits - added new
-
-//Passcode
 int k = 0;
 char passcode[] = "";
 char *ACTUAL = "1457";
@@ -30,11 +28,6 @@ const char code *setDateTime[] =    {/*0*/  "SET SECONDS",
                                      /*4*/  "SET DATE", 
                                      /*5*/  "SET MONTH",
                                      /*6*/  "SET YEAR"};
-
-
-//original code's variables
-
-unsigned char tsByte;
 
 bit splashEnd = 0;
 bit screenReset = 0;
@@ -173,7 +166,6 @@ const char code * monthOfYear[] =   {/*0*/  "NON",
                                      /*11*/ "NOV",
                                      /*12*/ "DEC"};
 
-
 const char code * clockSetupMsg[] = {/*0*/  "SET DATE AND TIME      ",
                                     /*1*/   "WRITING DATA... WAIT!  ",
                                     /*2*/   "DATA SUCCESSFULLY SAVED",
@@ -304,6 +296,16 @@ void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
                         splashEnd = 0;                                          // End of splash screen NOT detected
                         screenReset = 0;                                    
                     }
+                }
+                else if(tsRxBuffer[0] == 'x')                                   // It is a command from touch screen controller
+                {                                                               // A command starts with '('
+                    for(i = 0; i < tsRxIn; i++)
+                    {
+                        userCommand[i] = tsRxBuffer[i];                         // Copy to command array for later evaluation
+                    }
+
+                    ackFromScreen = 0;                                          // This is a command, NOT an ACK
+                    tsCommandReceived = 1;                                      // Set flag when a complete command is received
                 }
                 else if(tsRxBuffer[0] == '(')                                   // It is a command from touch screen controller
                 {                                                               // A command starts with '('
@@ -1416,11 +1418,96 @@ void getClockData()
 // Parmeters: None
 // Function Description: This function sets date and time of the clock from the touch screen by pressing the up button
 //-------------------------------------------------------------------------------------------------------
-/*
 void moveDateTimeUp(void)
 {
+    char str[SPRINTF_SIZE];
+    
+    if(realTimeClockItems == MONTH_ADJUST)
+    {
+        adjustedMonth++;
+        monthUpdated = SET;
+
+        if(adjustedMonth > 12)
+        {
+            adjustedMonth = 1;                                                          // Roll over
+        }
+
+        sprintf(str, "%s ", monthOfYear[adjustedMonth]);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == DATE_ADJUST)
+    {
+        adjustedDate++;
+        dateUpdated = SET;
+
+        if(adjustedDate > 31)
+        {
+            adjustedDate = 1;                                                           // Roll over
+        }
+
+        sprintf(str, "%bu   ", adjustedDate);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == YEAR_ADJUST)
+    {
+        adjustedYear++;
+        yearUpdated = SET;
+
+        if(adjustedYear > 99)
+        {
+            adjustedYear = 99;
+        }
+
+        sprintf(str, "20%02bu", adjustedYear);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == HOUR_ADJUST)
+    {
+        adjustedHours++;
+        hoursUpdated = SET;
+
+        if(adjustedHours > 12)
+        {
+            adjustedHours = 1;                                                          // Roll over
+        }
+
+        sprintf(str, "%bu   ", adjustedHours);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == MINUTE_ADJUST)
+    {
+        adjustedMinutes++;
+        minutesUpdated = SET;
+
+        if(adjustedMinutes > 59)
+        {
+            adjustedMinutes = 0;
+        }
+
+        sprintf(str, "%bu   ", adjustedMinutes);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == AMPM_ADJUST)
+    {
+        if(adjustedAmPm == 'P')
+        {
+            adjustedAmPm = 'A';
+        }
+        else if(adjustedAmPm == 'A')
+        {
+            adjustedAmPm = 'P';
+        }
+        else
+        {}
+
+        amPmUpdated = SET;
+
+        sprintf(str, "%cM  ", adjustedAmPm);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else
+    {}
 }
-*/
 
 //-------------------------------------------------------------------------------------------------------
 // Function Name: moveDateTimeDown
@@ -1428,12 +1515,104 @@ void moveDateTimeUp(void)
 // Parmeters: None
 // Function Description: This function sets date and time of the clock from the touch screen by pressing the down button
 //-------------------------------------------------------------------------------------------------------
-/*
 void moveDateTimeDown(void)
 {
-    
+    char str[SPRINTF_SIZE];
+
+    if(realTimeClockItems == MONTH_ADJUST)
+    {
+        adjustedMonth--;
+        monthUpdated = SET;
+
+        if(adjustedMonth < 1)
+        {
+            adjustedMonth = 12;                                                         // Roll over to hour 12
+        }
+        sprintf(str, "%s ", monthOfYear[adjustedMonth]);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == DATE_ADJUST)
+    {
+        adjustedDate--;
+        dateUpdated = SET;
+
+        if(adjustedDate < 1)
+        {
+            adjustedDate = 31;                                                          // Roll over to day 31
+        }
+
+        sprintf(str, "%bu   ", adjustedDate);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == YEAR_ADJUST)
+    {
+        if(adjustedYear > 0)
+        {
+            adjustedYear--;                                                             // Check if it is greater than 0 before decrementing                                                
+        }                                                                               // to avoid a negative number
+        else
+        {
+            adjustedYear = 0;                                                           // Roll over to 99
+        }
+        
+        yearUpdated = SET;
+
+        sprintf(str, "20%02bu", adjustedYear);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == HOUR_ADJUST)
+    {
+        if(adjustedHours > 0)
+        {
+            adjustedHours--;                                                            // Check if it is greater than 0 before decrementing
+        }                                                                               // to avoid a negative number
+        else
+        {
+            adjustedHours = 12;
+        }
+
+        hoursUpdated = SET;
+
+        sprintf(str, "%bu   ", adjustedHours);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == MINUTE_ADJUST)
+    {
+        if(adjustedMinutes > 0)
+        {
+            adjustedMinutes--;                                                          // Check if it is greater than 0 before decrementing
+        }                                                                               // to avoid a negative number
+        else
+        {
+            adjustedMinutes = 59;
+        }
+
+        minutesUpdated = SET;
+
+        sprintf(str, "%bu   ", adjustedMinutes);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else if(realTimeClockItems == AMPM_ADJUST)
+    {
+        if(adjustedAmPm == 'P')
+        {
+            adjustedAmPm = 'A';
+        }
+        else if(adjustedAmPm == 'A')
+        {
+            adjustedAmPm = 'P';
+        }
+        else
+        {}
+
+        amPmUpdated = SET;
+
+        sprintf(str, "%cM  ", adjustedAmPm);
+        displayText(VALUE_DISPLAY_FG, VALUE_DISPLAY_BG, VALUE_DISPLAY_FONT, str, VALUE_DISPLAY_X, VALUE_DISPLAY_Y);
+    }
+    else
+    {}
 }
-*/
 
 //-------------------------------------------------------------------------------------------------------
 // Function Name: enterDateTime
@@ -1441,7 +1620,6 @@ void moveDateTimeDown(void)
 // Parmeters: None
 // Function Description: This function confirms the date or time set by the user on the touch screen
 //-------------------------------------------------------------------------------------------------------
-/*
 void enterDateTime(void)
 {
     char str[SPRINTF_SIZE];
@@ -1508,7 +1686,6 @@ void enterDateTime(void)
     else
     {}
 }
-*/
 
 //-------------------------------------------------------------------------------------------------------
 // Function Name: setClockOnScreen
@@ -1516,7 +1693,6 @@ void enterDateTime(void)
 // Parmeters: None
 // Function Description: This function sets the real time clock on the touch screen
 //-------------------------------------------------------------------------------------------------------
-/*
 void setClockOnScreen(void)
 {       
     unsigned char hoursAux;
@@ -1584,7 +1760,6 @@ void setClockOnScreen(void)
 
     //clockSetupDisplayRepeat = 0;                                                      // Display clock updates on screen                                                                      // System goes back to main page                    
 }
-*/
 
 //-------------------------------------------------------------------------------------------------------
 // Function Name: resetClock
@@ -1677,6 +1852,11 @@ void displayClock(void)
         }
     }*/
 }
+
+//-------------------------------------------------------------------------------------------------------
+// Main
+//-------------------------------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------------------------------
 // Utility functions by team 1 
@@ -2017,7 +2197,9 @@ void set_Clock(void)
 #define PAGE_SETTINGS        2
 #define PAGE_SERVICE         3
 #define PAGE_CONFIG          4
-int current_page;
+int current_page = PAGE_MAIN;
+int buffer[5];
+
 
 void main()
 {
@@ -2045,77 +2227,83 @@ void main()
     
     send_macro(display_temperature);
     
-   while(1)
+    // buffer[0] = userCommand[0];
+    // buffer[1] = userCommand[1];
+    // buffer[2] = userCommand[2];
+    // buffer[3] = userCommand[3];
+    // buffer[4] = '\0';
+
+    // display_text("000000", "FFFFFF", 8, buffer, 0, 0);
+
+    while(1)
     {
-        //scanUserInput();                                                        // Detect a string input from the touch screen
-
-
 
         switch(current_page) 
         {
             case (PAGE_SETTINGS):
             {
-                                
                 if (state_changed) {
-                                        //send_macro(display_settings_new);
                     state_changed = 0;
-                                        
                 }
 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     current_page = PAGE_SETTINGS;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
                     current_page = PAGE_MAIN;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
                     current_page = PAGE_SERVICE;
-            state_changed = 1;
+                    state_changed = 1;
                 }
-                else {
-                     for (k = 0; k < 4 ; ){
-                                                
-            while(tsCommandReceived == 0);
-            if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+                else 
+                {
+                    for (k = 0; k < 4 ; )
+                    {                      
+                        while(tsCommandReceived == 0);
+                        
+                        if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                             current_page = PAGE_SETTINGS;
-                    state_changed = 1;
+                            state_changed = 1;
                         }
-                    else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+                        else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
                             current_page = PAGE_MAIN;
-                    state_changed = 1;
+                            state_changed = 1;
                         }
-                    else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+                        else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
                             current_page = PAGE_SERVICE;
-                    state_changed = 1;
+                            state_changed = 1;
+                        }
+                        else if ('1' == userCommand[1] && '5' == userCommand[2] && '3' == userCommand[3]) 
+                        {
+                            if (strcmp(passcode,ACTUAL) == 0){
+                                display_text("000000","FFFFFF",6,"OK!", 240,200);
+                            }
+                            else {
+                                display_text("000000","FFFFFF",6,"INCORRECT!", 160,200);
+                                k = 0;
+                                sprintf(str,"%s","");
+                                display_text("000000","FFFFFF",6,str, 240,40);
+                            }
+                            continue;
+                        }
+                        else if ('1' == userCommand[1] && '5' == userCommand[2] && '2' == userCommand[3]) 
+                        {
+                            size_t len = strlen(passcode);
+                            if (len > 0) {
+                                passcode[len-1]=0;
+                            }
+                            else if (k < 4) {
+                                if(handle_passcode(k)) {
+                                    k++;
+                                }
+                            }
+                        }
                     }
-            else if ('1' == userCommand[1] && '5' == userCommand[2] && '3' == userCommand[3]) {
-                if(strcmp(passcode,ACTUAL) == 0){
-                    display_text("000000","FFFFFF",6,"OK!", 240,200);
                 }
-                else {
-                display_text("000000","FFFFFF",6,"INCORRECT!", 160,200);
-                k = 0;
-                sprintf(str,"%s","");
-                display_text("000000","FFFFFF",6,str, 240,40);
-                }
-                continue;
-            }
-            else if ('1' == userCommand[1] && '5' == userCommand[2] && '2' == userCommand[3]) {
-                size_t len = strlen(passcode);
-                if(len > 0) passcode[len-1]=0;
-                }
-            else if(k < 4) {
-                if(handle_passcode(k)) k++;
-            }           
-                                            //tsCommandReceived  = 0;
-            }
-            }
-                                
-                
-            break;
-                            
+                break;
             }
             case (PAGE_CONFIG):
             {
@@ -2126,15 +2314,15 @@ void main()
 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     current_page = PAGE_SETTINGS;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
                     current_page = PAGE_MAIN;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
                     current_page = PAGE_SERVICE;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else {
                     set_Clock();
@@ -2150,21 +2338,22 @@ void main()
 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     current_page = PAGE_SETTINGS;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
                     current_page = PAGE_MAIN;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
                     current_page = PAGE_SERVICE;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else {
                     // NOOP
                 }
                 break;
             }
+
             default:            // no break
             case (PAGE_MAIN) :
             {
@@ -2181,31 +2370,29 @@ void main()
                     prev_temp = roomTemp1;
                     
                     if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
-                        display_celsius = 1;
                         sprintf(str, "%-3buC", roomTemp1);
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
                     }
                     else if ('1' == userCommand[1] && '3' == userCommand[2] && '0' == userCommand[3]) {
-                        display_celsius = 0;
                         roomTemp1 = (roomTemp1 * 9) / 5 + 32;
                         sprintf(str, "%-3buF", roomTemp1);
                         display_text("000000", "FFFFFF", 8, str, 240, 110);
                     }
-                    else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
+                }
+                else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     current_page = PAGE_SETTINGS;
-            state_changed = 1;
+                    state_changed = 1;                    
                 }
                 else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
                     current_page = PAGE_MAIN;
-            state_changed = 1;
+                    state_changed = 1;
                 }
                 else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
                     current_page = PAGE_SERVICE;
-            state_changed = 1;
+                    state_changed = 1;
                 }
-                    else {
-                        // Noop
-                    }
+                else {
+                    // Noop
                 }
                 break;
             }
