@@ -1,8 +1,8 @@
 // 1
 #define display_settings_new
-//xi 5 0 0                      // Draw background image
-xc all                          // Clear buttons
 z                               // Clear screen
+xc all                          // Clear buttons
+xi 3 0 0                        // Draw background image
 w 10							// wait 10ms
 r 0 0 640 480 000000            // Draw background
 r 270 30 370 60 1 000000        // draw button display_temperature
@@ -39,9 +39,9 @@ xm 152 display_settings_new          // link macro display_service
 
 //2
 #define display_service
-// xi 2 0 0
-xc all
 z
+xc all
+xi 2 0 0
 w 10							// wait 10ms
 r 0 0 640 480 000000            // Draw background
 r 270 30 370 60 1 000000        // draw button display_temperature
@@ -57,9 +57,9 @@ xm 132 display_service          // link macro display_service
 
 //3
 #define display_temperature
-// xi 2 0 0
-xc all
 z
+xc all
+xi 2 0 0
 w 10							// wait 10ms
 r 0 0 640 480 000000            // Draw background
 r 270 30 370 60 1 000000        // draw button display_temperature
