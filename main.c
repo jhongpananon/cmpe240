@@ -1807,7 +1807,7 @@ unsigned int set_Clock(void)
 {
     //154 - previous, 155 - next, 156 - enter, 157 -> value - 1, 158 -> value + 1;
 		char *str;
-    unsigned int screen_index = PAGE_SETTINGS;
+    unsigned int screen_index = PAGE_CONFIG;
     getClockData();
     seconds_l = seconds;
     minutes_l = minutes;
@@ -1819,10 +1819,11 @@ unsigned int set_Clock(void)
     
     
     set = 0;
-    selection = 0;
-    
+    selection = 1;
+    //display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
     while (!set)
-    {
+    {		
+			
         display_text(SETTINGS_DATE_FG, SETTINGS_DATE_BG,SETTINGS_DATE_FONT,setDateTime[selection], 370,180); //menu display to set
         if (selection < 4) {
             sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
@@ -1833,7 +1834,7 @@ unsigned int set_Clock(void)
             displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 365, 250);
         }
         while(tsCommandReceived == 0); //wait till there is a new key pressed pressed
-        if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3])// upper arrow - increase value (158)
+        /*if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3])// upper arrow - increase value (158)
         {
             switch(selection)
             {
@@ -1931,7 +1932,7 @@ unsigned int set_Clock(void)
             } //switch ends
         } //if ends
         
-        else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3])// lower arrow - decrease value (157)
+        if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3])// lower arrow - decrease value (157)
         {
             switch(selection)
             {
@@ -2029,9 +2030,196 @@ unsigned int set_Clock(void)
                     break;
                 }
             }
+        } */
+				    if (selection == 0) { //to set seconds in time
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase seconds
+                if (seconds_l == 59) {
+                    seconds_l = 0;
+                }
+                else {
+                    seconds_l += 1;
+                }
+                
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease seconds
+                if (seconds_l == 0) {
+                    seconds_l = 59;
+                }
+                else {
+                    seconds_l -= 1;
+                }
+                
+            }
+						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+            displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
+                
         }
         
-        else if ('1' == userCommand[1] && '5' == userCommand[2] && '4' == userCommand[3]) {
+        else if (selection == 1) { //to set minutes
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase seconds
+                if (minutes_l == 59) {
+                    minutes_l = 0;
+                }
+                else {
+                    minutes_l += 1;
+                }
+                
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease seconds
+                if (minutes_l == 0) {
+                    minutes_l = 59;
+                }
+                else {
+                    minutes_l -= 1;
+                }
+                
+            }
+						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+            displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
+                
+        }
+        
+        else if (selection == 2) { //to set hours
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase hours
+                if (hours_l == 12) {
+                    hours_l = 1;
+                }
+                else {
+                    hours_l += 1;
+                }
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease hours
+                if (hours_l == 0) {
+                    hours_l = 12;
+                }
+                else {
+                    hours_l -= 1;
+                }
+                
+            }
+						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+            displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
+                
+        }
+        
+        else if (selection == 3) { //to set Am/ Pm
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //changes AM / PM
+                if (amPm_l == 'P') {
+                    amPm_l = 'A';
+                }
+                else {
+                    amPm_l = 'P';
+                }
+               
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //changes AM / PM
+                if (amPm_l == 'P') {
+                    amPm_l = 'A';
+                }
+                else {
+                    amPm_l = 'P';
+                }
+                
+            }
+						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+            displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
+                
+        }
+        
+        else if (selection == 4) { //to set date
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase date
+                if (date_l == 31) {
+                    date_l = 1;
+                }
+                else {
+                    date_l += 1;
+                }
+                
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease date
+                if (date_l == 1) {
+                    date_l = 31;
+                }
+                else {
+                    date_l -= 1;
+                }
+              sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month_l], date_l, year_l);
+              displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 365, 250);
+                      
+								
+            }
+        }
+        
+        else if (selection == 5) { //to set month
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase month
+                if (month_l == 12) {
+                    month_l = 1;
+                }
+                else {
+                    month_l += 1;
+                }
+                
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease month
+                if (month_l == 1) {
+                    month_l = 12;
+                }
+                else {
+                    month_l -= 1;
+                }
+                
+								
+            }
+						sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month_l], date_l, year_l);
+            displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 365, 250);
+                    
+        }
+        
+        else if (selection == 6) { //to set year
+            
+            if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
+                //increase year
+                year_l += 1;
+                
+							
+            }
+            
+            else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
+                //decrease year
+                year_l -= 1;
+                
+							
+            }
+						sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month_l], date_l, year_l);
+            displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 365, 250);
+                    
+        }
+        
+        if ('1' == userCommand[1] && '5' == userCommand[2] && '4' == userCommand[3]) {
             //previous in menu
             if (selection == 0) {
                 selection = 6;
@@ -2039,9 +2227,9 @@ unsigned int set_Clock(void)
             else {
                 selection -= 1;
             }
-            display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            //display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
         }
-        else if ('1' == userCommand[1] && '5' == userCommand[2] && '5' == userCommand[3]) {
+        if ('1' == userCommand[1] && '5' == userCommand[2] && '5' == userCommand[3]) {
             //next in menu
             if (selection == 6) {
                 selection = 0;
@@ -2049,9 +2237,9 @@ unsigned int set_Clock(void)
             else {
                 selection += 1;
             }
-            display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
+            //display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
         }
-        else if ('1' == userCommand[1] && '5' == userCommand[2] && '6' == userCommand[3]) {
+        if ('1' == userCommand[1] && '5' == userCommand[2] && '6' == userCommand[3]) {
             // store the values (Enter is pressed, 156)
             seconds = seconds_l;
             minutes = minutes_l;
@@ -2063,19 +2251,20 @@ unsigned int set_Clock(void)
             year = year_l;
             set = 1;
             setClock();                                                                            // Set real time clock
+					  screen_index = PAGE_MAIN;
             //enter directs to settings page where user has to enter password again
         }
         
-        else if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3])
+        if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3])
         {
             screen_index = PAGE_SETTINGS;
             set = 1;
         }
-        else if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
+        if ('1' == userCommand[1] && '2' == userCommand[2] && '8' == userCommand[3]) {
             screen_index = PAGE_MAIN;
             set = 1;
         }
-        else if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
+        if ('1' == userCommand[1] && '3' == userCommand[2] && '2' == userCommand[3]) {
             screen_index = PAGE_SERVICE;
             set = 1;
         }
@@ -2166,9 +2355,9 @@ void main()
                 
                 if (state_changed) {
 										  state_changed = 0;
-									send_macro(display_settings_new);
+											send_macro(display_settings_new);
                     //clear passcode
-                    passcode[0] = '\0';
+											passcode[0] = '\0';
                     
                   
                     
@@ -2213,7 +2402,7 @@ void main()
                                 //display_text("000000","FFFFFF",6,"OK!", 240,200);
                                 current_page = PAGE_CONFIG;
                                 state_changed = 1;
-                                send_macro(display_configuration);
+                         //       send_macro(display_configuration);
                             }
                             else {
                                 //display_text("000000","FFFFFF",6,"INCORRECT!", 160,200);
@@ -2244,7 +2433,8 @@ void main()
             {
                 if (state_changed) {
                     state_changed = 0;
-                    display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
+										send_macro(display_configuration);
+                    //display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
                 }
                 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
