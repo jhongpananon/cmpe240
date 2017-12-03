@@ -149,13 +149,34 @@ xi 4 310 121
 out "{cmpe}\r"                          //Indicate that splash screen is complete
 #end
 
-
-//5
 // 140 - 153 is used for keypad numbers in define hotspot "x ret_val x0 y0 x1 y1" command
 
 
+//5
 #define display_configuration
+z
+xc all
+//xi 5 0 0                         // display configuration screen
 
+//standard menu
+w 10                            // wait 10ms
+r 0 0 640 480 000000            // Draw background
+r 270 30 370 60 1 000000        // draw button display_temperature
+x 128 270 30 370 60             // draw macro box display_temperature
+xm 128 display_temperature      // link macro display_temperature
+r 394 30 481 60 1 000000        // draw button display_settings
+x 131 394 30 481 60             // draw macro box display_settings
+xm 131 display_settings_new         // link macro display_settings
+r 520 30 600 60 1 000000        // draw button display_service
+x 132 520 30 600 60             // draw macro box display_service
+xm 132 display_service          // link macro display_service
+
+x 154 280 174 315 205              //first triangle - previous menu
+x 155 560 174 590 205              // first inverted triangle - next menu
+x 158 280 240 315 270              // second triangle - (value + 1)
+x 157 560 243 592 272              // second inverted triangle - (value - 1)
+x 156 270 327 360 371              // Done button
+xm 156 display_settings_new        // link macro display_settings
 #end
 
 
