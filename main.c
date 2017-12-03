@@ -1721,8 +1721,8 @@ static void send_macro(const unsigned int macro_index)
 int handle_passcode(int k){
     int isValid = 0,i = 0;
     char str[SPRINTF_SIZE];
-    sprintf(str, "%s", "    ");
-    display_text("000000", "FFFFFF", 8, str, 240, 40);
+    sprintf(str, "%s", "     ");
+    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 240, 80);
     if(k == 0){
         passcode[0]='\0';
     }
@@ -1782,7 +1782,7 @@ int handle_passcode(int k){
         }
     }
     //sprintf(str, "%s", passcode);
-    display_text("000000", "FFFFFF", 6, str, 240, 80);
+    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 240, 80);
     return isValid;
 }
 
@@ -2414,6 +2414,8 @@ void main()
                                 //k = 0;
                                 //sprintf(str,"%s","");
                                 //display_text("000000","FFFFFF",6,str, 240,40);
+															sprintf(str, "%s", "ERROR");
+															displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 240, 80);
                                 k = 0;
                                 current_page = PAGE_SETTINGS;
                                 state_changed = 0;
