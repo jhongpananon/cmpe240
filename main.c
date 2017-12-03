@@ -1790,11 +1790,11 @@ int handle_passcode(int k){
 void display_time(unsigned char Seconds_l, unsigned char Minutes_l, unsigned char Hours_l, unsigned char AmPm, unsigned char Date_l, unsigned char Month_l, unsigned char Year_l) {
     char *str;
     sprintf(str, "%s %02bu, 20%02bu", monthOfYear[Month_l], Date_l, Year_l);
-    displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, SETTINGS_DATE_X, SETTINGS_DATE_Y);
-    monthDateYearUpdated = CLEAR;
+    displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 55, 190);
+    //monthDateYearUpdated = CLEAR;
     
     sprintf(str, "%2bu:%02bu:%02bu %cM ", Hours_l, Minutes_l, Seconds_l, AmPm);
-    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, SETTINGS_TIME_X, SETTINGS_TIME_Y);
+    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 55, 240);
     
 }
 
@@ -1821,7 +1821,9 @@ unsigned int set_Clock(void)
     set = 0;
     selection = 1;
     //display_time(seconds_l, minutes_l, hours_l, amPm_l, date_l, month_l, year_l);
-    while (!set)
+   
+		
+   while (!set)
     {		
 			
         display_text(SETTINGS_DATE_FG, SETTINGS_DATE_BG,SETTINGS_DATE_FONT,setDateTime[selection], 370,180); //menu display to set
@@ -2268,7 +2270,10 @@ unsigned int set_Clock(void)
             screen_index = PAGE_SERVICE;
             set = 1;
         }
-        
+         sprintf(str, "%2bu:%02bu:%02bu %cM ", hours, minutes, seconds, amPm);
+    display_text(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 55, 190);
+    sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month], date, year);
+    display_text(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 55, 240);
     } //end of while
     return screen_index;
 }
