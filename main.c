@@ -36,6 +36,7 @@ const char code *setDateTime[] = 	{/*0*/	"SET SECONDS",
 
 unsigned char tsByte;
 
+bit sliderCommandReceived = 0;
 bit splashEnd = 0;
 bit screenReset = 0;
 bit ackFromScreen = 0;
@@ -314,6 +315,15 @@ void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
                     
                     ackFromScreen = 0;                                          // This is a command, NOT an ACK
                     tsCommandReceived = 1;                                      // Set flag when a complete command is received
+                }
+                else if (tsRxBuffer[0] == 'l')
+                {
+                    for(i = 0; i < tsRxIn; i++)
+                    {
+                        userCommand[i] = tsRxBuffer[i];                         // Copy to command array for later evaluation
+                    }
+                    sliderCommandReceived = 1;
+
                 }
                 else if(tsRxBuffer[0] == '(') 									// It is a command from touch screen controller
                 {																// A command starts with '('
@@ -1692,6 +1702,12 @@ void displayClock(void)
 // Utility functions by team 1 
 //------------------------------------------------------------------------------------------------------
 
+typedef enum 
+{
+    SLIDER_VERTICAL = 0,
+    SLIDER_HORIZONTAL,
+} SLIDER_ORIENTATION_E;
+
 void display_text(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
 {
     char str[128] = { 0 };
@@ -1707,6 +1723,21 @@ void display_text(const char * fg, const char * bg, const unsigned char size, co
     sendCommand(str);
 }
 
+void display_time_settings_text(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
+{
+    char str[128] = { 0 };
+    
+    int i = 0;
+    while(i < 10000) i++;
+    
+    sprintf(str, "S %s %s\r", fg, bg);
+    sendCommand(str);
+    sprintf(str, "f %s\r", Font[size]);
+    sendCommand(str);
+    sprintf(str, "t \"%11s\" %u %u\r", message, x, y);
+    sendCommand(str);
+}
+
 static void send_macro(const unsigned int macro_index)
 {
     char str[8] = { 0 };
@@ -1715,6 +1746,30 @@ static void send_macro(const unsigned int macro_index)
     while(i < 10000) i++;
     
     sprintf(str, "m %u\r", macro_index);
+    sendCommand(str);
+}
+
+static void display_slider(const int idx, const int bg, const int x, const int y, const int slider, 
+                           const int offset, const SLIDER_ORIENTATION_E orientation, const int invert, const int high, const int low)
+{
+    char str[50] = { 0 };
+    sprintf(str, "sl %u %u %u %u %u %u %u %u 1 %u %u ", idx, bg, x, y, slider, offset, orientation, invert, high, low);
+    sendCommand(str);
+}
+
+static void set_brightness(const char * brightness)
+{
+    char str[10] = { 0 };
+
+    sprintf(str, "xbb %s\r", brightness);
+    sendCommand(str);
+}
+
+static void set_volume(const char * volume)
+{
+    char str[10] = { 0 };
+
+    sprintf(str, "bv %s\r", volume);
     sendCommand(str);
 }
 
@@ -1782,7 +1837,7 @@ int handle_passcode(int k){
         }
     }
     //sprintf(str, "%s", passcode);
-    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 240, 80);
+    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 280, 105);
     return isValid;
 }
 
@@ -1826,7 +1881,7 @@ unsigned int set_Clock(void)
    while (!set)
     {		
 			
-        display_text(SETTINGS_DATE_FG, SETTINGS_DATE_BG,SETTINGS_DATE_FONT,setDateTime[selection], 370,180); //menu display to set
+        display_time_settings_text(SETTINGS_DATE_FG, SETTINGS_DATE_BG,SETTINGS_DATE_FONT,setDateTime[selection], 370,180); //menu display to set
         if (selection < 4) {
             sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
             displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
@@ -2033,7 +2088,7 @@ unsigned int set_Clock(void)
                 }
             }
         } */
-				    if (selection == 0) { //to set seconds in time
+		if (selection == 0) { //to set seconds in time
             
             if ('1' == userCommand[1] && '5' == userCommand[2] && '8' == userCommand[3]) {
                 //increase seconds
@@ -2056,7 +2111,7 @@ unsigned int set_Clock(void)
                 }
                 
             }
-						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+			sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
             displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
                 
         }
@@ -2084,7 +2139,7 @@ unsigned int set_Clock(void)
                 }
                 
             }
-						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+			sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
             displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
                 
         }
@@ -2103,7 +2158,7 @@ unsigned int set_Clock(void)
             
             else if ('1' == userCommand[1] && '5' == userCommand[2] && '7' == userCommand[3]) {
                 //decrease hours
-                if (hours_l == 0) {
+                if (hours_l == 1) {
                     hours_l = 12;
                 }
                 else {
@@ -2111,7 +2166,7 @@ unsigned int set_Clock(void)
                 }
                 
             }
-						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+			sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
             displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
                 
         }
@@ -2139,7 +2194,7 @@ unsigned int set_Clock(void)
                 }
                 
             }
-						sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
+			sprintf(str, "%2bu:%02bu:%02bu %cM ", hours_l, minutes_l, seconds_l, amPm_l);
             displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 365, 250);
                 
         }
@@ -2196,7 +2251,7 @@ unsigned int set_Clock(void)
                 
 								
             }
-						sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month_l], date_l, year_l);
+			sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month_l], date_l, year_l);
             displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 365, 250);
                     
         }
@@ -2216,7 +2271,7 @@ unsigned int set_Clock(void)
                 
 							
             }
-						sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month_l], date_l, year_l);
+			sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month_l], date_l, year_l);
             displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 365, 250);
                     
         }
@@ -2270,7 +2325,7 @@ unsigned int set_Clock(void)
             screen_index = PAGE_SERVICE;
             set = 1;
         }
-         sprintf(str, "%2bu:%02bu:%02bu %cM ", hours, minutes, seconds, amPm);
+    sprintf(str, "%2bu:%02bu:%02bu %cM ", hours, minutes, seconds, amPm);
     display_text(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 55, 190);
     sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month], date, year);
     display_text(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 55, 240);
@@ -2285,6 +2340,7 @@ unsigned int set_Clock(void)
 
 #define PAGE_SETTINGS_SUCCESS 5
 int current_page = 1;
+int busyWait = 0;
 
 void main()
 {
@@ -2310,18 +2366,19 @@ void main()
     sprintf(str, "z\r"); //clear screen
     sendCommand(str); //clear screen
     send_macro(Splash); //startUp page
-    while(i < 600) { i++;
-		//sprintf(str,"%d", i);
-      //  display_text("000000","FFFFFF",6,str, 240,40);
-			if (i == 599){
-				sprintf(str,"%d", i);
-        display_text("000000","FFFFFF",6,str, 240,40);
-			}
-		} //wait for startup graphics to finish
-    i = 0;
+  //   while(i < 600) { i++;
+		// //sprintf(str,"%d", i);
+  //     //  display_text("000000","FFFFFF",6,str, 240,40);
+		// 	if (i == 599){
+		// 		sprintf(str,"%d", i);
+  //       display_text("000000","FFFFFF",6,str, 240,40);
+		// 	}
+		// } //wait for startup graphics to finish
+  //   i = 0;
     //state_changed = 1;
 		//current_page = PAGE_MAIN;
     
+    while(!splashEnd);
     while(1)
     {
         //scanUserInput();                                                        // Detect a string input from the touch screen
@@ -2359,10 +2416,10 @@ void main()
             {
                 
                 if (state_changed) {
-										  state_changed = 0;
-											send_macro(display_settings_new);
+					state_changed = 0;
+					send_macro(display_settings_new);
                     //clear passcode
-											passcode[0] = '\0';
+					passcode[0] = '\0';
                     
                   
                     
@@ -2410,12 +2467,8 @@ void main()
                          //       send_macro(display_configuration);
                             }
                             else {
-                                //display_text("000000","FFFFFF",6,"INCORRECT!", 160,200);
-                                //k = 0;
-                                //sprintf(str,"%s","");
-                                //display_text("000000","FFFFFF",6,str, 240,40);
-															sprintf(str, "%s", "ERROR");
-															displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 240, 80);
+								sprintf(str, "%s", "ERROR");
+								displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 280, 105);
                                 k = 0;
                                 current_page = PAGE_SETTINGS;
                                 state_changed = 0;
@@ -2425,6 +2478,7 @@ void main()
                         else if ('1' == userCommand[1] && '5' == userCommand[2] && '2' == userCommand[3]) {
                             size_t len = strlen(passcode);
                             if(len > 0) passcode[len-1]=0;
+                            // k = 0;
                             current_page = PAGE_SETTINGS;
                         }
                         else if(k < 4) {
@@ -2440,7 +2494,7 @@ void main()
             {
                 if (state_changed) {
                     state_changed = 0;
-										send_macro(display_configuration);
+                    send_macro(display_configuration);
                     //display_text("000000", "FFFFFF", 8, "cfg!", 240, 110);
                 }
                 
@@ -2464,11 +2518,12 @@ void main()
             }
             case (PAGE_SERVICE):
             {
-                display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
+                // display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
                 if (state_changed) {
                     state_changed = 0;
-                    display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
-										send_macro(display_service);
+                    // display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
+                    send_macro(display_service);
+                    display_slider(200, 7, 135, 275, 8, 50, 1, 0, 255, 1);
                 }
                 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
@@ -2486,6 +2541,48 @@ void main()
                 else {
                     // NOOP
                 }
+                if(sliderCommandReceived)
+                {
+                    if ('2' == userCommand[1] && '0' == userCommand[2] && '0' == userCommand[3])
+                    {
+                        int i = 0;
+                        char temp[4] = { '\0' };
+                        for(i = 0; i < 4; i++)
+                        {
+                            if(userCommand[5+i] != '\r')
+                            {
+                                temp[i] = userCommand[5+i];
+                            }
+                            else
+                            {
+                                temp[i] = '\0';
+                                break;
+                            }
+                        }
+                        temp[3] = '\0';
+                        set_brightness(temp);
+                    }
+
+                    else if ('2' == userCommand[1] && '0' == userCommand[2] && '1' == userCommand[3])
+                    {
+                        int i = 0;
+                        char temp[4] = { '\0' };
+                        for(i = 0; i < 4; i++)
+                        {
+                            if(userCommand[5+i] != '\r')
+                            {
+                                temp[i] = userCommand[5+i];
+                            }
+                            else
+                            {
+                                temp[i] = '\0';
+                                break;
+                            }
+                        }
+                        temp[3] = '\0';
+                        set_volume(temp);
+                    }
+                }
                 break;
             }
             default:            // no break
@@ -2495,11 +2592,16 @@ void main()
                 //display_text("000000", "FFFFFF", 8, str, 240, 110);
                 roomTemp1 = readOneByteFromSlave(ROOM_TEMP_1);
                 
+                
                 if (state_changed) {
                     state_changed = 0;
+                    while(busyWait < 250)
+                    {
+                        busyWait++;
+                    }
                     sprintf(str, "%-3buC", roomTemp1);
                     display_text("000000", "FFFFFF", 6, str, 240, 110);
-										send_macro(display_temperature); //main_page/ temperature display
+					send_macro(display_temperature); //main_page/ temperature display
                 }
                 
                 if (tsCommandReceived || roomTemp1 != prev_temp)

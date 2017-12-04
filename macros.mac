@@ -1,9 +1,9 @@
 // 1
 #define display_settings_new
-//xi 5 0 0                      // Draw background image
 xc all                          // Clear buttons
 z                               // Clear screen
-w 10							// wait 10ms
+xi 3 0 0                      // Draw background image
+w 10                            // wait 10ms
 r 0 0 640 480 000000            // Draw background
 r 270 30 370 60 1 000000        // draw button display_temperature
 x 128 270 30 370 60             // draw macro box display_temperature
@@ -15,6 +15,7 @@ r 520 30 600 60 1 000000        // draw button display_service
 x 132 520 30 600 60             // draw macro box display_service
 xm 132 display_service          // link macro display_service
 
+r 244 97 390 129 1 000000
 
 x 141 246 146 284 186             // Keypad number 1 - define hotspot
 x 142 299 146 338 186             // Keypad number 2 - define hotspot
@@ -33,15 +34,13 @@ x 153 330 388 396 418             // Keypad Enter - define hotspot
 
 xm 152 display_settings_new          // link macro display_service
 
-
-
 #end
 
 //2
 #define display_service
-// xi 2 0 0
 xc all
 z
+xi 9 0 0
 w 10							// wait 10ms
 r 0 0 640 480 000000            // Draw background
 r 270 30 370 60 1 000000        // draw button display_temperature
@@ -53,13 +52,16 @@ xm 131 display_settings_new         // link macro display_settings
 r 520 30 600 60 1 000000        // draw button display_service
 x 132 520 30 600 60             // draw macro box display_service
 xm 132 display_service          // link macro display_service
+
+sl 200 7 135 275 8 0 1 0 1 255 1    // Brightness slider
+sl 201 7 360 275 8 0 1 0 1 255 1    // volume slider
 #end
 
 //3
 #define display_temperature
-// xi 2 0 0
 xc all
 z
+xi 9 0 0
 w 10							// wait 10ms
 r 0 0 640 480 000000            // Draw background
 r 270 30 370 60 1 000000        // draw button display_temperature
@@ -153,9 +155,29 @@ out "{cmpe}\r"                          //Indicate that splash screen is complet
 //5
 // 140 - 153 is used for keypad numbers in define hotspot "x ret_val x0 y0 x1 y1" command
 
-
 #define display_configuration
+z
+xc all
+xi 5 0 0                         // display configuration screen
 
+//standard menu
+w 10                            // wait 10ms
+r 0 0 640 480 000000            // Draw background
+r 270 30 370 60 1 000000        // draw button display_temperature
+x 128 270 30 370 60             // draw macro box display_temperature
+xm 128 display_temperature      // link macro display_temperature
+r 394 30 481 60 1 000000        // draw button display_settings
+x 131 394 30 481 60             // draw macro box display_settings
+xm 131 display_settings_new         // link macro display_settings
+r 520 30 600 60 1 000000        // draw button display_service
+x 132 520 30 600 60             // draw macro box display_service
+xm 132 display_service          // link macro display_service
+
+x 154 280 174 315 205              //first triangle - previous menu
+x 155 560 174 590 205              // first inverted triangle - next menu
+x 158 280 240 315 270              // second triangle - (value + 1)
+x 157 560 243 592 272              // second inverted triangle - (value - 1)
+x 156 270 327 360 371              // Done button
+xm 156 display_settings_new        // link macro display_settings
 #end
-
 
