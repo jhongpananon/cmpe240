@@ -27,6 +27,10 @@ Project File Date:  12/03/2017
 <h2>Output:</h2>
 Rebuild target 'Target 1'
 compiling main.c...
+main.c(2565): warning C182: pointer to different objects
+main.c(2566): warning C182: pointer to different objects
+main.c(2568): warning C182: pointer to different objects
+main.c(2569): warning C182: pointer to different objects
 linking...
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_SHOWBITMAP?MAIN
@@ -41,11 +45,13 @@ linking...
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?DISPLAYCLOCK?MAIN
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_DISPLAY_SLIDER?MAIN
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_DISPLAY_TIME?MAIN
-Program Size: data=25.7 xdata=4209 code=13162
+Program Size: data=25.7 xdata=4306 code=14707
 creating hex file from ".\Objects\keil_project"...
-".\Objects\keil_project" - 0 Error(s), 7 Warning(s).
-Build Time Elapsed:  00:00:01
+".\Objects\keil_project" - 0 Error(s), 12 Warning(s).
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
 </html>

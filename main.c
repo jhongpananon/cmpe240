@@ -322,6 +322,7 @@ void uart0Interrupt(void) interrupt INTERRUPT_UART_0 using 2
                     {
                         userCommand[i] = tsRxBuffer[i];                         // Copy to command array for later evaluation
                     }
+                    userCommand [i] = '\0';
                     sliderCommandReceived = 1;
 
                 }
@@ -439,7 +440,7 @@ void sendCommand(const char * s)
 }
 
 //-------------------------------------------------------------------------------------------------------
-// Function Name: displayText
+// Function Name: 
 // Return Value: None 
 // Parmeters: fg, bg, size, message, x, y
 // Function Description: This function displays a text on the touch screen
@@ -1723,6 +1724,21 @@ void display_text(const char * fg, const char * bg, const unsigned char size, co
     sendCommand(str);
 }
 
+void display_test_pad_3(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
+{
+    char str[128] = { 0 };
+    
+    int i = 0;
+    while(i < 10000) i++;
+    
+    sprintf(str, "S %s %s\r", fg, bg);
+    sendCommand(str);
+    sprintf(str, "f %s\r", Font[size]);
+    sendCommand(str);
+    sprintf(str, "t \"%3s\" %u %u\r", message, x, y);
+    sendCommand(str);
+}
+
 void display_time_settings_text(const char * fg, const char * bg, const unsigned char size, const char * message, const int x, const int y)
 {
     char str[128] = { 0 };
@@ -1753,7 +1769,7 @@ static void display_slider(const int idx, const int bg, const int x, const int y
                            const int offset, const SLIDER_ORIENTATION_E orientation, const int invert, const int high, const int low)
 {
     char str[50] = { 0 };
-    sprintf(str, "sl %u %u %u %u %u %u %u %u 1 %u %u ", idx, bg, x, y, slider, offset, orientation, invert, high, low);
+    sprintf(str, "sl %u %u %u %u %u %u %u %u 1 %u %u", idx, bg, x, y, slider, offset, orientation, invert, high, low);
     sendCommand(str);
 }
 
@@ -1762,6 +1778,7 @@ static void set_brightness(const char * brightness)
     char str[10] = { 0 };
 
     sprintf(str, "xbb %s\r", brightness);
+    // display_text("000000", "FFFFFF", 6, str, 0, 0);
     sendCommand(str);
 }
 
@@ -1770,6 +1787,23 @@ static void set_volume(const char * volume)
     char str[10] = { 0 };
 
     sprintf(str, "bv %s\r", volume);
+    // display_text("000000", "FFFFFF", 6, str, 0, 0);
+    sendCommand(str);
+}
+
+static void set_slider(const int slider, const int value)
+{
+    char str[10] = { 0 };
+
+    sprintf(str, "sv %u %u\r", slider, value);
+    sendCommand(str);
+}
+
+static void draw_rectangle(const int x0, const int y0, const int x1, const int y1, const int fill)
+{
+    char str [50]= { 0 };
+
+    sprintf(str, "r %u %u %u %u %u 000000\r", x0, y0, x1, y1, fill);
     sendCommand(str);
 }
 
@@ -1777,7 +1811,7 @@ int handle_passcode(int k){
     int isValid = 0,i = 0;
     char str[SPRINTF_SIZE];
     sprintf(str, "%s", "     ");
-    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 240, 80);
+    // displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 240, 80);
     if(k == 0){
         passcode[0]='\0';
     }
@@ -1837,7 +1871,7 @@ int handle_passcode(int k){
         }
     }
     //sprintf(str, "%s", passcode);
-    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 280, 105);
+    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 295, 105);
     return isValid;
 }
 
@@ -2340,7 +2374,7 @@ unsigned int set_Clock(void)
 
 #define PAGE_SETTINGS_SUCCESS 5
 int current_page = 1;
-int busyWait = 0;
+volatile int busyWait = 0;
 
 void main()
 {
@@ -2350,6 +2384,8 @@ void main()
     int display_celsius = 0;
     int state_changed = 1;
     char str[SPRINTF_SIZE];
+    int brightness = 0;
+    int volume = 0;
     
     disableWatchdog();
     systemClockInit();
@@ -2370,6 +2406,7 @@ void main()
 		// //sprintf(str,"%d", i);
   //     //  display_text("000000","FFFFFF",6,str, 240,40);
 		// 	if (i == 599){
+
 		// 		sprintf(str,"%d", i);
   //       display_text("000000","FFFFFF",6,str, 240,40);
 		// 	}
@@ -2420,8 +2457,8 @@ void main()
 					send_macro(display_settings_new);
                     //clear passcode
 					passcode[0] = '\0';
-                    
-                  
+                    draw_rectangle(244, 97, 390, 129, 1);
+                    display_text("000000", "FFFFFF", 4, "Maintenance", 0, 30);
                     
                 }
                 
@@ -2520,10 +2557,19 @@ void main()
             {
                 // display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
                 if (state_changed) {
+                    char * tempString[10];
                     state_changed = 0;
-                    // display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
                     send_macro(display_service);
-                    display_slider(200, 7, 135, 275, 8, 50, 1, 0, 255, 1);
+                    display_text("000000", "FFFFFF", 4, "Config", 0, 30);
+                    display_text("000000", "FFFFFF", 3, "Brightness: ", 135, 225);
+                    sprintf(tempString, "%u", brightness);
+                    display_text("000000", "FFFFFF", 3, tempString, 285, 225);
+                    display_text("000000", "FFFFFF", 3, "Volume: ", 360, 225);
+                    sprintf(tempString, "%u", volume);
+                    display_text("000000", "FFFFFF", 3, tempString, 455, 225);
+
+                    set_slider(200, brightness);
+                    set_slider(201, volume);
                 }
                 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
@@ -2546,8 +2592,9 @@ void main()
                     if ('2' == userCommand[1] && '0' == userCommand[2] && '0' == userCommand[3])
                     {
                         int i = 0;
-                        char temp[4] = { '\0' };
-                        for(i = 0; i < 4; i++)
+                        char temp[4] = { 0 };
+                        
+                        for(i = 0; i < 3; i++)
                         {
                             if(userCommand[5+i] != '\r')
                             {
@@ -2555,19 +2602,21 @@ void main()
                             }
                             else
                             {
-                                temp[i] = '\0';
+                                temp[i] = '\r';
                                 break;
                             }
                         }
                         temp[3] = '\0';
+                        brightness = atoi(temp);
+                        display_test_pad_3("000000", "FFFFFF", 3, temp, 285, 225);
                         set_brightness(temp);
                     }
 
                     else if ('2' == userCommand[1] && '0' == userCommand[2] && '1' == userCommand[3])
                     {
                         int i = 0;
-                        char temp[4] = { '\0' };
-                        for(i = 0; i < 4; i++)
+                        char temp[4] = { 0 };
+                        for(i = 0; i < 3; i++)
                         {
                             if(userCommand[5+i] != '\r')
                             {
@@ -2575,13 +2624,16 @@ void main()
                             }
                             else
                             {
-                                temp[i] = '\0';
+                                temp[i] = '\r';
                                 break;
                             }
                         }
                         temp[3] = '\0';
+                        volume = atoi(temp);
+                        display_test_pad_3("000000", "FFFFFF", 3, temp, 455, 225);
                         set_volume(temp);
                     }
+                    sliderCommandReceived = 0;
                 }
                 break;
             }
@@ -2595,13 +2647,14 @@ void main()
                 
                 if (state_changed) {
                     state_changed = 0;
-                    while(busyWait < 250)
+                    while(busyWait < 5000)
                     {
                         busyWait++;
                     }
                     sprintf(str, "%-3buC", roomTemp1);
-                    display_text("000000", "FFFFFF", 6, str, 240, 110);
 					send_macro(display_temperature); //main_page/ temperature display
+                    display_text("000000", "FFFFFF", 4, "Temperature", 0, 30);
+                    display_text("000000", "FFFFFF", 6, str, 240, 110);
                 }
                 
                 if (tsCommandReceived || roomTemp1 != prev_temp)
