@@ -2386,6 +2386,8 @@ void main()
     char str[SPRINTF_SIZE];
     int brightness = 0;
     int volume = 0;
+    char tempStr[10] = {0};
+    int prevSeconds = 0;
     
     disableWatchdog();
     systemClockInit();
@@ -2416,8 +2418,10 @@ void main()
 		//current_page = PAGE_MAIN;
     
     while(!splashEnd);
+
     while(1)
     {
+        // getClock();
         //scanUserInput();                                                        // Detect a string input from the touch screen
         
         
@@ -2430,6 +2434,13 @@ void main()
                 if(state_changed)
 								{
                     state_changed = 0;
+
+                    sprintf(tempStr, "Temp");
+                    display_text("FFFFFF", "000000", 2, tempStr, 270, 30);
+                    sprintf(tempStr, "Service");
+                    display_text("FFFFFF", "000000", 2, tempStr, 394, 30);
+                    sprintf(tempStr, "Config");
+                    display_text("FFFFFF", "000000", 2, tempStr, 520, 30);
 									}
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
                     current_page = PAGE_SETTINGS;
@@ -2459,6 +2470,13 @@ void main()
 					passcode[0] = '\0';
                     draw_rectangle(244, 97, 390, 129, 1);
                     display_text("000000", "FFFFFF", 4, "Maintenance", 0, 30);
+
+                    sprintf(tempStr, "Temp");
+                    display_text("FFFFFF", "000000", 2, tempStr, 270, 30);
+                    sprintf(tempStr, "Service");
+                    display_text("FFFFFF", "000000", 2, tempStr, 394, 30);
+                    sprintf(tempStr, "Config");
+                    display_text("FFFFFF", "000000", 2, tempStr, 520, 30);
                     
                 }
                 
@@ -2557,7 +2575,7 @@ void main()
             {
                 // display_text("000000", "FFFFFF", 8, "svc!", 240, 110);
                 if (state_changed) {
-                    char * tempString[10];
+                    char tempString[10];
                     state_changed = 0;
                     send_macro(display_service);
                     display_text("000000", "FFFFFF", 4, "Config", 0, 30);
@@ -2570,6 +2588,13 @@ void main()
 
                     set_slider(200, brightness);
                     set_slider(201, volume);
+
+                    sprintf(tempStr, "Temp");
+                    display_text("FFFFFF", "000000", 2, tempStr, 270, 30);
+                    sprintf(tempStr, "Service");
+                    display_text("FFFFFF", "000000", 2, tempStr, 394, 30);
+                    sprintf(tempStr, "Config");
+                    display_text("FFFFFF", "000000", 2, tempStr, 520, 30);
                 }
                 
                 if ('1' == userCommand[1] && '3' == userCommand[2] && '1' == userCommand[3]) {
@@ -2655,11 +2680,34 @@ void main()
 					send_macro(display_temperature); //main_page/ temperature display
                     display_text("000000", "FFFFFF", 4, "Temperature", 0, 30);
                     display_text("000000", "FFFFFF", 6, str, 240, 110);
+
+                    sprintf(tempStr, "Temp");
+                    display_text("FFFFFF", "000000", 2, tempStr, 270, 30);
+                    sprintf(tempStr, "Service");
+                    display_text("FFFFFF", "000000", 2, tempStr, 394, 30);
+                    sprintf(tempStr, "Config");
+                    display_text("FFFFFF", "000000", 2, tempStr, 520, 30);
+                    
+                    sprintf(str, "%2bu:%02bu:%02bu %cM ", hours, minutes, seconds, amPm);
+                    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 230, 180);
+                    sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month], date, year);
+                    displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 230, 230);
+
+                    display_text("FFFFFF", "000000", 7, "C", 165, 350);
+                    display_text("FFFFFF", "000000", 7, "F", 445, 350);
                 }
-                
-                if (tsCommandReceived || roomTemp1 != prev_temp)
+
+                getClockData();
+
+                if (tsCommandReceived || roomTemp1 != prev_temp || (seconds != prevSeconds))
                 {
                     prev_temp = roomTemp1;
+                    prevSeconds = seconds;
+
+                    sprintf(str, "%2bu:%02bu:%02bu %cM ", hours, minutes, seconds, amPm);
+                    displayText(SETTINGS_TIME_FG, SETTINGS_TIME_BG, SETTINGS_TIME_FONT, str, 230, 180);
+                    sprintf(str, "%s %02bu, 20%02bu", monthOfYear[month], date, year);
+                    displayText(SETTINGS_DATE_FG, SETTINGS_DATE_BG, SETTINGS_DATE_FONT, str, 230, 230);
                     
                     if ('1' == userCommand[1] && '2' == userCommand[2] && '9' == userCommand[3]) {
                         display_celsius = 1;
